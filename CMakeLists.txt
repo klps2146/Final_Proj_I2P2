@@ -65,6 +65,9 @@ add_executable(2025_I2P2_TowerDefense
     Scene/SettingsScene.hpp
     Scene/ScoreboardScene.cpp
     Scene/ScoreboardScene.hpp
+
+    Character/Character.cpp
+    Character/Character.hpp
     
     Scene/LoseScene.cpp
     Scene/LoseScene.hpp

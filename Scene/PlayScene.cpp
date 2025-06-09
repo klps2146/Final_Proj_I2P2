@@ -14,6 +14,8 @@
 #include "Enemy/GodEnemy.hpp"
 #include "Turret/CoolTurret.hpp"
 #include "Tool/ShovelTool.hpp"
+#include "Character/Character.hpp"
+#include "Engine/IScene.hpp"
 //
 #include "Enemy/SoldierEnemy.hpp"
 #include "Enemy/TankEnemy.hpp"
@@ -74,6 +76,14 @@ void PlayScene::Initialize() {
     lives = 10;
     money = 666;
     SpeedMult = 1;
+
+    //// chracter
+    character = new Engine::Character("character/charcc.png", 500, 500, 60, 60);
+    AddNewControlObject(character);
+    std::cout << "Added character to PlayScene";
+    character->Draw();
+
+
     // Add groups from bottom to top.
     AddNewObject(TileMapGroup = new Group());
     AddNewObject(GroundEffectGroup = new Group());
@@ -211,6 +221,8 @@ void PlayScene::Update(float deltaTime) {
 }
 void PlayScene::Draw() const {
     IScene::Draw();
+    character->Draw();
+
     if (DebugMode) {
         // Draw reverse BFS distance on all reachable blocks.
         for (int i = 0; i < MapHeight; i++) {

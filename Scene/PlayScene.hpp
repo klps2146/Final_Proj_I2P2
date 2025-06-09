@@ -7,6 +7,7 @@
 #include <vector>
 #include <queue>
 
+#include "Character/Character.hpp"
 #include "Engine/IScene.hpp"
 #include "Engine/Point.hpp"
 
@@ -50,6 +51,7 @@ public:
     Engine::Label* player_level_l;
     Engine::Label* player_skill_point_l;
 
+    Engine::Character* character;
 
     void buff_adder(int state);
 

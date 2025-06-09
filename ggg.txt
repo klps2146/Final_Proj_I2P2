@@ -3,10 +3,11 @@ git init (一次)
 
 git add .
 git commit -m "first commit"
-git remote add origin https://github.com/klps2146/I2P_2_MiniProj2.git 
+git remote add origin https://github.com/klps2146/Final_Proj_I2P2.git
 git push -u origin main
 
-
+編輯前最好
+git pull origin main
 
 更新時：
 git add .
