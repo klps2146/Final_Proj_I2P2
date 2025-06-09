@@ -10,7 +10,9 @@ namespace Engine {
         : Sprite(img, x, y, w, h, anchorX, anchorY, 0, 0, 0, 255, 255, 255, 255),
           speed(speed), direction(0, 0), isMoving(false) {
         this->CollisionRadius = collisionRadius;
-        std::cout << "Created Character at (" << x << ", " << y << ") with speed " << speed;
+        std::cout << "Created Character at (" << x << ", " << y << ") with speed " << speed << std::endl;
+        SetSpriteSource(0, 0, 96, 96);
+        std::cout << ">>>>>>>>Bitmap width: " << GetBitmapWidth() << ", height: " << GetBitmapHeight() << std::endl;
     }
 
     void Character::OnKeyDown(int keyCode) {
@@ -72,6 +74,19 @@ namespace Engine {
         // Update velocity based on direction and speed
         if (isMoving) {
             Velocity = direction * speed;
+            
+            SetSpriteSource(96, 0, 96, 96);  
+            // std::cout << "MOV " << SourceX
+            //                     << " " <<SourceY
+            //                     << " " <<SourceW
+            //                     << " " <<SourceH << std::endl;
+        }
+        else{
+            SetSpriteSource(0, 0, 96, 96);
+            // std::cout << "static " << SourceX
+            //                     << " " <<SourceY
+            //                     << " " <<SourceW
+            //                     << " " <<SourceH << std::endl;
         }
         // Update position using Sprite's Update (Position += Velocity * deltaTime)
         Sprite::Update(deltaTime);
@@ -81,4 +96,5 @@ namespace Engine {
         Position.x = std::max(CollisionRadius, std::min(screenSize.x - CollisionRadius, Position.x));
         Position.y = std::max(CollisionRadius, std::min(screenSize.y - CollisionRadius, Position.y));
     }
+    
 }

@@ -8,6 +8,8 @@ private:
     Sprite head;
     float targetRotation;
 
+    int tick_cnt;
+
 public:
     TankEnemy(int x, int y);
     void Draw() const override;

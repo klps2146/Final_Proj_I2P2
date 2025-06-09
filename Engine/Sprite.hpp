@@ -8,18 +8,25 @@
 
 namespace Engine {
     /// <summary>
-    /// Image that supports rotation, velocity, tint, and collision radius.
+    /// Image that supports rotation, velocity, tint, sprite sheet cutting, and collision radius.
     /// </summary>
     class Sprite : public Image {
     public:
         // Rotation angle in radians.
         float Rotation;
-        // Pixel in seconds.
+        // Pixel per second.
         Point Velocity;
         // Color tint.
         ALLEGRO_COLOR Tint;
         // Assume a circle is a good approximation of the sprite's boundary.
         float CollisionRadius = 0;
+
+        /// <summary>
+        /// Optional source region for sprite sheet cutting.
+        /// If SourceW and SourceH <= 0, it uses the whole image.
+        /// </summary>
+        float SourceX = 0, SourceY = 0, SourceW = -1, SourceH = -1;
+
         /// <summary>
         /// Construct a sprite object.
         /// </summary>
@@ -39,17 +46,22 @@ namespace Engine {
         /// <param name="a">Color tint alpha value.</param>
         explicit Sprite(std::string img, float x, float y, float w = 0, float h = 0, float anchorX = 0.5f, float anchorY = 0.5f,
                         float rotation = 0, float vx = 0, float vy = 0, unsigned char r = 255, unsigned char g = 255, unsigned char b = 255, unsigned char a = 255);
+
         /// <summary>
         /// Draw to window display.
-        /// This is called when the game should redraw the window.
         /// </summary>
         void Draw() const override;
+
         /// <summary>
-        /// Run game logic such as updating the world, checking for collision, and so on.
-        /// This is called when the game should update its logic, usually 'fps' times per second.
+        /// Run game logic such as updating position.
         /// </summary>
-        /// <param name="deltaTime">Time elapsed since last update, can be used to calculate value changes.</param>
         void Update(float deltaTime) override;
+
+        /// <summary>
+        /// Set the portion of the image to draw, used for sprite sheet cutting.
+        /// </summary>
+        void SetSpriteSource(float sx, float sy, float sw, float sh);
+        void SetSize(float w, float h);
     };
 }
 #endif   // SPRITE_HPP

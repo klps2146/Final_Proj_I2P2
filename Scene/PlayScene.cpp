@@ -78,11 +78,10 @@ void PlayScene::Initialize() {
     SpeedMult = 1;
 
     //// chracter
-    character = new Engine::Character("character/charcc.png", 500, 500, 60, 60);
+    character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 200, 32);
+    character->SetSpriteSource(0, 0, 96, 96);
+    character->SetSize(96, 96); // real size
     AddNewControlObject(character);
-    std::cout << "Added character to PlayScene";
-    character->Draw();
-
 
     // Add groups from bottom to top.
     AddNewObject(TileMapGroup = new Group());

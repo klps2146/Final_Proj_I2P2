@@ -22,9 +22,13 @@ namespace Engine {
 class PlayScene final : public Engine::IScene {
 public: //// new 本來是 privte
     enum TileType {
+        TILE_OCCUPIED,
         TILE_DIRT,
         TILE_FLOOR,
-        TILE_OCCUPIED,
+        TILE_WALL,
+        TILE_ROCK,
+        TILE_BUSH,
+        TILE_WATER,
     };
     ALLEGRO_SAMPLE_ID bgmId;
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> deathBGMInstance;

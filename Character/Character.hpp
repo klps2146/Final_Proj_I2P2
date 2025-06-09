@@ -13,6 +13,8 @@ namespace Engine {
         // Flag to track if the character is moving
         bool isMoving;
 
+        int tick = 0;
+
     public:
         // Constructor
         Character(std::string img, float x, float y, float w = 0, float h = 0,
