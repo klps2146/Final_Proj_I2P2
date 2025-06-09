@@ -71,7 +71,8 @@ void StageSelectScene::BackOnClick(int stage) {
 }
 void StageSelectScene::PlayOnClick(int stage) {
     PlayScene *scene = dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetScene("play"));
-    scene->MapId = stage;
+    //scene->MapId = stage;
+    //scene->SetMapId(stage);
     Engine::GameEngine::GetInstance().ChangeScene("play");
 }
 void StageSelectScene::ScoreboardOnClick() {
