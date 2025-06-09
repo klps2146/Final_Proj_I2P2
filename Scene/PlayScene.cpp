@@ -608,7 +608,7 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
     std::queue<Engine::Point> que;
     // Push end point.
     // BFS from end point.
-    if (mapState[MapHeight - 1][MapWidth - 1] != TILE_GRASS)
+    if (mapState[MapHeight - 1][MapWidth - 1] != TILE_WATER)
         return map;
     que.push(Engine::Point(MapWidth - 1, MapHeight - 1));
     map[MapHeight - 1][MapWidth - 1] = 0;
