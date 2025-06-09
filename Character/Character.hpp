@@ -3,7 +3,10 @@
 #include "Engine/Sprite.hpp"
 #include "Engine/IControl.hpp"
 
+class PlayScene;
+
 namespace Engine {
+    
     class Character : public Sprite, public IControl {
     private:
         // Movement speed in pixels per second
@@ -16,6 +19,7 @@ namespace Engine {
         int tick = 0;
 
     public:
+        PlayScene *getPlayScene();
         // Constructor
         Character(std::string img, float x, float y, float w = 0, float h = 0,
                  float anchorX = 0.5f, float anchorY = 0.5f, float speed = 200.0f,
