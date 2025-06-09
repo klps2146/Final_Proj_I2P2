@@ -417,6 +417,7 @@ void PlayScene::ReadMap() {
             case '0': mapData.push_back(0); break;
             case '1': mapData.push_back(1); break;
             case '2': mapData.push_back(2); break;
+            case '3': mapData.push_back(3); break;
             case '\n':
             case '\r':
                 if (static_cast<int>(mapData.size()) / MapWidth != 0)
@@ -448,6 +449,11 @@ void PlayScene::ReadMap() {
                 mapState[i][j]=TILE_ROCK;
                 TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
                 TileMapGroup->AddNewObject(new Engine::Image("play/rock.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            }
+            else if (num==3){
+                mapState[i][j]=TILE_BRIDGE;
+                TileMapGroup->AddNewObject(new Engine::Image("play/water.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                TileMapGroup->AddNewObject(new Engine::Image("play/bridge.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
             }
         }
     }
@@ -626,7 +632,7 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
             int nx = p.x + dx[i];
             int ny = p.y + dy[i];
             if (nx < 0 || nx >= MapWidth || ny < 0 || ny >= MapHeight) continue;
-            if (mapState[ny][nx] == TILE_WATER && map[ny][nx] == -1){
+            if ((mapState[ny][nx] == TILE_WATER||mapState[ny][nx] == TILE_BRIDGE) && map[ny][nx] == -1){
                 map[ny][nx] = map[p.y][p.x] + 1; // 下一格的距離是上一格+1
                 que.push(Engine::Point(nx, ny)); // 這次(下次上一格)的位置 
             }
