@@ -25,7 +25,12 @@ public: //// new 本來是 privte
         TILE_WATER,
         TILE_GRASS,
         TILE_ROCK,
+<<<<<<< HEAD
         TILE_OCCUPIED
+=======
+        TILE_OCCUPIED,
+        TILE_BRIDGE,
+>>>>>>> 355c22250c1faa69e9be410eee38469ffd593de0
     };
     ALLEGRO_SAMPLE_ID bgmId;
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> deathBGMInstance;
