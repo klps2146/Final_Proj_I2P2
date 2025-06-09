@@ -30,7 +30,7 @@ void ShovelTool::OnClick(int x, int y){
             std::cout << "CLICK TURRET: " << tx << " " << ty << std::endl; 
             scene->EarnMoney(turret->GetPrice() / 4);
             scene->TowerGroup->RemoveObject(obj->GetObjectIterator());
-            scene->mapState[y][x] = PlayScene::TileType::TILE_FLOOR;
+            scene->mapState[y][x] = PlayScene::TileType::TILE_GRASS;
             return;
         }
     }

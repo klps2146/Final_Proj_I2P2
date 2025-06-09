@@ -410,12 +410,13 @@ void PlayScene::ReadMap() {
     std::string filename = std::string("Resource/map") + std::to_string(MapId) + ".txt";
     // Read map file.
     char c;
-    std::vector<bool> mapData;
+    std::vector<int> mapData;
     std::ifstream fin(filename);
     while (fin >> c) {
         switch (c) {
-            case '0': mapData.push_back(false); break;
-            case '1': mapData.push_back(true); break;
+            case '0': mapData.push_back(0); break;
+            case '1': mapData.push_back(1); break;
+            case '2': mapData.push_back(2); break;
             case '\n':
             case '\r':
                 if (static_cast<int>(mapData.size()) / MapWidth != 0)
@@ -433,11 +434,21 @@ void PlayScene::ReadMap() {
     for (int i = 0; i < MapHeight; i++) {
         for (int j = 0; j < MapWidth; j++) {
             const int num = mapData[i * MapWidth + j];
-            mapState[i][j] = num ? TILE_FLOOR : TILE_DIRT;
-            if (num)
-                TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-            else
-                TileMapGroup->AddNewObject(new Engine::Image("play/dirt.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            
+            if (num==0){
+                mapState[i][j]=TILE_WATER;
+                TileMapGroup->AddNewObject(new Engine::Image("play/water.png", j *
+                    BlockSize, i * BlockSize, BlockSize, BlockSize));
+            }
+            else if (num==1){
+                mapState[i][j]=TILE_GRASS;
+                TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            }
+            else if (num==2){
+                mapState[i][j]=TILE_ROCK;
+                TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                TileMapGroup->AddNewObject(new Engine::Image("play/rock.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            }
         }
     }
 }
@@ -596,7 +607,7 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
     std::queue<Engine::Point> que;
     // Push end point.
     // BFS from end point.
-    if (mapState[MapHeight - 1][MapWidth - 1] != TILE_DIRT)
+    if (mapState[MapHeight - 1][MapWidth - 1] != TILE_WATER)
         return map;
     que.push(Engine::Point(MapWidth - 1, MapHeight - 1));
     map[MapHeight - 1][MapWidth - 1] = 0;
@@ -615,7 +626,7 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
             int nx = p.x + dx[i];
             int ny = p.y + dy[i];
             if (nx < 0 || nx >= MapWidth || ny < 0 || ny >= MapHeight) continue;
-            if (mapState[ny][nx] == TILE_DIRT && map[ny][nx] == -1){
+            if (mapState[ny][nx] == TILE_WATER && map[ny][nx] == -1){
                 map[ny][nx] = map[p.y][p.x] + 1; // 下一格的距離是上一格+1
                 que.push(Engine::Point(nx, ny)); // 這次(下次上一格)的位置 
             }
