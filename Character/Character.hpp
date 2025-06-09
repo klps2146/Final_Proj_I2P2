@@ -13,7 +13,14 @@ namespace Engine {
         // Flag to track if the character is moving
         bool isMoving;
 
-        int tick = 0;
+        bool isDying;
+        bool isDead;
+
+        Engine::Point last_idle_dir;
+        float frame_timer = 0.0f;
+        int cur_frame = 0;
+        const int max_frames = 7;
+        const float frame_duration = 0.11f;
 
     public:
         // Constructor
@@ -27,6 +34,8 @@ namespace Engine {
         
         // Override Update to handle movement
         void Update(float deltaTime) override;
+
+        
     };
 }
 #endif //

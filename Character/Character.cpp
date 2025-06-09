@@ -12,11 +12,16 @@ namespace Engine {
         this->CollisionRadius = collisionRadius;
         std::cout << "Created Character at (" << x << ", " << y << ") with speed " << speed << std::endl;
         SetSpriteSource(0, 0, 96, 96);
-        std::cout << ">>>>>>>>Bitmap width: " << GetBitmapWidth() << ", height: " << GetBitmapHeight() << std::endl;
+        isDying = 0;
+        isDead = 0;
+        // std::cout << ">>>>>>>>Bitmap width: " << GetBitmapWidth() << ", height: " << GetBitmapHeight() << std::endl;
     }
 
     void Character::OnKeyDown(int keyCode) {
-        // Handle WASD and arrow keys for movement
+        if (keyCode == ALLEGRO_KEY_K){ // 自殺測試用
+            isDying = 1;
+            cur_frame = frame_timer = 0;
+        }
         switch (keyCode) {
             case ALLEGRO_KEY_W:
             case ALLEGRO_KEY_UP:
@@ -39,15 +44,13 @@ namespace Engine {
                 isMoving = true;
                 break;
         }
-        // Normalize direction to prevent faster diagonal movement
         if (isMoving && direction.Magnitude() > 0) {
             direction = direction.Normalize();
         }
-        std::cout << "Key down: " << keyCode << ", Direction: (" << direction.x << ", " << direction.y << ")";
+        // std::cout << "Key down: " << keyCode << ", Direction: (" << direction.x << ", " << direction.y << ")" << std::endl;
     }
 
     void Character::OnKeyUp(int keyCode) {
-        // Reset direction components when keys are released
         switch (keyCode) {
             case ALLEGRO_KEY_W:
             case ALLEGRO_KEY_UP:
@@ -62,36 +65,79 @@ namespace Engine {
                 direction.x = 0;
                 break;
         }
-        // Check if character is still moving
+
         isMoving = (direction.x != 0 || direction.y != 0);
         if (!isMoving) {
             Velocity = Point(0, 0);
         }
-        std::cout << "Key up: " << keyCode << ", Direction: (" << direction.x << ", " << direction.y << ")";
+        // std::cout << "Key up: " << keyCode << ", Direction: (" << direction.x << ", " << direction.y << ")" << std::endl;
     }
 
     void Character::Update(float deltaTime) {
-        // Update velocity based on direction and speed
-        if (isMoving) {
-            Velocity = direction * speed;
-            
-            SetSpriteSource(96, 0, 96, 96);  
-            // std::cout << "MOV " << SourceX
-            //                     << " " <<SourceY
-            //                     << " " <<SourceW
-            //                     << " " <<SourceH << std::endl;
+        if (!isDying){
+            if (isMoving) {
+                Velocity = direction * speed;
+
+                frame_timer += deltaTime;
+
+                if (frame_timer >= frame_duration){
+                    frame_timer -= frame_duration;
+                    cur_frame = (cur_frame + 1) % max_frames;
+
+                    if (direction.x > 0){ // 右
+                        SetSpriteSource(cur_frame * 96, 0, 96, 96);
+                        last_idle_dir = direction;
+                    }
+                    else if (direction.x < 0){ // 左
+                        SetSpriteSource((7 - cur_frame) * 96, 96, 96, 96);  
+                        last_idle_dir = direction;
+                    }
+                    else if (direction.x == 0){ // 看最後方向 (default 右)
+                        if (last_idle_dir.x >= 0) SetSpriteSource(cur_frame * 96, 0, 96, 96); // right
+                        else SetSpriteSource((7 - cur_frame) * 96, 96, 96, 96);
+                    }
+                }
+            }
+            else {
+                /// IDLE 動畫
+                frame_timer += deltaTime;
+
+                if (frame_timer >= frame_duration){
+                    frame_timer -= frame_duration;
+                    cur_frame = (cur_frame + 1) % (max_frames+1);
+
+                    if (last_idle_dir.x >= 0)
+                        SetSpriteSource(cur_frame * 96, 96*3, 96, 96);
+                    else
+                        SetSpriteSource(cur_frame * 96, 96*5, 96, 96);
+                }
+            }
         }
-        else{
-            SetSpriteSource(0, 0, 96, 96);
-            // std::cout << "static " << SourceX
-            //                     << " " <<SourceY
-            //                     << " " <<SourceW
-            //                     << " " <<SourceH << std::endl;
+        else if(!isDead) { // 快死了
+            frame_timer += deltaTime;
+
+            if (frame_timer >= (frame_duration+0.13)){
+                frame_timer -= (frame_duration+0.13);
+                cur_frame = (cur_frame + 1);
+
+                if (cur_frame > max_frames-1){
+                    std::cout << "お前はもう死んでる" << std::endl;
+                    isDead = 1;
+                }
+
+                if (last_idle_dir.x >= 0)
+                    SetSpriteSource(cur_frame * 96, 96*2, 96, 96);
+                else
+                    SetSpriteSource(cur_frame * 96, 96*4, 96, 96);
+            }
         }
-        // Update position using Sprite's Update (Position += Velocity * deltaTime)
+        else{ // 真死了
+            std::cout << "YOU FUCKED UP" << std::endl;
+
+        }
+
         Sprite::Update(deltaTime);
 
-        // Optional: Clamp position to screen boundaries
         Point screenSize = GameEngine::GetInstance().GetScreenSize();
         Position.x = std::max(CollisionRadius, std::min(screenSize.x - CollisionRadius, Position.x));
         Position.y = std::max(CollisionRadius, std::min(screenSize.y - CollisionRadius, Position.y));
