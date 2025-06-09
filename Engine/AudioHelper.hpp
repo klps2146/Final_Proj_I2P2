@@ -6,7 +6,7 @@
 
 class AudioHelper {
 private:
-    AudioHelper() = default;
+    AudioHelper() = default; 
 
 public:
     static float BGMVolume;
