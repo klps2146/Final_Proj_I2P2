@@ -35,7 +35,7 @@
 
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
-const int PlayScene::MapWidth = 20, PlayScene::MapHeight = 13;
+const int PlayScene::MapWidth = 40, PlayScene::MapHeight = 30;
 const int PlayScene::BlockSize = 64;
 const float PlayScene::DangerTime = 7.61;
 const Engine::Point PlayScene::SpawnGridPoint = Engine::Point(-1, 0);
@@ -398,7 +398,7 @@ void PlayScene::Hit() {
         Engine::GameEngine::GetInstance().ChangeScene("lose");
     }
     // new
-    UILives ->Text = std::string("Life ") + std::to_string(this->lives);
+    //UILives ->Text = std::string("Life ") + std::to_string(this->lives);
 }
 int PlayScene::GetMoney() const {
     return money;
@@ -406,7 +406,7 @@ int PlayScene::GetMoney() const {
 void PlayScene::EarnMoney(int money) {
     //// modify
     this->money += (money > 0) ? money * turret_coin_mul : money;
-    UIMoney->Text = std::string("$") + std::to_string(this->money);
+    //UIMoney->Text = std::string("$") + std::to_string(this->money);
 
     //// new 
     // 只有earnmoney 才會升等
@@ -441,6 +441,7 @@ void PlayScene::ReadMap() {
             case '1': mapData.push_back(1); break;
             case '2': mapData.push_back(2); break;
             case '3': mapData.push_back(3); break;
+            case '4': mapData.push_back(4); break;
             case '\n':
             case '\r':
                 if (static_cast<int>(mapData.size()) / MapWidth != 0)
@@ -486,7 +487,6 @@ void PlayScene::ReadMap() {
 
             if (num==0){
                 mapState[i][j]=TILE_WATER;
-                TileMapGroup->AddNewObject(new Engine::Image("play/water.png", j *BlockSize, i * BlockSize, BlockSize, BlockSize));
             }
             else if (num==1){
                 mapState[i][j]=TILE_GRASS;
@@ -496,6 +496,13 @@ void PlayScene::ReadMap() {
             }
             else if (num==3){
                 mapState[i][j]=TILE_BRIDGE;
+            }else if(num==4){
+                mapState[i][j]=TILE_HOME;
+                if(!homeset){
+                    homeposi=i;
+                    homeposj=j;
+                    homeset=1;
+                }
             }
         }
     }
@@ -508,7 +515,7 @@ void PlayScene::ReadMap() {
                 TileMapGroup->AddNewObject(new Engine::Image("play/water.png", j *
                     BlockSize, i * BlockSize, BlockSize, BlockSize));
             }
-            if (num==1||num==2){
+            if (num==1||num==2||num==4){
                 int beyondwater=0,belowwater=0,rightwater=0,leftwater=0;
                 //mapState[i][j]=TILE_GRASS;
                 TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
@@ -527,7 +534,20 @@ void PlayScene::ReadMap() {
             }   
             if (num==2){
                 //mapState[i][j]=TILE_ROCK;
+                int beyondwater=0,belowwater=0,rightwater=0,leftwater=0;
                 TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                if(i +1< MapHeight&&(mapState[i+1][j]==TILE_WATER||mapState[i+1][j]==TILE_BRIDGE))beyondwater=1;
+                if(i -1>=0&&(mapState[i-1][j]==TILE_WATER||mapState[i-1][j]==TILE_BRIDGE))belowwater=1;
+                if(j -1>=0&&(mapState[i][j-1]==TILE_WATER||mapState[i][j-1]==TILE_BRIDGE))rightwater=1;
+                if(j+ 1<MapWidth&&(mapState[i][j+1]==TILE_WATER||mapState[i][j+1]==TILE_BRIDGE))leftwater=1;
+                if(beyondwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassbeyondwater.png", j * BlockSize, i * BlockSize, BlockSize,BlockSize,0,0));
+                if(belowwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassbelowwater.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize,0,0));
+                if(rightwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassrightwater.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize,0,0));
+                if(leftwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassleftwater.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize,0,0));
+                if(belowwater&&rightwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassbelowrightwater.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize,0,0));
+                if(belowwater&&leftwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassbelowleftwater.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize,0,0));
+                if(beyondwater&&rightwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassbeyondrightwater.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize,0,0));
+                if(beyondwater&&leftwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassbeyondleftwater.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize,0,0));
                 TileMapGroup->AddNewObject(new Engine::Image("play/rock.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
             }
             if (num==3){
@@ -535,8 +555,10 @@ void PlayScene::ReadMap() {
                 TileMapGroup->AddNewObject(new Engine::Image("play/water.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
                 TileMapGroup->AddNewObject(new Engine::Image("play/stonebridge.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
             }
+
         }
     }
+    if(homeset)TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 2*BlockSize, 2*BlockSize));
 }
 
 void PlayScene::ReadEnemyWave() {
@@ -693,7 +715,7 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
     std::queue<Engine::Point> que;
     // Push end point.
     // BFS from end point.
-    if (mapState[MapHeight - 1][MapWidth - 1] != TILE_WATER)
+    if (mapState[MapHeight - 1][MapWidth - 1] != TILE_GRASS)
         return map;
     que.push(Engine::Point(MapWidth - 1, MapHeight - 1));
     map[MapHeight - 1][MapWidth - 1] = 0;
@@ -712,11 +734,10 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
             int nx = p.x + dx[i];
             int ny = p.y + dy[i];
             if (nx < 0 || nx >= MapWidth || ny < 0 || ny >= MapHeight) continue;
-            if ((mapState[ny][nx] == TILE_WATER||mapState[ny][nx] == TILE_BRIDGE) && map[ny][nx] == -1){
+            if ((mapState[ny][nx] == TILE_GRASS||mapState[ny][nx] == TILE_BRIDGE) && map[ny][nx] == -1){
                 map[ny][nx] = map[p.y][p.x] + 1; // 下一格的距離是上一格+1
                 que.push(Engine::Point(nx, ny)); // 這次(下次上一格)的位置 
             }
-
         }
         
     }

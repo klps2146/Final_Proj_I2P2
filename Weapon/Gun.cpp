@@ -5,6 +5,7 @@
 #include "Engine/IScene.hpp"
 #include "Engine/Point.hpp"
 #include "BulletBoom.hpp" // Assume this is a simple bullet class
+#include "Scene/PlayScene.hpp" // Added to access PlayScene for camera position
 
 namespace Engine {
     Gun::Gun(IScene* scene, Point characterPos) 
@@ -24,16 +25,20 @@ namespace Engine {
             float bulletSpeed = 400.0f;
             Point bulletDir(std::cos(Rotation), std::sin(Rotation));
             Point bulletPos = Position + bulletDir * 30.0f; // Offset to gun tip
-            BulletBoom* bullet = new BulletBoom(bulletPos.x, bulletPos.y, bulletDir * bulletSpeed,10);
+            BulletBoom* bullet = new BulletBoom(bulletPos.x, bulletPos.y, bulletDir * bulletSpeed, 10);
             scene->AddNewObject(bullet); // Add bullet to scene
             cooldownTimer = fireCooldown; // Reset cooldown
         }
     }
 
     void Gun::OnMouseMove(int mx, int my) {
+        // Convert mouse screen coordinates to world coordinates
+        PlayScene* playScene = dynamic_cast<PlayScene*>(scene);
+        Point cameraPos = playScene->CameraPos;
+        Point mouseWorldPos(mx + cameraPos.x, my + cameraPos.y);
+
         // Rotate gun toward mouse position
-        Point mousePos(mx, my);
-        Point direction = mousePos - characterPosition;
+        Point direction = mouseWorldPos - characterPosition;
         Rotation = std::atan2(direction.y, direction.x); // Set rotation in radians
     }
 
@@ -48,6 +53,6 @@ namespace Engine {
     void Gun::SetCharacterPosition(Point pos) {
         characterPosition = pos;
         Position.x = pos.x; // Update gun position to match character
-        Position.y = pos.y+10;
+        Position.y = pos.y + 10;
     }
 }

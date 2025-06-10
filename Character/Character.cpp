@@ -218,8 +218,8 @@ namespace Engine {
 
         // 保持角色在螢幕內
         Point screenSize = GameEngine::GetInstance().GetScreenSize();
-        Position.x = std::max(CollisionRadius, std::min(screenSize.x - CollisionRadius, Position.x));
-        Position.y = std::max(CollisionRadius, std::min(screenSize.y - CollisionRadius, Position.y));
+        /*Position.x = std::max(CollisionRadius, std::min(screenSize.x - CollisionRadius, Position.x));
+        Position.y = std::max(Colliu y 一sionRadius, std::min(screenSize.y - CollisionRadius, Position.y));*/
 
         getPlayScene()->CameraPos = Position - screenSize / 2;
     }
