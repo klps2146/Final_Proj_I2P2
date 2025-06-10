@@ -11,6 +11,11 @@
 #include "Engine/IScene.hpp"
 #include "Engine/Point.hpp"
 
+#include "Weapon/Gun.hpp" // 新增：引用 Gun.hpp
+
+
+
+
 class Turret;
 namespace Engine {
     class Group;
@@ -53,6 +58,15 @@ public:
     Engine::Label* player_skill_point_l;
 
     Engine::Character* character;
+    Engine::Gun* gun; // 新增：槍物件
+
+
+
+
+
+
+
+
 
     void buff_adder(int state);
 
@@ -74,6 +88,7 @@ public:
     Group *GroundEffectGroup;
     Group *DebugIndicatorGroup;
     Group *BulletGroup;
+    Group* WeaponBulletGroup;
     Group *TowerGroup;
     Group *EnemyGroup;
     Group *EffectGroup;

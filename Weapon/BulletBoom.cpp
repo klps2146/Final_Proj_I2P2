@@ -1,0 +1,33 @@
+#include "BulletBoom.hpp"
+#include "Enemy/Enemy.hpp"
+#include "Engine/Collider.hpp"
+#include "Engine/GameEngine.hpp"
+#include "Engine/Group.hpp"
+#include "Scene/PlayScene.hpp"
+
+namespace Engine {
+    BulletBoom::BulletBoom(float x, float y, Point velocity, float damage)
+        : Sprite("play/bullet-1.png", x, y, 64, 32, 0.5f, 0.5f, 0, velocity.x, velocity.y), damage(damage) {
+        CollisionRadius = 4.0f;
+    }
+
+    void BulletBoom::Update(float deltaTime) {
+        Sprite::Update(deltaTime);
+
+        auto* scene = dynamic_cast<PlayScene*>(GameEngine::GetInstance().GetActiveScene());
+        for (auto& it : scene->EnemyGroup->GetObjects()) {
+            Enemy* enemy = dynamic_cast<Enemy*>(it);
+            if (!enemy || !enemy->Visible) continue;
+            if (Collider::IsCircleOverlap(Position, CollisionRadius, enemy->Position, enemy->CollisionRadius)) {
+                enemy->Hit(damage);
+                Visible = false;
+                return;
+            }
+        }
+
+        Point screenSize = GameEngine::GetInstance().GetScreenSize();
+        if (Position.x < 0 || Position.x > screenSize.x || Position.y < 0 || Position.y > screenSize.y) {
+            Visible = false;
+        }
+    }
+}

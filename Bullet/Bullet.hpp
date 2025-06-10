@@ -1,3 +1,4 @@
+
 #ifndef BULLET_HPP
 #define BULLET_HPP
 #include <string>
