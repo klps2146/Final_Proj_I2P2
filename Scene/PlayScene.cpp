@@ -559,6 +559,35 @@ void PlayScene::ReadMap() {
         }
     }
     if(homeset)TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 2*BlockSize, 2*BlockSize));
+    for(int i = 0; i < MapHeight; i++){
+        int j=-1;
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/verti_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        j=MapWidth;
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/verti_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+    }
+    for(int j = 0; j < MapWidth; j++){
+        int i=-1;
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/hori_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        i=MapHeight;
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/hori_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+    }
+    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", -1 * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
+    TileMapGroup->AddNewObject(new Engine::Image("play/upleft_bush.png", -1 * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
+
+    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", MapWidth * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
+    TileMapGroup->AddNewObject(new Engine::Image("play/upright_bush.png", MapWidth * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
+
+    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", -1 * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
+    TileMapGroup->AddNewObject(new Engine::Image("play/downleft_bush.png", -1 * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
+
+    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
+    TileMapGroup->AddNewObject(new Engine::Image("play/downrightwsa_bush.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
+
+
 }
 
 void PlayScene::ReadEnemyWave() {
