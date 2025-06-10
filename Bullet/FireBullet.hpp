@@ -4,6 +4,7 @@
 
 class Enemy;
 class Turret;
+class Weapon;
 namespace Engine {
     struct Point;
 }   // namespace Engine
@@ -11,6 +12,7 @@ namespace Engine {
 class FireBullet : public Bullet {
 public:
     explicit FireBullet(Engine::Point position, Engine::Point forwardDirection, float rotation, Turret *parent);
+    explicit FireBullet(Engine::Point position, Engine::Point forwardDirection, float rotation, Weapon *parent);
     void OnExplode(Enemy *enemy) override;
 };
 #endif   // FIREBULLET_HPP

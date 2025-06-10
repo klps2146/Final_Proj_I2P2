@@ -78,11 +78,26 @@ void PlayScene::Initialize() {
     money = 666;
     SpeedMult = 1;
 
+
+
+    
     //// chracter
     character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 200, 32);
     character->SetSpriteSource(0, 0, 96, 96);
     character->SetSize(70, 70); // real size
     AddNewControlObject(character);
+
+    //// GUN
+
+    gun = new Engine::Gun(this, character->Position);
+    AddNewControlObject(gun); // 加入控制物件以處理輸入
+    //UIGroup->AddNewObject(gun); // 顯示在 UI 層級
+    gun->Draw();
+
+
+
+
+
 
     // Add groups from bottom to top.
     AddNewObject(TileMapGroup = new Group());
@@ -91,6 +106,7 @@ void PlayScene::Initialize() {
     AddNewObject(TowerGroup = new Group());
     AddNewObject(EnemyGroup = new Group());
     AddNewObject(BulletGroup = new Group());
+    AddNewObject(WeaponBulletGroup = new Group());
     AddNewObject(EffectGroup = new Group());
     // Should support buttons.
     AddNewControlObject(UIGroup = new Group());
@@ -117,6 +133,9 @@ void PlayScene::Terminate() {
 void PlayScene::Update(float deltaTime) {
     // If we use deltaTime directly, then we might have Bullet-through-paper problem.
     // Reference: Bullet-Through-Paper
+    WeaponBulletGroup->Update(deltaTime);
+    gun->SetCharacterPosition(character->Position);
+
     if (SpeedMult == 0)
         deathCountDown = -1;
     else if (deathCountDown != -1)
@@ -222,7 +241,8 @@ void PlayScene::Update(float deltaTime) {
 void PlayScene::Draw() const {
     IScene::Draw();
     character->Draw();
-
+    WeaponBulletGroup->Draw();
+    gun->Draw();
     if (DebugMode) {
         // Draw reverse BFS distance on all reachable blocks.
         for (int i = 0; i < MapHeight; i++) {
@@ -237,6 +257,8 @@ void PlayScene::Draw() const {
         }
     }
 }
+
+
 void PlayScene::OnMouseDown(int button, int mx, int my) {
     if ((button & 1) && !imgTarget->Visible && preview) {
         // Cancel turret construct.
@@ -245,6 +267,8 @@ void PlayScene::OnMouseDown(int button, int mx, int my) {
     }
     IScene::OnMouseDown(button, mx, my);
 }
+
+
 void PlayScene::OnMouseMove(int mx, int my) {
     IScene::OnMouseMove(mx, my);
     const int x = mx / BlockSize;
