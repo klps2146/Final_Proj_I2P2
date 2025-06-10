@@ -406,6 +406,7 @@ void PlayScene::EarnMoney(int money) {
     player_level_l->Text = std::string("Level: " + std::to_string((int)player_level) + "/8");
     player_skill_point_l->Text = std::string("Point: " + std::to_string((int)player_skill_point));
 }
+
 void PlayScene::ReadMap() {
     std::string filename = std::string("Resource/map") + std::to_string(MapId) + ".txt";
     // Read map file.
@@ -438,22 +439,53 @@ void PlayScene::ReadMap() {
             
             if (num==0){
                 mapState[i][j]=TILE_WATER;
-                TileMapGroup->AddNewObject(new Engine::Image("play/water.png", j *
-                    BlockSize, i * BlockSize, BlockSize, BlockSize));
             }
             else if (num==1){
                 mapState[i][j]=TILE_GRASS;
-                TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
             }
             else if (num==2){
                 mapState[i][j]=TILE_ROCK;
-                TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-                TileMapGroup->AddNewObject(new Engine::Image("play/rock.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
             }
             else if (num==3){
                 mapState[i][j]=TILE_BRIDGE;
+            }
+        }
+    }
+    for (int i = 0; i < MapHeight; i++) {
+        for (int j = 0; j < MapWidth; j++) {
+            const int num = mapData[i * MapWidth + j];
+            
+            if (num==0){
+                //mapState[i][j]=TILE_WATER;
+                TileMapGroup->AddNewObject(new Engine::Image("play/water.png", j *
+                    BlockSize, i * BlockSize, BlockSize, BlockSize));
+            }
+            if (num==1||num==2){
+                int beyondwater=0,belowwater=0,rightwater=0,leftwater=0;
+                //mapState[i][j]=TILE_GRASS;
+                TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                if(i +1< MapHeight&&(mapState[i+1][j]==TILE_WATER||mapState[i+1][j]==TILE_BRIDGE))beyondwater=1;
+                if(i -1>=0&&(mapState[i-1][j]==TILE_WATER||mapState[i-1][j]==TILE_BRIDGE))belowwater=1;
+                if(j -1>=0&&(mapState[i][j-1]==TILE_WATER||mapState[i][j-1]==TILE_BRIDGE))rightwater=1;
+                if(j+ 1<MapWidth&&(mapState[i][j+1]==TILE_WATER||mapState[i][j+1]==TILE_BRIDGE))leftwater=1;
+                if(beyondwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassbeyondwater.png", j * BlockSize, i * BlockSize, BlockSize,BlockSize,0,0));
+                if(belowwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassbelowwater.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize,0,0));
+                if(rightwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassrightwater.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize,0,0));
+                if(leftwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassleftwater.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize,0,0));
+                if(belowwater&&rightwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassbelowrightwater.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize,0,0));
+                if(belowwater&&leftwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassbelowleftwater.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize,0,0));
+                if(beyondwater&&rightwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassbeyondrightwater.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize,0,0));
+                if(beyondwater&&leftwater)TileMapGroup->AddNewObject(new Engine::Image("play/grassbeyondleftwater.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize,0,0));
+            }   
+            if (num==2){
+                //mapState[i][j]=TILE_ROCK;
+                TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                TileMapGroup->AddNewObject(new Engine::Image("play/rock.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            }
+            if (num==3){
+                //mapState[i][j]=TILE_BRIDGE;
                 TileMapGroup->AddNewObject(new Engine::Image("play/water.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-                TileMapGroup->AddNewObject(new Engine::Image("play/bridge.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                TileMapGroup->AddNewObject(new Engine::Image("play/stonebridge.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
             }
         }
     }
