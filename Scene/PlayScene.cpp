@@ -41,7 +41,7 @@
 
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
-const int PlayScene::MapWidth = 20, PlayScene::MapHeight = 13;
+const int PlayScene::MapWidth = 40, PlayScene::MapHeight = 30;
 const int PlayScene::BlockSize = 64;
 const float PlayScene::DangerTime = 7.61;
 const Engine::Point PlayScene::SpawnGridPoint = Engine::Point(-1, 0);
@@ -405,7 +405,7 @@ void PlayScene::Hit() {
         Engine::GameEngine::GetInstance().ChangeScene("lose");
     }
     // new
-    UILives ->Text = std::string("Life ") + std::to_string(this->lives);
+    //UILives ->Text = std::string("Life ") + std::to_string(this->lives);
 }
 int PlayScene::GetMoney() const {
     return money;
@@ -413,7 +413,7 @@ int PlayScene::GetMoney() const {
 void PlayScene::EarnMoney(int money) {
     //// modify
     this->money += (money > 0) ? money * turret_coin_mul : money;
-    UIMoney->Text = std::string("$") + std::to_string(this->money);
+    //UIMoney->Text = std::string("$") + std::to_string(this->money);
 
     //// new 
     // 只有earnmoney 才會升等
@@ -581,7 +581,7 @@ void PlayScene::ReadEnemyWave() {
     fin.close();
 }
 
-void PlayScene::ConstructUI() {
+void PlayScene::ConstructUI() {/*
     // Background
     UIGroup->AddNewObject(new Engine::Image("play/sand.png", 1280, 0, 320, 832));
     // Text
@@ -593,8 +593,8 @@ void PlayScene::ConstructUI() {
     UIGroup->AddNewObject(player_exp_l = new Engine::Label(std::string("EXP ") + std::to_string((int)player_exp) + "/" + std::to_string((int)level_req.front()), "pirulen.ttf", 24, 1294, 130));
     UIGroup->AddNewObject(player_level_l= new Engine::Label(std::string("Level ") + std::to_string((int)player_level) + "/8", "pirulen.ttf", 24, 1294, 155));
     UIGroup->AddNewObject(player_skill_point_l = new Engine::Label(std::string("Points: ") + std::to_string((int)player_skill_point), "pirulen.ttf", 24, 1294, 180));
-    
-    TurretButton *btn;
+    */
+    TurretButton *btn;/*
     // Button 1
     btn = new TurretButton("play/floor.png", "play/dirt.png",
                            Engine::Sprite("play/tower-base.png", 1294, 136+112, 0, 0, 0, 0),
@@ -636,7 +636,7 @@ void PlayScene::ConstructUI() {
 
     UIGroup->AddNewObject(coolDown_lv_l= new Engine::Label("LV. " + std::to_string(coolDown_lv), "pirulen.ttf", 30, 1294+70, 231+212+78+10));
     btn->SetOnClickCallback(std::bind(&PlayScene::buff_adder, this, 1));
-    UIGroup->AddNewControlObject(btn);
+    UIGroup->AddNewControlObject(btn);*/
 
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
@@ -722,7 +722,7 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
     std::queue<Engine::Point> que;
     // Push end point.
     // BFS from end point.
-    if (mapState[MapHeight - 1][MapWidth - 1] != TILE_WATER)
+    if (mapState[MapHeight - 1][MapWidth - 1] != TILE_GRASS)
         return map;
     que.push(Engine::Point(MapWidth - 1, MapHeight - 1));
     map[MapHeight - 1][MapWidth - 1] = 0;
@@ -741,11 +741,10 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance() {
             int nx = p.x + dx[i];
             int ny = p.y + dy[i];
             if (nx < 0 || nx >= MapWidth || ny < 0 || ny >= MapHeight) continue;
-            if ((mapState[ny][nx] == TILE_WATER||mapState[ny][nx] == TILE_BRIDGE) && map[ny][nx] == -1){
+            if ((mapState[ny][nx] == TILE_GRASS||mapState[ny][nx] == TILE_BRIDGE) && map[ny][nx] == -1){
                 map[ny][nx] = map[p.y][p.x] + 1; // 下一格的距離是上一格+1
                 que.push(Engine::Point(nx, ny)); // 這次(下次上一格)的位置 
             }
-
         }
         
     }
