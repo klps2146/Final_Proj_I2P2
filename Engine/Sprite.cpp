@@ -3,6 +3,8 @@
 #include "Engine/Point.hpp"
 #include "Sprite.hpp"
 #include "UI/Component/Image.hpp"
+#include "Engine/GameEngine.hpp"
+#include "Scene/PlayScene.hpp"
 
 // 這裡有魔改
 namespace Engine {
@@ -34,17 +36,41 @@ namespace Engine {
     void Sprite::Draw() const {
         float srcW = SourceW > 0 ? SourceW : GetBitmapWidth();
         float srcH = SourceH > 0 ? SourceH : GetBitmapHeight();
-
-        al_draw_tinted_scaled_rotated_bitmap_region(
-            bmp.get(),
-            SourceX, SourceY, srcW, srcH,      // Source region
-            Tint,
-            Anchor.x * srcW, Anchor.y * srcH,  // Anchor in source
-            Position.x, Position.y,            // Draw position
-            Size.x / srcW, Size.y / srcH,      // Scaling factor
-            Rotation,                          // Rotation
-            0                                  // Flags
-        );
+        PlayScene* scene = (dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetActiveScene()));
+        if (scene) {
+            Point cam = scene->CameraPos;
+            al_draw_tinted_scaled_rotated_bitmap_region(
+                bmp.get(),
+                SourceX, SourceY, srcW, srcH,      // Source region
+                Tint,
+                Anchor.x * srcW, Anchor.y * srcH,  // Anchor in source
+                Position.x - cam.x, Position.y - cam.y, // Draw position
+                Size.x / srcW, Size.y / srcH,      // Scaling factor
+                Rotation,                          // Rotation
+                0                                  // Flags
+            );     
+        } else {
+            al_draw_tinted_scaled_rotated_bitmap_region(
+                bmp.get(),
+                SourceX, SourceY, srcW, srcH,      // Source region
+                Tint,
+                Anchor.x * srcW, Anchor.y * srcH,  // Anchor in source
+                Position.x, Position.y,            // Draw position
+                Size.x / srcW, Size.y / srcH,      // Scaling factor
+                Rotation,                          // Rotation
+                0                                  // Flags
+            );
+        }
+        // al_draw_tinted_scaled_rotated_bitmap_region(
+        //     bmp.get(),
+        //     SourceX, SourceY, srcW, srcH,      // Source region
+        //     Tint,
+        //     Anchor.x * srcW, Anchor.y * srcH,  // Anchor in source
+        //     Position.x, Position.y,            // Draw position
+        //     Size.x / srcW, Size.y / srcH,      // Scaling factor
+        //     Rotation,                          // Rotation
+        //     0                                  // Flags
+        // );
     }
 
     void Sprite::Update(float deltaTime) {

@@ -87,16 +87,16 @@ void PlayScene::Initialize() {
     character->SetSize(70, 70); // real size
     AddNewControlObject(character);
 
+    //// Camera
+    CameraPos = Engine::Point(0, 0);
+    
+
     //// GUN
 
     gun = new Engine::Gun(this, character->Position);
     AddNewControlObject(gun); // 加入控制物件以處理輸入
     //UIGroup->AddNewObject(gun); // 顯示在 UI 層級
     gun->Draw();
-
-
-
-
 
 
     // Add groups from bottom to top.
@@ -241,8 +241,12 @@ void PlayScene::Update(float deltaTime) {
 void PlayScene::Draw() const {
     IScene::Draw();
     character->Draw();
+    if (character->IsAlive()){
+        character->DrawBars();
+        gun->Draw();
+    }
     WeaponBulletGroup->Draw();
-    gun->Draw();
+
     if (DebugMode) {
         // Draw reverse BFS distance on all reachable blocks.
         for (int i = 0; i < MapHeight; i++) {
