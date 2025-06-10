@@ -25,7 +25,7 @@ namespace Engine {
         isDead = 0;
         HP = 1000;
         POWER = 500;
-        // std::cout << ">>>>>>>>Bitmap width: " << GetBitmapWidth() << ", height: " << GetBitmapHeight() << std::endl;
+
     }
 
     void Character::OnKeyDown(int keyCode) {
@@ -38,6 +38,11 @@ namespace Engine {
             HP -= 100;
             std::cout <<"HURT: " << HP<<std::endl;
         }
+
+        // 物品欄的
+        itemBar_.OnKeyDown(keyCode);
+
+
         switch (keyCode) {
             case ALLEGRO_KEY_W:
             case ALLEGRO_KEY_UP:
@@ -135,6 +140,7 @@ namespace Engine {
             isDying = 1;
         }
         else if (HP <= 0 && isDying){
+            Velocity = Engine::Point(0, 0);
             frame_timer += deltaTime;
 
             if (frame_timer >= (frame_duration+0.13)){
@@ -154,7 +160,7 @@ namespace Engine {
         }
         if (isDead == 1) { // 真死了
             std::cout << "YOU FUCKED UP" << std::endl;
-
+            Engine::GameEngine::GetInstance().ChangeScene("lose");
         }
 
 
@@ -248,6 +254,9 @@ namespace Engine {
         al_draw_filled_rectangle(barX, barY, barX + barWidth, barY + barHeight, bgColor);
         al_draw_filled_rectangle(barX, barY, barX + barWidth * powerPercent, barY + barHeight, frontColor);
 
+        // 畫物品欄 (下面不知道為啥不能)
+        itemBar_.Draw(getPlayScene()->CameraPos, GameEngine::GetInstance().GetScreenSize());
+
     }
 
     void Character::Draw() const {
@@ -257,4 +266,6 @@ namespace Engine {
     bool Character::IsAlive(){
         return !isDead;
     }
+
+    
 }

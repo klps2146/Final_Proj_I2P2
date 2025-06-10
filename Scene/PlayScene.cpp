@@ -33,12 +33,6 @@
 #include "UI/Animation/Plane.hpp"
 #include "UI/Component/Label.hpp"
 
-// OK TODO HACKATHON-4 (1/3): Trace how the game handles keyboard input.
-// OK TODO HACKATHON-4 (2/3): Find the cheat code sequence in this file.
-// OK TODO HACKATHON-4 (3/3): When the cheat code is entered, a plane should be spawned and added to the scene.
-// OK TODO HACKATHON-5 (1/4): There's a bug in this file, which crashes the game when you win. Try to find it.
-// OK TODO HACKATHON-5 (2/4): The "LIFE" label are not updated when you lose a life. Try to fix it.
-
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
 const int PlayScene::MapWidth = 20, PlayScene::MapHeight = 13;
@@ -89,7 +83,6 @@ void PlayScene::Initialize() {
 
     //// Camera
     CameraPos = Engine::Point(0, 0);
-    
 
     //// GUN
 
@@ -396,7 +389,7 @@ void PlayScene::OnKeyDown(int keyCode) {
     }
     else if (keyCode >= ALLEGRO_KEY_0 && keyCode <= ALLEGRO_KEY_9) {
         // Hotkey for Speed up.
-        SpeedMult = keyCode - ALLEGRO_KEY_0;
+        // SpeedMult = keyCode - ALLEGRO_KEY_0;
     }
 }
 void PlayScene::Hit() {
@@ -418,22 +411,22 @@ void PlayScene::EarnMoney(int money) {
     //// new 
     // 只有earnmoney 才會升等
     if (money == 10000) return;
-    if (player_exp >= level_req.front() && player_level < 8){
-        float divid = player_exp - level_req.front();
-        player_level += 1;
-        player_skill_point += 1;
-        player_exp = divid;
-        level_req.pop();
-    }
-    else if (player_level >= 8){
-        player_exp_l->Text = std::string("EXP: MAX");
-        player_level_l->Text = std::string("Level: " + std::to_string((int)player_level) + "/8");
-        player_skill_point_l->Text = std::string("Point: " + std::to_string((int)player_skill_point));
-        return;
-    }
-    player_exp_l->Text = std::string("EXP: " + std::to_string((int)player_exp)) + "/" + std::to_string(level_req.front());
-    player_level_l->Text = std::string("Level: " + std::to_string((int)player_level) + "/8");
-    player_skill_point_l->Text = std::string("Point: " + std::to_string((int)player_skill_point));
+//     if (player_exp >= level_req.front() && player_level < 8){
+//         float divid = player_exp - level_req.front();
+//         player_level += 1;
+//         player_skill_point += 1;
+//         player_exp = divid;
+//         level_req.pop();
+//     }
+//     else if (player_level >= 8){
+//         player_exp_l->Text = std::string("EXP: MAX");
+//         player_level_l->Text = std::string("Level: " + std::to_string((int)player_level) + "/8");
+//         player_skill_point_l->Text = std::string("Point: " + std::to_string((int)player_skill_point));
+//         return;
+//     }
+//     player_exp_l->Text = std::string("EXP: " + std::to_string((int)player_exp)) + "/" + std::to_string(level_req.front());
+//     player_level_l->Text = std::string("Level: " + std::to_string((int)player_level) + "/8");
+//     player_skill_point_l->Text = std::string("Point: " + std::to_string((int)player_skill_point));
 }
 
 void PlayScene::ReadMap() {
@@ -573,48 +566,48 @@ void PlayScene::ConstructUI() {
     UIGroup->AddNewObject(player_skill_point_l = new Engine::Label(std::string("Points: ") + std::to_string((int)player_skill_point), "pirulen.ttf", 24, 1294, 180));
     
     TurretButton *btn;
-    // Button 1
-    btn = new TurretButton("play/floor.png", "play/dirt.png",
-                           Engine::Sprite("play/tower-base.png", 1294, 136+112, 0, 0, 0, 0),
-                           Engine::Sprite("play/turret-1.png", 1294, 136+112 - 8, 0, 0, 0, 0), 1294, 136+112, MachineGunTurret::Price);
-    // Reference: Class Member Function Pointer and std::bind.
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 0));
-    UIGroup->AddNewControlObject(btn);
-    // Button 2
-    btn = new TurretButton("play/floor.png", "play/dirt.png",
-                           Engine::Sprite("play/tower-base.png", 1370, 136+112, 0, 0, 0, 0),
-                           Engine::Sprite("play/turret-2.png", 1370, 136+112 - 8, 0, 0, 0, 0), 1370, 136+112, LaserTurret::Price);
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 1));
-    UIGroup->AddNewControlObject(btn);
-    //// new
-    btn = new TurretButton("play/floor.png", "play/dirt.png",
-                           Engine::Sprite("play/tower-base.png", 1446, 136+112, 0, 0, 0, 0),
-                           Engine::Sprite("play/turret-6.png", 1446, 136+112 - 8, 0, 0, 0, 0), 1446, 136+112, CoolTurret::Price);
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 2));
-    UIGroup->AddNewControlObject(btn);
-    // 鏟子
-    btn = new TurretButton("play/floor.png", "play/dirt.png",
-                           Engine::Sprite("play/sand.png", 1294, 700, 0, 0, 0, 0),
-                           Engine::Sprite("play/shovel.png", 1294, 700, 0, 0, 0, 0), 1294, 700, 0);
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 666));
-    UIGroup->AddNewControlObject(btn);
+    // // Button 1
+    // btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                        Engine::Sprite("play/tower-base.png", 1294, 136+112, 0, 0, 0, 0),
+    //                        Engine::Sprite("play/turret-1.png", 1294, 136+112 - 8, 0, 0, 0, 0), 1294, 136+112, MachineGunTurret::Price);
+    // // Reference: Class Member Function Pointer and std::bind.
+    // btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 0));
+    // UIGroup->AddNewControlObject(btn);
+    // // Button 2
+    // btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                        Engine::Sprite("play/tower-base.png", 1370, 136+112, 0, 0, 0, 0),
+    //                        Engine::Sprite("play/turret-2.png", 1370, 136+112 - 8, 0, 0, 0, 0), 1370, 136+112, LaserTurret::Price);
+    // btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 1));
+    // UIGroup->AddNewControlObject(btn);
+    // //// new
+    // btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                        Engine::Sprite("play/tower-base.png", 1446, 136+112, 0, 0, 0, 0),
+    //                        Engine::Sprite("play/turret-6.png", 1446, 136+112 - 8, 0, 0, 0, 0), 1446, 136+112, CoolTurret::Price);
+    // btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 2));
+    // UIGroup->AddNewControlObject(btn);
+    // // 鏟子
+    // btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                        Engine::Sprite("play/sand.png", 1294, 700, 0, 0, 0, 0),
+    //                        Engine::Sprite("play/shovel.png", 1294, 700, 0, 0, 0, 0), 1294, 700, 0);
+    // btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 666));
+    // UIGroup->AddNewControlObject(btn);
     
     /// 新家
-    btn = new TurretButton("play/floor.png", "play/dirt.png",
-                           Engine::Sprite("play/sand.png", 1294, 231+212, 0, 0, 0, 0),
-                           Engine::Sprite("play/coin.png", 1294, 231+212, 0, 0, 0, 0), 1294, 231+212, 0);
+    // btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                        Engine::Sprite("play/sand.png", 1294, 231+212, 0, 0, 0, 0),
+    //                        Engine::Sprite("play/coin.png", 1294, 231+212, 0, 0, 0, 0), 1294, 231+212, 0);
 
-    UIGroup->AddNewObject(coin_lv_l= new Engine::Label("LV. " + std::to_string(coin_lv), "pirulen.ttf", 30, 1294+70, 231+212+10));
-    btn->SetOnClickCallback(std::bind(&PlayScene::buff_adder, this, 0));
-    UIGroup->AddNewControlObject(btn);
+    // UIGroup->AddNewObject(coin_lv_l= new Engine::Label("LV. " + std::to_string(coin_lv), "pirulen.ttf", 30, 1294+70, 231+212+10));
+    // btn->SetOnClickCallback(std::bind(&PlayScene::buff_adder, this, 0));
+    // UIGroup->AddNewControlObject(btn);
 
-        btn = new TurretButton("play/floor.png", "play/dirt.png",
-                           Engine::Sprite("play/sand.png", 1294, 231+212+78, 0, 0, 0, 0),
-                           Engine::Sprite("play/speed-up.png", 1294, 231+212+78, 0, 0, 0, 0), 1294, 231+212+78, 0);
+    //     btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                        Engine::Sprite("play/sand.png", 1294, 231+212+78, 0, 0, 0, 0),
+    //                        Engine::Sprite("play/speed-up.png", 1294, 231+212+78, 0, 0, 0, 0), 1294, 231+212+78, 0);
 
-    UIGroup->AddNewObject(coolDown_lv_l= new Engine::Label("LV. " + std::to_string(coolDown_lv), "pirulen.ttf", 30, 1294+70, 231+212+78+10));
-    btn->SetOnClickCallback(std::bind(&PlayScene::buff_adder, this, 1));
-    UIGroup->AddNewControlObject(btn);
+    // UIGroup->AddNewObject(coolDown_lv_l= new Engine::Label("LV. " + std::to_string(coolDown_lv), "pirulen.ttf", 30, 1294+70, 231+212+78+10));
+    // btn->SetOnClickCallback(std::bind(&PlayScene::buff_adder, this, 1));
+    // UIGroup->AddNewControlObject(btn);
 
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
@@ -627,44 +620,44 @@ void PlayScene::ConstructUI() {
 //// new
 // strength 0 / sped up 1
 void PlayScene::buff_adder(int state){
-    if (player_skill_point <= 0) return;
-    player_skill_point -= 1;
-    player_skill_point_l->Text = std::string("Point: " + std::to_string((int)player_skill_point));
-    std::cout << "ADD BUFF" << state << std::endl;
-    if (state == 0){
-        turret_coin_mul *= 1.17;
-        coin_lv += 1;
-        coin_lv_l->Text = "LV." + std::to_string(coin_lv);
-    }
-    else if (state == 1){
-        turret_coolDown_mul *= 0.88;
-        coolDown_lv += 1;
-        coolDown_lv_l->Text = "LV." + std::to_string(coolDown_lv);    
-    }
+    // if (player_skill_point <= 0) return;
+    // player_skill_point -= 1;
+    // player_skill_point_l->Text = std::string("Point: " + std::to_string((int)player_skill_point));
+    // std::cout << "ADD BUFF" << state << std::endl;
+    // if (state == 0){
+    //     turret_coin_mul *= 1.17;
+    //     coin_lv += 1;
+    //     coin_lv_l->Text = "LV." + std::to_string(coin_lv);
+    // }
+    // else if (state == 1){
+    //     turret_coolDown_mul *= 0.88;
+    //     coolDown_lv += 1;
+    //     coolDown_lv_l->Text = "LV." + std::to_string(coolDown_lv);    
+    // }
 }
 
 void PlayScene::UIBtnClicked(int id) {
-    if (preview)
-        UIGroup->RemoveObject(preview->GetObjectIterator());
-    if (id == 0 && money >= MachineGunTurret::Price)
-        preview = new MachineGunTurret(0, 0);
-    else if (id == 1 && money >= LaserTurret::Price)
-        preview = new LaserTurret(0, 0);
-    else if (id == 2 && money >= CoolTurret::Price)
-        preview = new CoolTurret(0, 0);  //// new
+    // if (preview)
+    //     UIGroup->RemoveObject(preview->GetObjectIterator());
+    // if (id == 0 && money >= MachineGunTurret::Price)
+    //     preview = new MachineGunTurret(0, 0);
+    // else if (id == 1 && money >= LaserTurret::Price)
+    //     preview = new LaserTurret(0, 0);
+    // else if (id == 2 && money >= CoolTurret::Price)
+    //     preview = new CoolTurret(0, 0);  //// new
 
-    if (id == 666){
-        preview = new ShovelTool(0, 0);
-    }
+    // if (id == 666){
+    //     preview = new ShovelTool(0, 0);
+    // }
     
-    if (!preview)
-        return;
-    preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
-    preview->Tint = al_map_rgba(255, 255, 255, 200);
-    preview->Enabled = false;
-    preview->Preview = true;
-    UIGroup->AddNewObject(preview);
-    OnMouseMove(Engine::GameEngine::GetInstance().GetMousePosition().x, Engine::GameEngine::GetInstance().GetMousePosition().y);
+    // if (!preview)
+    //     return;
+    // preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
+    // preview->Tint = al_map_rgba(255, 255, 255, 200);
+    // preview->Enabled = false;
+    // preview->Preview = true;
+    // UIGroup->AddNewObject(preview);
+    // OnMouseMove(Engine::GameEngine::GetInstance().GetMousePosition().x, Engine::GameEngine::GetInstance().GetMousePosition().y);
 }
 
 bool PlayScene::CheckSpaceValid(int x, int y) {

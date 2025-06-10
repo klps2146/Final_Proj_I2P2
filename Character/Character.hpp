@@ -2,7 +2,10 @@
 #define CHARACTER_HPP
 #include "Engine/Sprite.hpp"
 #include "Engine/IControl.hpp"
+#include "ItemBar/Itembar.hpp"
 
+
+class ItemBar;
 class PlayScene;
 
 namespace Engine {
@@ -23,6 +26,8 @@ namespace Engine {
         const float MAX_HP = 1000;
         float POWER;
         const float MAX_POWER = 500;
+
+        ItemBar itemBar_;
 
         Engine::Point last_idle_dir;
         float frame_timer = 0.0f;

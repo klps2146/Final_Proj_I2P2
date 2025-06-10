@@ -126,7 +126,8 @@ add_executable(2025_I2P2_TowerDefense
     Weapon/Weapon.cpp
     Weapon/Weapon.hpp
 
-
+    ItemBar/Itembar.cpp
+    ItemBar/Itembar.hpp
 
 
     main.cpp
