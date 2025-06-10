@@ -7,6 +7,7 @@
 #include <queue>
 #include <string>
 #include <vector>
+#include <utility>
 
 #include "Enemy/Enemy.hpp"
 // new
@@ -80,7 +81,7 @@ void PlayScene::Initialize() {
     //// chracter
     character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 200, 32);
     character->SetSpriteSource(0, 0, 96, 96);
-    character->SetSize(96, 96); // real size
+    character->SetSize(70, 70); // real size
     AddNewControlObject(character);
 
     // Add groups from bottom to top.
@@ -357,13 +358,13 @@ void PlayScene::OnKeyDown(int keyCode) {
     }
     if (keyCode == ALLEGRO_KEY_Q) {
         // Hotkey for MachineGunTurret.
-        UIBtnClicked(0);
+        // UIBtnClicked(0);
     } else if (keyCode == ALLEGRO_KEY_W) {
         // Hotkey for LaserTurret.
-        UIBtnClicked(1);
+        // UIBtnClicked(1);
     }
     else if (keyCode == ALLEGRO_KEY_E){
-        UIBtnClicked(2); //// new
+        // UIBtnClicked(2); //// new
     }
     else if (keyCode >= ALLEGRO_KEY_0 && keyCode <= ALLEGRO_KEY_9) {
         // Hotkey for Speed up.
@@ -432,14 +433,38 @@ void PlayScene::ReadMap() {
         throw std::ios_base::failure("Map data is corrupted.");
     // Store map in 2d array.
     mapState = std::vector<std::vector<TileType>>(MapHeight, std::vector<TileType>(MapWidth));
+
+    std::string spriteSheetFile = "map/Overworld.png";
+    static const std::pair<std::pair<int, int>, std::pair<int, int>> item_bias[10] = {
+        {{3, 3}, {1, 1}},
+        {{0, 0}, {1, 1}},
+        {{4, 1}, {2, 2}},
+        {{5, 6}, {3, 3}}
+    };
+    /* 對應用 不要刪註解
+    enum TileType {
+        TILE_WATER,
+        TILE_GRASS,
+        TILE_ROCK,
+        TILE_BRIDGE,
+    };
+    */
+
     for (int i = 0; i < MapHeight; i++) {
         for (int j = 0; j < MapWidth; j++) {
             const int num = mapData[i * MapWidth + j];
-            
+
+            // Engine::Sprite* tileSprite = new Engine::Sprite(spriteSheetFile, j * BlockSize, i * BlockSize, 0, 0, 0, 0);
+            // tileSprite->SetSpriteSource(item_bias[num].first.first*96, 
+            //                             item_bias[num].first.second*96, 
+            //                             item_bias[num].second.first*96,
+            //                             item_bias[num].second.second*96);
+            // tileSprite->SetSize(BlockSize, BlockSize);
+            // TileMapGroup->AddNewObject(tileSprite);
+
             if (num==0){
                 mapState[i][j]=TILE_WATER;
-                TileMapGroup->AddNewObject(new Engine::Image("play/water.png", j *
-                    BlockSize, i * BlockSize, BlockSize, BlockSize));
+                TileMapGroup->AddNewObject(new Engine::Image("play/water.png", j *BlockSize, i * BlockSize, BlockSize, BlockSize));
             }
             else if (num==1){
                 mapState[i][j]=TILE_GRASS;

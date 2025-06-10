@@ -1,6 +1,7 @@
 #include "Character.hpp"
 #include <allegro5/allegro.h>
 #include "Engine/GameEngine.hpp"
+#include "Engine/Collider.hpp"
 #include "Scene/PlayScene.hpp"
 #include <iostream>
 
@@ -142,60 +143,62 @@ namespace Engine {
 
         }
 
-        /* New modification starts here */
         // Calculate new position based on velocity and delta time
         Point newPosition = Position + Velocity * deltaTime;
 
-        // Get map data from PlayScene
         auto& mapState = getPlayScene()->mapState;
         int mapHeight = mapState.size();
-        if (mapHeight == 0) return; // Prevent errors if map is empty
+        if (mapHeight == 0) return;
         int mapWidth = mapState[0].size();
 
-        // Convert new position to tile coordinates (center of character)
-        int tileX = static_cast<int>(newPosition.x / BlockSize);
-        int tileY = static_cast<int>(newPosition.y / BlockSize);
-
-        // Check if the tile at the character's center is TILE_WATER
         bool collisionDetected = false;
-        if (tileX >= 0 && tileX < mapWidth && tileY >= 0 && tileY < mapHeight) {
-            if (mapState[tileY][tileX] == getPlayScene()->TILE_WATER||mapState[tileY][tileX] == getPlayScene()->TILE_ROCK) {
-                // Perform circle-rectangle collision check for TILE_WATER
-                float tileLeft = tileX * BlockSize;
-                float tileRight = tileLeft + BlockSize;
-                float tileTop = tileY * BlockSize;
-                float tileBottom = tileTop + BlockSize;
 
-                // Find closest point on tile rectangle to character center
-                float closestX = std::max(tileLeft, std::min(newPosition.x, tileRight));
-                float closestY = std::max(tileTop, std::min(newPosition.y, tileBottom));
+        int tileLeft = (int)((newPosition.x - CollisionRadius) / BlockSize);
+        int tileRight = (int)((newPosition.x + CollisionRadius) / BlockSize);
+        int tileTop = (int)((newPosition.y - CollisionRadius) / BlockSize);
+        int tileBottom = (int)((newPosition.y + CollisionRadius) / BlockSize);
 
-                // Calculate distance from character center to closest point
-                float dx = newPosition.x - closestX;
-                float dy = newPosition.y - closestY;
-                float distance = std::sqrt(dx * dx + dy * dy);
+        tileLeft = std::max(0, tileLeft);
+        tileRight = std::min(mapWidth - 1, tileRight);
+        tileTop = std::max(0, tileTop);
+        tileBottom = std::min(mapHeight - 1, tileBottom);
 
-                // Collision if distance is less than CollisionRadius
-                if (distance < CollisionRadius) {
-                    collisionDetected = true;
+        for (int ty = tileTop; ty <= tileBottom; ++ty) {
+            for (int tx = tileLeft; tx <= tileRight; ++tx) {
+                int tile = mapState[ty][tx];
+
+                if (tile == getPlayScene()->TILE_WATER || tile == getPlayScene()->TILE_ROCK) {
+                    Point tileMin(tx * BlockSize, ty * BlockSize);
+                    Point tileMax = tileMin + Point(BlockSize, BlockSize);
+
+                    // 找角色圓心在 tile 上的最近點
+                    float closestX = std::max(tileMin.x, std::min(newPosition.x, tileMax.x));
+                    float closestY = std::max(tileMin.y, std::min(newPosition.y, tileMax.y));
+                    Point closestPoint(closestX, closestY);
+
+                    // 把腳色碰撞鄉一道腳附近
+                    Point CharCollisionBox = newPosition + Engine::Point(0, 16);
+                    float effectiveRadius = (tile == getPlayScene()->TILE_ROCK) ? CollisionRadius - 12 : CollisionRadius - 12;
+
+                    if (Engine::Collider::IsCircleOverlap(CharCollisionBox, effectiveRadius, closestPoint, 0)) {
+                        collisionDetected = true;
+                        break;
+                    }
                 }
             }
+            if (collisionDetected) break;
         }
 
-        // Update position only if no collision is detected
         if (!collisionDetected) {
             Position = newPosition;
         } else {
-            Velocity = Point(0, 0); // Stop movement on collision with TILE_WATER
+            Velocity = Point(0, 0);
         }
-        /* New modification ends here */
 
-        // Update position using Sprite's Update (Position += Velocity * deltaTime)
-        Sprite::Update(deltaTime);
-
+        // 保持角色在螢幕內
         Point screenSize = GameEngine::GetInstance().GetScreenSize();
         Position.x = std::max(CollisionRadius, std::min(screenSize.x - CollisionRadius, Position.x));
         Position.y = std::max(CollisionRadius, std::min(screenSize.y - CollisionRadius, Position.y));
     }
     
-} // namespace Engine
+}
