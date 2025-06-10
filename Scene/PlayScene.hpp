@@ -32,6 +32,7 @@ public: //// new 本來是 privte
         TILE_ROCK,
         TILE_OCCUPIED,
         TILE_BRIDGE,
+        TILE_HOME,
     };
     ALLEGRO_SAMPLE_ID bgmId;
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> deathBGMInstance;
@@ -43,9 +44,11 @@ protected:
 
 public:
     //// new
+    int homeposi,homeposj;
+    int homeset = 0;
     float turret_coin_mul = 1.0f; 
     float turret_coolDown_mul = 1.0f; // 越小 頻率越高
-
+    
     int coin_lv = 0;
     int coolDown_lv = 0;
     Engine::Label* coin_lv_l;
