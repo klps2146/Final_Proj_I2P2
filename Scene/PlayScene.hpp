@@ -61,12 +61,8 @@ public:
     Engine::Character* character;
     Engine::Gun* gun; // 新增：槍物件
 
-
-
-
-
-
-
+    //// new
+    Engine::Point CameraPos;
 
 
     void buff_adder(int state);

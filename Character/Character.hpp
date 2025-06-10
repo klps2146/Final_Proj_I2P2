@@ -19,6 +19,11 @@ namespace Engine {
         bool isDying;
         bool isDead;
 
+        float HP;
+        const float MAX_HP = 1000;
+        float POWER;
+        const float MAX_POWER = 500;
+
         Engine::Point last_idle_dir;
         float frame_timer = 0.0f;
         int cur_frame = 0;
@@ -38,8 +43,10 @@ namespace Engine {
         
         // Override Update to handle movement
         void Update(float deltaTime) override;
-
-        
+        void DrawBars();
+        void Draw() const override;
+        bool IsAlive();
     };
+    
 }
 #endif //

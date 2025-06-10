@@ -5,6 +5,8 @@
 #include "Scene/PlayScene.hpp"
 #include <iostream>
 
+#include <allegro5/allegro_primitives.h>
+
 PlayScene *Engine::Character::getPlayScene() {
     return dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetActiveScene());
 }
@@ -21,13 +23,20 @@ namespace Engine {
         SetSpriteSource(0, 0, 96, 96);
         isDying = 0;
         isDead = 0;
+        HP = 1000;
+        POWER = 500;
         // std::cout << ">>>>>>>>Bitmap width: " << GetBitmapWidth() << ", height: " << GetBitmapHeight() << std::endl;
     }
 
     void Character::OnKeyDown(int keyCode) {
         if (keyCode == ALLEGRO_KEY_K){ // 自殺測試用
             isDying = 1;
+            HP = 0;
             cur_frame = frame_timer = 0;
+        }
+        else if (keyCode == ALLEGRO_KEY_BACKSPACE){
+            HP -= 100;
+            std::cout <<"HURT: " << HP<<std::endl;
         }
         switch (keyCode) {
             case ALLEGRO_KEY_W:
@@ -120,7 +129,12 @@ namespace Engine {
                 }
             }
         }
-        else if(!isDead) { // 快死了
+        
+        if(HP == 0 && !isDying) { // 快死了
+            cur_frame = frame_timer = 0;
+            isDying = 1;
+        }
+        else if (HP <= 0 && isDying){
             frame_timer += deltaTime;
 
             if (frame_timer >= (frame_duration+0.13)){
@@ -138,10 +152,11 @@ namespace Engine {
                     SetSpriteSource(cur_frame * 96, 96*4, 96, 96);
             }
         }
-        else{ // 真死了
+        if (isDead == 1) { // 真死了
             std::cout << "YOU FUCKED UP" << std::endl;
 
         }
+
 
         // Calculate new position based on velocity and delta time
         Point newPosition = Position + Velocity * deltaTime;
@@ -199,6 +214,47 @@ namespace Engine {
         Point screenSize = GameEngine::GetInstance().GetScreenSize();
         Position.x = std::max(CollisionRadius, std::min(screenSize.x - CollisionRadius, Position.x));
         Position.y = std::max(CollisionRadius, std::min(screenSize.y - CollisionRadius, Position.y));
+
+        getPlayScene()->CameraPos = Position - screenSize / 2;
     }
-    
+
+    void Character::DrawBars() {
+        // 血
+        const float barWidth = 60;
+        const float barHeight = 7;
+        const float offsetY = -48; // 在腳色頭上
+
+        float healthPercent = (float)HP / MAX_HP;
+
+        ALLEGRO_COLOR bgColor = al_map_rgb(100, 100, 100);
+        ALLEGRO_COLOR frontColor = al_map_rgb(255, 0, 0);
+
+        float barX = Position.x - barWidth / 2 - getPlayScene()->CameraPos.x;
+        float barY = Position.y + offsetY - getPlayScene()->CameraPos.y;
+
+        al_draw_filled_rectangle(barX, barY, barX + barWidth, barY + barHeight, bgColor);
+        al_draw_filled_rectangle(barX, barY, barX + barWidth * healthPercent, barY + barHeight, frontColor);
+        
+        // 魔力
+        const float offsetY2 = -40; // 在腳色頭上
+
+        float powerPercent = (float)POWER / MAX_POWER;
+
+        frontColor = al_map_rgb(0, 0, 255);
+
+        barX = Position.x - barWidth / 2 - getPlayScene()->CameraPos.x;
+        barY = Position.y + offsetY2 - getPlayScene()->CameraPos.y;
+
+        al_draw_filled_rectangle(barX, barY, barX + barWidth, barY + barHeight, bgColor);
+        al_draw_filled_rectangle(barX, barY, barX + barWidth * powerPercent, barY + barHeight, frontColor);
+
+    }
+
+    void Character::Draw() const {
+        Sprite::Draw();
+    }
+
+    bool Character::IsAlive(){
+        return !isDead;
+    }
 }
