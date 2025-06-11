@@ -2,6 +2,7 @@
 #include "Skill/SkillBase.hpp"
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro5.h>
+#include <iostream>
 
 ItemBar::ItemBar() {
     slots.resize(SlotAmount, nullptr);
@@ -30,8 +31,13 @@ void ItemBar::Draw(const Engine::Point& cameraPos, const Engine::Point& screenSi
         if (slots[i]) {
             slots[i]->Position.x = x;
             slots[i]->Position.y = y;
+
+            slots[i]->Anchor = Engine::Point(0, 0);
+
+            slots[i]->SetSize(slotSize, slotSize);
             slots[i]->Draw();
 
+            // 畫冷卻遮罩
             float ratio = slots[i]->GetCooldownRatio();
             if (ratio > 0) {
                 al_draw_filled_rectangle(x, y, x + slotSize, y + slotSize * ratio, al_map_rgba(0, 0, 0, 150));
@@ -46,8 +52,12 @@ void ItemBar::SelectSlot(int index) {
 }
 
 void ItemBar::OnKeyDown(int keyCode) {
+    if (selectedIndex + ALLEGRO_KEY_1 == keyCode) // 連按
+        if (GetSelectedSkill())
+            GetSelectedSkill()->Activate();
     if (keyCode >= ALLEGRO_KEY_1 && keyCode <= ALLEGRO_KEY_1 + SlotAmount - 1)
         SelectSlot(keyCode - ALLEGRO_KEY_1);
+        
 }
 
 SkillBase* ItemBar::GetSelectedSkill() const {

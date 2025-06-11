@@ -67,6 +67,8 @@ add_executable(2025_I2P2_TowerDefense
     Engine/Resources.hpp
     Engine/Sprite.cpp
     Engine/Sprite.hpp
+    Engine/SpriteFixed.cpp
+    Engine/SpriteFixed.hpp 
     
     # OK TODO HACKATHON-2 (3/3): Add the new scene source files here
     Scene/SettingsScene.cpp
@@ -131,7 +133,8 @@ add_executable(2025_I2P2_TowerDefense
 
     Skill/SkillBase.cpp
     Skill/SkillBase.hpp
-
+    Skill/DashSkill.cpp
+    Skill/DashSkill.hpp
 
     main.cpp
 )

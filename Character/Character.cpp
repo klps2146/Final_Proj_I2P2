@@ -25,8 +25,6 @@ namespace Engine {
         isDead = 0;
         HP = 1000;
         POWER = 500;
-
-
     }
 
     void Character::OnKeyDown(int keyCode) {
@@ -40,13 +38,14 @@ namespace Engine {
             std::cout <<"HURT: " << HP<<std::endl;
         }
         else if (keyCode == ALLEGRO_KEY_SPACE){
-            speed *= 2;
+            speed += 100;
             std::cout <<"SPEED: " << speed <<std::endl;
             
         }
         // 物品欄的
         itemBar_.OnKeyDown(keyCode);
-
+        // 使用技能
+        
 
         switch (keyCode) {
             case ALLEGRO_KEY_W:
@@ -100,6 +99,18 @@ namespace Engine {
     }
 
     void Character::Update(float deltaTime) {
+        // 技能增益
+        if (speedTimer > 0) {
+            speedTimer -= deltaTime;
+            if (speedTimer <= 0) {
+                speedTimer = 0;
+                speed = originalSpeed;
+            }
+        }
+        // 技能冷卻(所有)
+        itemBar_.Update(deltaTime);
+
+        // 動畫
         if (!isDying){
             if (isMoving) {
                 Velocity = direction * speed;
@@ -268,7 +279,6 @@ namespace Engine {
 
         // 畫物品欄 (下面不知道為啥不能)
         itemBar_.Draw(getPlayScene()->CameraPos, GameEngine::GetInstance().GetScreenSize());
-
     }
 
     void Character::Draw() const {
@@ -277,6 +287,25 @@ namespace Engine {
 
     bool Character::IsAlive(){
         return !isDead;
+    }
+    void Character::setTimer(float time) {
+        speedTimer = time;
+        originalSpeed = speed / 2; // 以 DashSkill 的邏輯
+    }
+
+    void Character::AddSkill(SkillBase* skill){
+        for (int i = 0; i < itemBar_.SlotAmount; i++) {
+            if (!itemBar_.slots[i]) {
+                itemBar_.slots[i] = skill;
+                return;
+            }
+        }
+        std::cout << "No empty slot to add skill.\n";
+    }
+
+    void Character::UseSkill(int index){
+        if (index < 0 || index > itemBar_.slots.size()-1) return;
+        itemBar_.slots[index]->Activate();
     }
 
     

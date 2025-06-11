@@ -25,7 +25,7 @@ namespace Engine {
             float bulletSpeed = 400.0f;
             Point bulletDir(std::cos(Rotation), std::sin(Rotation));
             Point bulletPos = Position + bulletDir * 30.0f; // Offset to gun tip
-            BulletBoom* bullet = new BulletBoom(bulletPos.x, bulletPos.y, bulletDir * bulletSpeed, 10);
+            BulletBoom* bullet = new BulletBoom(bulletPos.x, bulletPos.y, bulletDir * bulletSpeed, 30);
             scene->AddNewObject(bullet); // Add bullet to scene
             cooldownTimer = fireCooldown; // Reset cooldown
         }
