@@ -11,7 +11,7 @@
 #include "Engine/IScene.hpp"
 #include "Engine/Point.hpp"
 #include "Weapon/Gun.hpp"
-
+#include "Drop/coin.hpp" // 新增 coin.hpp 包含
 class Turret;
 namespace Engine {
     class Group;
@@ -124,6 +124,7 @@ public:
     std::vector<std::vector<int>> CalculateBFSDistance(Engine::Point start);
     std::vector<Engine::Point> FindPathAStar(Engine::Point start, Engine::Point end);
     Engine::Point GetValidSpawnPoint();
+    void SpawnCoin(float x, float y, int value);
 };
 #endif
 // PLAYSCENE_HPP

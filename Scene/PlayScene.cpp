@@ -34,7 +34,7 @@
 #include "Skill/SkillBase.hpp"
 #include "Skill/DashSkill.hpp"
 
-
+#include "Drop/coin.hpp"
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
 const int PlayScene::BlockSize = 64;
@@ -364,6 +364,8 @@ int PlayScene::GetMoney() const {
 }
 void PlayScene::EarnMoney(int money) {
     this->money += (money > 0) ? money * turret_coin_mul : money;
+    UIMoney->Text = std::string("$") + std::to_string(this->money);
+    //this->money += money;
 }
 void PlayScene::ReadMap() {
     std::string filename;
@@ -689,7 +691,9 @@ Engine::Point PlayScene::GetValidSpawnPoint() {
     Engine::Point gridPos = validPoints[dis(gen)];
     return Engine::Point(gridPos.x * BlockSize + BlockSize / 2, gridPos.y * BlockSize + BlockSize / 2);
 }
-
+void PlayScene::SpawnCoin(float x, float y, int value) {
+    GroundEffectGroup->AddNewObject(new Coin(this, x, y, value));
+}
 
 // #include <algorithm>
 // #include <allegro5/allegro.h>

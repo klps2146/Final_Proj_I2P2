@@ -136,6 +136,9 @@ add_executable(2025_I2P2_TowerDefense
     Skill/DashSkill.cpp
     Skill/DashSkill.hpp
 
+    Drop/coin.hpp
+    Drop/coin.cpp
+
     main.cpp
 )
 

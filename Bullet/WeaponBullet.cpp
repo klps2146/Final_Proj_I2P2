@@ -34,7 +34,8 @@ void WeaponBullet::Update(float deltaTime) {
             continue;
         if (Engine::Collider::IsCircleOverlap(Position, CollisionRadius, enemy->Position, enemy->CollisionRadius)) {
             OnExplode(enemy);                            // 觸發爆炸效果
-            enemy->Hit(damage);                          // 對敵人造成傷害
+
+            enemy->Hit(damage,true);                          // 對敵人造成傷害
             scene->WeaponBulletGroup->RemoveObject(objectIterator);  // 移除子彈
             return;
         }

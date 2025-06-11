@@ -19,7 +19,7 @@ namespace Engine {
             Enemy* enemy = dynamic_cast<Enemy*>(it);
             if (!enemy || !enemy->Visible) continue;
             if (Collider::IsCircleOverlap(Position, CollisionRadius, enemy->Position, enemy->CollisionRadius)) {
-                enemy->Hit(damage);
+                enemy->Hit(damage,true);
                 Visible = false;
                 return;
             }
