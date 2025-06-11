@@ -70,7 +70,7 @@ void PlayScene::Initialize() {
     deathCountDown = -1;
     lives = 10000;
     money = 666;
-    SpeedMult = 5;
+    SpeedMult = 1;
 
 
 

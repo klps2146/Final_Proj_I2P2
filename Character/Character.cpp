@@ -26,6 +26,7 @@ namespace Engine {
         HP = 1000;
         POWER = 500;
 
+
     }
 
     void Character::OnKeyDown(int keyCode) {
@@ -38,7 +39,11 @@ namespace Engine {
             HP -= 100;
             std::cout <<"HURT: " << HP<<std::endl;
         }
-
+        else if (keyCode == ALLEGRO_KEY_SPACE){
+            speed *= 20;
+            std::cout <<"SPEED: " << speed <<std::endl;
+            
+        }
         // 物品欄的
         itemBar_.OnKeyDown(keyCode);
 
@@ -148,7 +153,7 @@ namespace Engine {
                 cur_frame = (cur_frame + 1);
 
                 if (cur_frame > max_frames-1){
-                    std::cout << "お前はもう死んでる" << std::endl;
+                    // std::cout << "お前はもう死んでる" << std::endl;
                     isDead = 1;
                 }
 
@@ -163,8 +168,7 @@ namespace Engine {
             Engine::GameEngine::GetInstance().ChangeScene("lose");
         }
 
-
-        // Calculate new position based on velocity and delta time
+        // 碰撞和實際移動
         Point newPosition = Position + Velocity * deltaTime;
 
         auto& mapState = getPlayScene()->mapState;
@@ -189,7 +193,7 @@ namespace Engine {
 
         for (int ty = tileTop; ty <= tileBottom; ++ty) {
             for (int tx = tileLeft; tx <= tileRight; ++tx) {
-                if (tx < 0 || tx >= mapWidth || ty < 0 || ty >= mapHeight) {
+                if (tx < 1 || tx >= mapWidth || ty < 0 || ty >= mapHeight) {
                     collisionDetected = true;
                     break;
                 }

@@ -1,11 +1,7 @@
 #ifndef SKILLBASE_HPP
 #define SKILLBASE_HPP
-
 #include <string>
-#include <memory>
-#include "Engine/Point.hpp"
 #include "Engine/Sprite.hpp"
-
 
 class PlayScene;
 
@@ -15,21 +11,20 @@ protected:
     float CDTimer;
     float maxCD;
     bool isUnlocked;
-    PlayScene *getPlayScene();
-    
-public:
-    SkillBase(const std::string& name, const std::string& img, float x, float y, float maxCD);    
-    virtual ~SkillBase() = default;
 
-    virtual void Activate(Engine::Point target) = 0;
-    virtual void Update(float deltaTime) override;
-    virtual void Draw() const override;
+public:
+    SkillBase(const std::string& name, const std::string& img, float x, float y, float maxCD);
+
+    void Update(float deltaTime) override;
+    void Draw() const override;
+    virtual void SkillAnimation();  // 可由子類別實作
+    virtual void Activate();        // 技能效果發動時呼叫
 
     bool IsReady() const;
+    float GetCooldownRatio() const;
+    std::string GetName() const;
     void Unlock();
 
-    std::string GetName() const;
-    float GetCooldownRatio() const; // 回傳 0~1，UI 可用於畫進度條
+    static PlayScene* getPlayScene();
 };
-
-#endif // SKILLBASE_HPP
+#endif

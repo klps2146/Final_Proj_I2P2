@@ -1,10 +1,6 @@
-#include "Engine/GameEngine.hpp"
-#include "Scene/PlayScene.hpp"
 #include "SkillBase.hpp"
-
-PlayScene *SkillBase::getPlayScene() {
-    return dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetActiveScene());
-}
+#include "Scene/PlayScene.hpp"
+#include "Engine/GameEngine.hpp"
 
 SkillBase::SkillBase(const std::string& name, const std::string& img, float x, float y, float maxCD)
     : Engine::Sprite(img, x, y), name(name), CDTimer(0), maxCD(maxCD), isUnlocked(false) {
@@ -26,16 +22,30 @@ bool SkillBase::IsReady() const {
     return CDTimer <= 0 && isUnlocked;
 }
 
-void SkillBase::Unlock() {
-    isUnlocked = true;
+float SkillBase::GetCooldownRatio() const {
+    if (maxCD == 0) return 0;
+    return CDTimer / maxCD;
 }
 
 std::string SkillBase::GetName() const {
     return name;
 }
 
-float SkillBase::GetCooldownRatio() const {
-    if (maxCD == 0) return 0;
-    return CDTimer / maxCD;
+void SkillBase::Unlock() {
+    isUnlocked = true;
 }
 
+void SkillBase::SkillAnimation() {
+    // 預設為空，由子類別實作
+}
+
+void SkillBase::Activate() {
+    if (IsReady()) {
+        CDTimer = maxCD;
+        SkillAnimation();
+    }
+}
+
+PlayScene* SkillBase::getPlayScene() {
+    return dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetActiveScene());
+}
