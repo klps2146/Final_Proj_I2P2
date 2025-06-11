@@ -33,9 +33,9 @@
 
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
-const int PlayScene::MapWidth = 40, PlayScene::MapHeight = 30;
 const int PlayScene::BlockSize = 64;
 const float PlayScene::DangerTime = 7.61;
+int PlayScene::MapWidth = 40, PlayScene::MapHeight = 30;
 const Engine::Point PlayScene::SpawnGridPoint = Engine::Point(-1, 0);
 const Engine::Point PlayScene::EndGridPoint = Engine::Point(MapWidth, MapHeight - 1);
 const std::vector<int> PlayScene::code = {
@@ -70,7 +70,22 @@ void PlayScene::Initialize() {
     SpeedMult = 1;
     homeset=0;
 
+    std::ifstream fin("../Resource/whichscene.txt");
+    char whichscene; // 默認值
+    if (fin.is_open()) {
+        fin >> whichscene;
+        fin.close();
+    } else {
+        std::cerr << "Failed to read whichscene.txt" << std::endl;
+    }
+    if(whichscene=='0') scenenum=0;
+    if(whichscene=='1') scenenum=1;
 
+    /*if(scenenum==1){
+        MapHeight = 18;
+    }*/
+        
+    
 
     //// chracter
     character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 500, 32);
@@ -92,7 +107,8 @@ void PlayScene::Initialize() {
     AddNewObject(WeaponBulletGroup = new Group());
     AddNewObject(EffectGroup = new Group());
     AddNewControlObject(UIGroup = new Group());
-    ReadMap();
+    if(scenenum==0) ReadMap();
+    else if(scenenum==1) ReadHomeMap();
     ReadEnemyWave();
     ConstructUI();
     imgTarget = new Engine::Image("play/target.png", 0, 0); // pkboie is handsome
@@ -298,17 +314,17 @@ void PlayScene::OnKeyDown(int keyCode) {
     }
     if(gohomekey && keyCode == ALLEGRO_KEY_F){
         // 讀取當前 whichscene.txt 的值
-        std::ifstream fin("../Resource/whichscene.txt");
+        /*std::ifstream fin("../Resource/whichscene.txt");
         char scenenum = '0'; // 默認值
         if (fin.is_open()) {
             fin >> scenenum;
             fin.close();
         } else {
             std::cerr << "Failed to read whichscene.txt, using default '0'" << std::endl;
-        }
+        }*/
 
         // 切換值：'0' -> '1', '1' -> '0'
-        char newScene = (scenenum == '0') ? '1' : '0';
+        char newScene = (scenenum == 0) ? '1' : '0';
 
         // 寫入新的值到 whichscene.txt
         std::ofstream fout("../Resource/whichscene.txt", std::ios::trunc);
@@ -326,7 +342,7 @@ void PlayScene::OnKeyDown(int keyCode) {
 
         // 根據新值切換場景
         Engine::GameEngine::GetInstance().ChangeScene("play"); // mapX.txt
-        
+
     }
 }
 void PlayScene::Hit(float damage) {
@@ -366,14 +382,14 @@ void PlayScene::ReadMap() {
             case '\n':
             case '\r':
                 if (static_cast<int>(mapData.size()) / MapWidth != 0)
-                    throw std::ios_base::failure("Map data is corrupted.");
+                    throw std::ios_base::failure("Map data is corrupted.4");
                 break;
-            default: throw std::ios_base::failure("Map data is corrupted.");
+            default: throw std::ios_base::failure("Map data is corrupted.5");
         }
     }
     fin.close();
-    if (static_cast<int>(mapData.size()) != MapWidth * MapHeight)
-        throw std::ios_base::failure("Map data is corrupted.");
+    /*if (static_cast<int>(mapData.size()) != MapWidth * MapHeight)
+        throw std::ios_base::failure("Map data is corrupted.6");*/
     mapState = std::vector<std::vector<TileType>>(MapHeight, std::vector<TileType>(MapWidth));
     std::string spriteSheetFile = "map/Overworld.png";
     static const std::pair<std::pair<int, int>, std::pair<int, int>> item_bias[10] = {
@@ -449,6 +465,7 @@ void PlayScene::ReadMap() {
         }
     }
     if (homeset) TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 2 * BlockSize, 2 * BlockSize));
+    //add edge bush
     for (int i = 0; i < MapHeight; i++) {
         int j = -1;
         TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
@@ -474,6 +491,115 @@ void PlayScene::ReadMap() {
     TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
     TileMapGroup->AddNewObject(new Engine::Image("play/downright_bush.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
 }
+
+void PlayScene::ReadHomeMap() {
+    std::string filename;
+    //
+    std::string whichfile = std::string("../Resource/whichscene.txt");
+    std::ifstream f(whichfile);
+    char scenenum;
+    f >> scenenum;
+    //
+    if(scenenum=='0') filename = std::string("Resource/map") + std::to_string(MapId) + ".txt";
+    else if(scenenum=='1') filename = std::string("Resource/homemap.txt");
+    // Read map file.
+    char c;
+    std::vector<int> mapData;
+    std::ifstream fin(filename);
+    while (fin >> c) {
+        switch (c) {
+            case '0': mapData.push_back(0); break;
+            case '1': mapData.push_back(1); break;
+            case '2': mapData.push_back(2); break;
+            case '3': mapData.push_back(3); break;
+            case '4': mapData.push_back(4); break;
+            case '\n':
+            case '\r':
+                if (static_cast<int>(mapData.size()) / MapWidth != 0)
+                    throw std::ios_base::failure("Map data is corrupted.4");
+                break;
+            default: throw std::ios_base::failure("Map data is corrupted.5");
+        }
+    }
+    fin.close();
+    if (static_cast<int>(mapData.size()) != MapWidth * MapHeight)
+        throw std::ios_base::failure("Map data is corrupted.6");
+    mapState = std::vector<std::vector<TileType>>(MapHeight, std::vector<TileType>(MapWidth));
+    std::string spriteSheetFile = "map/Overworld.png";
+    static const std::pair<std::pair<int, int>, std::pair<int, int>> item_bias[10] = {
+        {{3, 3}, {1, 1}},
+        {{0, 0}, {1, 1}},
+        {{4, 1}, {2, 2}},
+        {{5, 6}, {3, 3}}
+    };
+    for (int i = 0; i < MapHeight; i++) {
+        for (int j = 0; j < MapWidth; j++) {
+            const int num = mapData[i * MapWidth + j];
+            if (num == 0) {
+                mapState[i][j] = TILE_GRASS;
+            } else if (num == 1) {
+                mapState[i][j] = TILE_GRASS;
+            } else if (num == 2) {
+                mapState[i][j] = TILE_ROCK;
+            } else if (num == 3) {
+                mapState[i][j] = TILE_BRIDGE;
+            } else if (num == 4) {
+                mapState[i][j] = TILE_HOME;
+                if (!homeset) {
+                    homeposi = i;
+                    homeposj = j;
+                    homeset = 1;
+                }
+            }
+        }
+    }
+    for (int i = 0; i < MapHeight; i++) {
+        for (int j = 0; j < MapWidth; j++) {
+            const int num = mapData[i * MapWidth + j];
+            if (num == 0 || num == 4) {
+                TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            }
+            if (num == 1) {
+                TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            }
+            if (num == 2) {
+                TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                TileMapGroup->AddNewObject(new Engine::Image("play/rock.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            }
+            if (num == 3) {
+                TileMapGroup->AddNewObject(new Engine::Image("play/water.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                TileMapGroup->AddNewObject(new Engine::Image("play/stonebridge.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            }
+        }
+    }
+    if (homeset) TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 2 * BlockSize, 2 * BlockSize));
+    //add edge bush
+    for (int i = 0; i < MapHeight; i++) {
+        int j = -1;
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/verti_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        j = MapWidth;
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/verti_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+    }
+    for (int j = 0; j < MapWidth; j++) {
+        int i = -1;
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/hori_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        i = MapHeight;
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/hori_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+    }
+    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", -1 * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
+    TileMapGroup->AddNewObject(new Engine::Image("play/upleft_bush.png", -1 * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
+    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", MapWidth * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
+    TileMapGroup->AddNewObject(new Engine::Image("play/upright_bush.png", MapWidth * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
+    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", -1 * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
+    TileMapGroup->AddNewObject(new Engine::Image("play/downleft_bush.png", -1 * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
+    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
+    TileMapGroup->AddNewObject(new Engine::Image("play/downright_bush.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
+}
+
 void PlayScene::ReadEnemyWave() {
     std::string filename = std::string("Resource/enemy") + std::to_string(MapId) + ".txt";
     float type, wait, repeat;

@@ -40,9 +40,15 @@ protected:
 
 public:
     //// new
+    int scenenum;//0 for play, 1 for home
     int homeposi,homeposj;
     int homeset;
     int gohomekey = 0;
+
+    int storeposi,storeposj;
+    int storeset;
+    int gostorekey = 0;
+
     float turret_coin_mul = 1.0f; 
     float turret_coolDown_mul = 1.0f;
     int coin_lv = 0;
@@ -68,7 +74,7 @@ public:
 
     static bool DebugMode;
     static const std::vector<Engine::Point> directions;
-    static const int MapWidth, MapHeight;
+    static int MapWidth, MapHeight;
     static const int BlockSize;
     static const float DangerTime;
     static const Engine::Point SpawnGridPoint;
@@ -110,6 +116,7 @@ public:
     int GetMoney() const;
     void EarnMoney(int money);
     void ReadMap();
+    void ReadHomeMap();
     void ReadEnemyWave();
     void ConstructUI();
     void UIBtnClicked(int id);
@@ -118,7 +125,7 @@ public:
     std::vector<Engine::Point> FindPathAStar(Engine::Point start, Engine::Point end);
     Engine::Point GetValidSpawnPoint();
 };
-#endif   
+#endif
 // PLAYSCENE_HPP
 // #ifndef PLAYSCENE_HPP
 // #define PLAYSCENE_HPP
