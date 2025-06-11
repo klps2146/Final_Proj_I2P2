@@ -3,7 +3,7 @@
 #include "Engine/GameEngine.hpp"
 
 SkillBase::SkillBase(const std::string& name, const std::string& img, float x, float y, float maxCD)
-    : Engine::Sprite(img, x, y), name(name), CDTimer(0), maxCD(maxCD), isUnlocked(false) {
+    : Engine::SpriteFixed(img, x, y), name(name), CDTimer(0), maxCD(maxCD), isUnlocked(false) {
 }
 
 void SkillBase::Update(float deltaTime) {
@@ -11,11 +11,11 @@ void SkillBase::Update(float deltaTime) {
         CDTimer -= deltaTime;
         if (CDTimer < 0) CDTimer = 0;
     }
-    Engine::Sprite::Update(deltaTime);
+    Engine::SpriteFixed::Update(deltaTime);
 }
 
 void SkillBase::Draw() const {
-    Engine::Sprite::Draw();
+    Engine::SpriteFixed::Draw();
 }
 
 bool SkillBase::IsReady() const {
@@ -36,7 +36,7 @@ void SkillBase::Unlock() {
 }
 
 void SkillBase::SkillAnimation() {
-    // 預設為空，由子類別實作
+    
 }
 
 void SkillBase::Activate() {
@@ -45,6 +45,11 @@ void SkillBase::Activate() {
         SkillAnimation();
     }
 }
+
+int SkillBase::getLevel(){
+    return level;
+}
+
 
 PlayScene* SkillBase::getPlayScene() {
     return dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetActiveScene());

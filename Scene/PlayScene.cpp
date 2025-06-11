@@ -31,6 +31,10 @@
 #include "UI/Animation/Plane.hpp"
 #include "UI/Component/Label.hpp"
 
+#include "Skill/SkillBase.hpp"
+#include "Skill/DashSkill.hpp"
+
+
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
 const int PlayScene::MapWidth = 40, PlayScene::MapHeight = 30;
@@ -72,6 +76,9 @@ void PlayScene::Initialize() {
     character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 200, 32);
     character->SetSpriteSource(0, 0, 96, 96);
     character->SetSize(70, 70);
+    character->AddSkill(new DashSkill());
+
+
     AddNewControlObject(character);
 
     CameraPos = Engine::Point(0, 0);
