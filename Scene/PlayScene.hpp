@@ -113,6 +113,7 @@ public:
     bool CheckSpaceValid(int x, int y);
     std::vector<std::vector<int>> CalculateBFSDistance(Engine::Point start);
     std::vector<Engine::Point> FindPathAStar(Engine::Point start, Engine::Point end);
+    Engine::Point GetValidSpawnPoint();
 };
 #endif   // PLAYSCENE_HPP
 // #ifndef PLAYSCENE_HPP

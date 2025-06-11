@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include <utility>
-
+#include <random>
 #include "Enemy/Enemy.hpp"
 #include "Enemy/PlaneEnemy.hpp"
 #include "Enemy/GodEnemy.hpp"
@@ -105,6 +105,48 @@ void PlayScene::Terminate() {
     deathBGMInstance = std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE>();
     IScene::Terminate();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void PlayScene::Update(float deltaTime) {
     WeaponBulletGroup->Update(deltaTime);
     gun->SetCharacterPosition(character->Position);
@@ -127,44 +169,166 @@ void PlayScene::Update(float deltaTime) {
     for (int i = 0; i < SpeedMult; i++) {
         IScene::Update(deltaTime);
         ticks += deltaTime;
-        if (enemyWaveData.empty()) {
-            if (EnemyGroup->GetObjects().empty()) {
-                std::ofstream ofs("../Resource/score_tmp.txt", std::ios::out);
-                ofs << money * 2 + lives * 495;
-                Engine::GameEngine::GetInstance().ChangeScene("win");
+        const float spawnInterval = 0.5f; // 每2秒生成一隻敵人，可依需要調整
+        static float spawnTimer = 0.0f;
+        spawnTimer += deltaTime;
+        if (spawnTimer >= spawnInterval) {
+            spawnTimer -= spawnInterval;
+            int type = rand() % 4 + 1; // 隨機產生 1~4 的敵人類型
+            //const Engine::Point SpawnCoordinate = Engine::Point(SpawnGridPoint.x * BlockSize + BlockSize / 2, SpawnGridPoint.y * BlockSize + BlockSize / 2);
+            Enemy *enemy;
+            Engine::Point spawnPos = GetValidSpawnPoint();
+            switch (type) {
+                case 1:
+                    EnemyGroup->AddNewObject(enemy = new SoldierEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                case 2:
+                    EnemyGroup->AddNewObject(enemy = new PlaneEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                case 3:
+                    EnemyGroup->AddNewObject(enemy = new TankEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                case 4:
+                    EnemyGroup->AddNewObject(enemy = new GodEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                default:
+                    continue;
             }
-            continue;
+            enemy->Update(ticks);
         }
-        auto current = enemyWaveData.front();
-        if (ticks < current.second)
-            continue;
-        ticks -= current.second;
-        enemyWaveData.pop_front();
-        const Engine::Point SpawnCoordinate = Engine::Point(SpawnGridPoint.x * BlockSize + BlockSize / 2, SpawnGridPoint.y * BlockSize + BlockSize / 2);
-        Enemy *enemy;
-        switch (current.first) {
-            case 1:
-                EnemyGroup->AddNewObject(enemy = new SoldierEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
-                break;
-            case 2:
-                EnemyGroup->AddNewObject(enemy = new PlaneEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
-                break;
-            case 3:
-                EnemyGroup->AddNewObject(enemy = new TankEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
-                break;
-            case 4:
-                EnemyGroup->AddNewObject(enemy = new GodEnemy(SpawnCoordinate.x, SpawnCoordinate.y));
-                break;
-            default:
-                continue;
-        }
-        enemy->Update(ticks);
     }
     if (preview) {
         preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
         preview->Update(deltaTime);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// void PlayScene::Update(float deltaTime) {
+//     WeaponBulletGroup->Update(deltaTime);
+//     gun->SetCharacterPosition(character->Position);
+
+//     if (SpeedMult == 0)
+//         deathCountDown = -1;
+//     else if (deathCountDown != -1)
+//         SpeedMult = 1;
+
+//     // Compute distance map from player's position
+//     int playerX = static_cast<int>(floor(character->Position.x / BlockSize));
+//     int playerY = static_cast<int>(floor(character->Position.y / BlockSize));
+//     if (playerX < 0) playerX = 0;
+//     if (playerX >= MapWidth) playerX = MapWidth - 1;
+//     if (playerY < 0) playerY = 0;
+//     if (playerY >= MapHeight) playerY = MapHeight - 1;
+//     Engine::Point playerGrid(playerX, playerY);
+//     mapDistance = CalculateBFSDistance(playerGrid);
+
+//     for (int i = 0; i < SpeedMult; i++) {
+//         IScene::Update(deltaTime);
+//         ticks += deltaTime;
+//         if (enemyWaveData.empty()) {
+//             if (EnemyGroup->GetObjects().empty()) {
+//                 std::ofstream ofs("../Resource/score_tmp.txt", std::ios::out);
+//                 ofs << money * 2 + lives * 495;
+//                 Engine::GameEngine::GetInstance().ChangeScene("win");
+//             }
+//             continue;
+//         }
+//         auto current = enemyWaveData.front();
+//         if (ticks < current.second)
+//             continue;
+//         ticks -= current.second;
+//         enemyWaveData.pop_front();
+//         const Engine::Point SpawnCoordinate = Engine::Point(SpawnGridPoint.x * BlockSize + BlockSize / 2, SpawnGridPoint.y * BlockSize + BlockSize / 2);
+//         Enemy *enemy;
+//         Engine::Point spawnPos = GetValidSpawnPoint();
+//         switch (current.first) {
+//             case 1:
+//                 EnemyGroup->AddNewObject(enemy = new SoldierEnemy(spawnPos.x, spawnPos.y));
+//                 break;
+//             case 2:
+//                 EnemyGroup->AddNewObject(enemy = new PlaneEnemy(spawnPos.x, spawnPos.y));
+//                 break;
+//             case 3:
+//                 EnemyGroup->AddNewObject(enemy = new TankEnemy(spawnPos.x, spawnPos.y));
+//                 break;
+//             case 4:
+//                 EnemyGroup->AddNewObject(enemy = new GodEnemy(spawnPos.x, spawnPos.y));
+//                 break;
+//             default:
+//                 continue;
+//         }
+//         enemy->Update(ticks);
+//     }
+//     if (preview) {
+//         preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
+//         preview->Update(deltaTime);
+//     }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void PlayScene::Draw() const {
     IScene::Draw();
     character->Draw();
@@ -468,6 +632,25 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance(Engine::Point star
         }
     }
     return map;
+}
+Engine::Point PlayScene::GetValidSpawnPoint() {
+    std::vector<Engine::Point> validPoints;
+    for (int y = 0; y < MapHeight; y++) {
+        for (int x = 0; x < MapWidth; x++) {
+            if (mapState[y][x] == TILE_GRASS || mapState[y][x] == TILE_BRIDGE || mapState[y][x] == TILE_HOME) {
+                validPoints.emplace_back(x, y);
+            }
+        }
+    }
+    if (validPoints.empty()) {
+        // 如果沒有合法地形，返回一個默認坐標（例如地圖邊緣）
+        return Engine::Point(0, 0);
+    }
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, validPoints.size() - 1);
+    Engine::Point gridPos = validPoints[dis(gen)];
+    return Engine::Point(gridPos.x * BlockSize + BlockSize / 2, gridPos.y * BlockSize + BlockSize / 2);
 }
 // #include <algorithm>
 // #include <allegro5/allegro.h>
