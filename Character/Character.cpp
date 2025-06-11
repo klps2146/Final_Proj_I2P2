@@ -40,7 +40,7 @@ namespace Engine {
             std::cout <<"HURT: " << HP<<std::endl;
         }
         else if (keyCode == ALLEGRO_KEY_SPACE){
-            speed *= 20;
+            speed *= 2;
             std::cout <<"SPEED: " << speed <<std::endl;
             
         }

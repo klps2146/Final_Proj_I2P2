@@ -23,7 +23,7 @@ namespace Engine {
         bool isDying;
         bool isDead;
 
-        float HP;
+        
         const float MAX_HP = 1000;
         float POWER;
         const float MAX_POWER = 500;
@@ -37,6 +37,7 @@ namespace Engine {
         const float frame_duration = 0.11f;
 
     public:
+        float HP;
         PlayScene *getPlayScene();
         // Constructor
         Character(std::string img, float x, float y, float w = 0, float h = 0,
