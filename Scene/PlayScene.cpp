@@ -549,7 +549,7 @@ Engine::Point PlayScene::GetValidSpawnPoint() {
     for (int y = 0; y < MapHeight; y++) {
         for (int x = 0; x < MapWidth; x++) {
             if ((x > 0 && y > 0) &&
-                (mapState[y][x] == TILE_GRASS || mapState[y][x] == TILE_BRIDGE || mapState[y][x] == TILE_HOME)) {
+                ((mapState[y][x] == TILE_GRASS || mapState[y][x] == TILE_BRIDGE )&& (mapState[y][x] != TILE_WATER))) {
                 validPoints.emplace_back(x, y);
             }
         }
