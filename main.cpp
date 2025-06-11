@@ -10,8 +10,10 @@
 #include "Scene/StartScene.h"
 #include "Scene/SettingsScene.hpp"
 #include "Scene/ScoreboardScene.hpp"
-
+#include <ctime> // for time()
+#include <cstdlib> // for srand()
 int main(int argc, char **argv) {
+	srand(time(0)); // 初始化隨機數種子
 	Engine::LOG::SetConfig(true);
 	Engine::GameEngine& game = Engine::GameEngine::GetInstance();
 
@@ -21,7 +23,6 @@ int main(int argc, char **argv) {
     game.AddNewScene("stage-select", new StageSelectScene());
     game.AddNewScene("scoreboard-scene", new ScoreboardScene());
 	game.AddNewScene("play", new PlayScene());
-
 	game.AddNewScene("lose", new LoseScene());
 	game.AddNewScene("win", new WinScene());
 

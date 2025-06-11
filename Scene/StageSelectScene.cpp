@@ -2,6 +2,8 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <fstream>
+#include <iostream>
 
 #include "Engine/AudioHelper.hpp"
 #include "Engine/GameEngine.hpp"
@@ -72,6 +74,15 @@ void StageSelectScene::BackOnClick(int stage) {
 void StageSelectScene::PlayOnClick(int stage) {
     PlayScene *scene = dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetScene("play"));
     scene->MapId = stage;
+    //
+    std::ofstream fout("../Resource/whichscene.txt");
+    if (fout.is_open()) {
+        fout << '0'; // 設為 homemap.txt
+        fout.close();
+    } else {
+        std::cerr << "Failed to open whichscene.txt for writing" << std::endl;
+    }
+    //
     Engine::GameEngine::GetInstance().ChangeScene("play");
 }
 void StageSelectScene::ScoreboardOnClick() {

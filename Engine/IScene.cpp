@@ -2,6 +2,7 @@
 #include <allegro5/allegro.h>
 
 namespace Engine {
+
     void IScene::Terminate() {
         Clear();
     }
