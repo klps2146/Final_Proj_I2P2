@@ -193,7 +193,7 @@ namespace Engine {
 
         for (int ty = tileTop; ty <= tileBottom; ++ty) {
             for (int tx = tileLeft; tx <= tileRight; ++tx) {
-                if (tx < 1 || tx >= mapWidth || ty < 0 || ty >= mapHeight) {
+                if (tx < 0 || tx >= mapWidth || ty < 0 || ty >= mapHeight) {
                     collisionDetected = true;
                     break;
                 }

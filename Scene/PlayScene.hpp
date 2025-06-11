@@ -39,8 +39,10 @@ protected:
     int SpeedMult;
 
 public:
-    int homeposi, homeposj;
-    int homeset = 0;
+    //// new
+    int homeposi,homeposj;
+    int homeset;
+    int gohomekey = 0;
     float turret_coin_mul = 1.0f; 
     float turret_coolDown_mul = 1.0f;
     int coin_lv = 0;
@@ -86,6 +88,7 @@ public:
     Group *UIGroup;
     Engine::Label *UIMoney;
     Engine::Label *UILives;
+    Engine::Label *UIHome;
     Engine::Image *imgTarget;
     Engine::Sprite *dangerIndicator;
     Turret *preview;
@@ -115,7 +118,8 @@ public:
     std::vector<Engine::Point> FindPathAStar(Engine::Point start, Engine::Point end);
     Engine::Point GetValidSpawnPoint();
 };
-#endif   // PLAYSCENE_HPP
+#endif   
+// PLAYSCENE_HPP
 // #ifndef PLAYSCENE_HPP
 // #define PLAYSCENE_HPP
 // #include <allegro5/allegro_audio.h>
