@@ -585,7 +585,7 @@ void PlayScene::ReadMap() {
     TileMapGroup->AddNewObject(new Engine::Image("play/downleft_bush.png", -1 * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
 
     TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/downrightwsa_bush.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
+    TileMapGroup->AddNewObject(new Engine::Image("play/downright_bush.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
 
 
 }
