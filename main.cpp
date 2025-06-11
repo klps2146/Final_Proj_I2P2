@@ -10,8 +10,10 @@
 #include "Scene/StartScene.h"
 #include "Scene/SettingsScene.hpp"
 #include "Scene/ScoreboardScene.hpp"
-
+#include <ctime> // for time()
+#include <cstdlib> // for srand()
 int main(int argc, char **argv) {
+	srand(time(0)); // 初始化隨機數種子
 	Engine::LOG::SetConfig(true);
 	Engine::GameEngine& game = Engine::GameEngine::GetInstance();
 
