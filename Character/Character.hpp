@@ -3,6 +3,7 @@
 #include "Engine/Sprite.hpp"
 #include "Engine/IControl.hpp"
 #include "ItemBar/Itembar.hpp"
+#include "Engine/Group.hpp"
 
 
 class ItemBar;

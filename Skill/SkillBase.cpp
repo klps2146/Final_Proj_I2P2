@@ -1,0 +1,41 @@
+#include "Engine/GameEngine.hpp"
+#include "Scene/PlayScene.hpp"
+#include "SkillBase.hpp"
+
+PlayScene *SkillBase::getPlayScene() {
+    return dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetActiveScene());
+}
+
+SkillBase::SkillBase(const std::string& name, const std::string& img, float x, float y, float maxCD)
+    : Engine::Sprite(img, x, y), name(name), CDTimer(0), maxCD(maxCD), isUnlocked(false) {
+}
+
+void SkillBase::Update(float deltaTime) {
+    if (CDTimer > 0) {
+        CDTimer -= deltaTime;
+        if (CDTimer < 0) CDTimer = 0;
+    }
+    Engine::Sprite::Update(deltaTime);
+}
+
+void SkillBase::Draw() const {
+    Engine::Sprite::Draw();
+}
+
+bool SkillBase::IsReady() const {
+    return CDTimer <= 0 && isUnlocked;
+}
+
+void SkillBase::Unlock() {
+    isUnlocked = true;
+}
+
+std::string SkillBase::GetName() const {
+    return name;
+}
+
+float SkillBase::GetCooldownRatio() const {
+    if (maxCD == 0) return 0;
+    return CDTimer / maxCD;
+}
+

@@ -68,9 +68,9 @@ void PlayScene::Initialize() {
 
     ticks = 0;
     deathCountDown = -1;
-    lives = 10;
+    lives = 10000;
     money = 666;
-    SpeedMult = 1;
+    SpeedMult = 5;
 
 
 
@@ -575,6 +575,7 @@ void PlayScene::ReadMap() {
         TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
         TileMapGroup->AddNewObject(new Engine::Image("play/hori_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
     }
+
     TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", -1 * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
     TileMapGroup->AddNewObject(new Engine::Image("play/upleft_bush.png", -1 * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
 
@@ -585,7 +586,7 @@ void PlayScene::ReadMap() {
     TileMapGroup->AddNewObject(new Engine::Image("play/downleft_bush.png", -1 * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
 
     TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/downrightwsa_bush.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
+    TileMapGroup->AddNewObject(new Engine::Image("play/downright_bush.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
 
 
 }

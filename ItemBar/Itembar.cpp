@@ -1,4 +1,5 @@
 #include "Itembar.hpp"
+#include "Skill/SkillBase.hpp"
 #include <iostream>
 
 #include <allegro5/allegro_primitives.h>
@@ -33,10 +34,8 @@ void ItemBar::Draw(const Engine::Point& cameraPos, const Engine::Point& screenSi
         ALLEGRO_COLOR borderColor = (i == selectedIndex) ? al_map_rgb(255, 255, 0) : al_map_rgb(150, 150, 150);
         al_draw_rectangle(x, y, x + slotSize, y + slotSize, borderColor, 3);
 
-        if (slots[i].icon) {
-            al_draw_scaled_bitmap(slots[i].icon, 0, 0,
-                al_get_bitmap_width(slots[i].icon), al_get_bitmap_height(slots[i].icon),
-                x, y, slotSize, slotSize, 0);
+        if (slots[i].skill) {
+            slots[i].skill->Draw();
         }
 
         // 冷卻遮罩

@@ -4,12 +4,14 @@
 #include <allegro5/allegro.h>
 #include "Engine/GameEngine.hpp"
 #include "Engine/Collider.hpp"
+
 #include <vector>
 
+class SkillBase;
 class PlayScene;
 
 struct SkillSlot {
-    ALLEGRO_BITMAP* icon = nullptr;
+    SkillBase* skill;
     bool isAvailable = true;
     float cooldown = 0;
     float maxCooldown = 0;
