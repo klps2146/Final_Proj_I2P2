@@ -77,7 +77,7 @@ void PlayScene::Initialize() {
 
 
     //// chracter
-    character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 500, 32);
+    character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 200, 32);
     character->SetSpriteSource(0, 0, 96, 96);
     character->SetSize(70, 70);
     character->AddSkill(new DashSkill());
