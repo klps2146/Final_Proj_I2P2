@@ -468,14 +468,14 @@ Engine::Point PlayScene::GetValidSpawnPoint() {
     std::vector<Engine::Point> validPoints;
     for (int y = 0; y < MapHeight; y++) {
         for (int x = 0; x < MapWidth; x++) {
-            if (mapState[y][x] == TILE_GRASS || mapState[y][x] == TILE_BRIDGE || mapState[y][x] == TILE_HOME) {
+            if ((x > 0 && y > 0) &&
+                (mapState[y][x] == TILE_GRASS || mapState[y][x] == TILE_BRIDGE || mapState[y][x] == TILE_HOME)) {
                 validPoints.emplace_back(x, y);
             }
         }
     }
     if (validPoints.empty()) {
-        // 如果沒有合法地形，返回一個默認坐標（例如地圖邊緣）
-        return Engine::Point(0, 0);
+        return Engine::Point(BlockSize / 2, BlockSize / 2); // 預設也要符合大於 0 的規則
     }
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -483,6 +483,8 @@ Engine::Point PlayScene::GetValidSpawnPoint() {
     Engine::Point gridPos = validPoints[dis(gen)];
     return Engine::Point(gridPos.x * BlockSize + BlockSize / 2, gridPos.y * BlockSize + BlockSize / 2);
 }
+
+
 // #include <algorithm>
 // #include <allegro5/allegro.h>
 // #include <cmath>
