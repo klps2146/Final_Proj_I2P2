@@ -26,7 +26,7 @@ namespace Engine {
         }
 
         Point screenSize = GameEngine::GetInstance().GetScreenSize();
-        if (Position.x < 0 || Position.x > screenSize.x || Position.y < 0 || Position.y > screenSize.y) {
+        if (Position.x < 0 || Position.x >  PlayScene::MapWidth*64 || Position.y < 0 || Position.y > PlayScene::MapHeight*64) {
             Visible = false;
         }
     }
