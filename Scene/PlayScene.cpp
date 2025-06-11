@@ -169,7 +169,7 @@ void PlayScene::Update(float deltaTime) {
     for (int i = 0; i < SpeedMult; i++) {
         IScene::Update(deltaTime);
         ticks += deltaTime;
-        const float spawnInterval = 0.5f; // 每2秒生成一隻敵人，可依需要調整
+        const float spawnInterval = 3; // 每2秒生成一隻敵人，可依需要調整
         static float spawnTimer = 0.0f;
         spawnTimer += deltaTime;
         if (spawnTimer >= spawnInterval) {
@@ -195,8 +195,11 @@ void PlayScene::Update(float deltaTime) {
                     continue;
             }
             enemy->Update(ticks);
+                std::cout << "Enemy" << type << "spawned at position: (" 
+            << spawnPos.x << ", " << spawnPos.y << ")\n";
         }
     }
+
     if (preview) {
         preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
         preview->Update(deltaTime);
@@ -412,6 +415,8 @@ void PlayScene::ReadMap() {
         {{4, 1}, {2, 2}},
         {{5, 6}, {3, 3}}
     };
+    int height = mapState.size();      // 地圖實際行數
+    int width  = mapState[0].size();   // 地圖實際列數
     for (int i = 0; i < MapHeight; i++) {
         for (int j = 0; j < MapWidth; j++) {
             const int num = mapData[i * MapWidth + j];
@@ -694,6 +699,7 @@ Engine::Point PlayScene::GetValidSpawnPoint() {
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, validPoints.size() - 1);
     Engine::Point gridPos = validPoints[dis(gen)];
+
     return Engine::Point(gridPos.x * BlockSize + BlockSize / 2, gridPos.y * BlockSize + BlockSize / 2);
 }
 void PlayScene::SpawnCoin(float x, float y, int value) {
