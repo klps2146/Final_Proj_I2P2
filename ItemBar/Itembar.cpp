@@ -35,6 +35,7 @@ void ItemBar::Draw(const Engine::Point& cameraPos, const Engine::Point& screenSi
             slots[i]->Anchor = Engine::Point(0, 0);
 
             slots[i]->SetSize(slotSize, slotSize);
+
             slots[i]->Draw();
 
             // 畫冷卻遮罩
@@ -50,11 +51,15 @@ void ItemBar::SelectSlot(int index) {
     if (index >= 0 && index < SlotAmount)
         selectedIndex = index;
 }
-
+#include <iostream>
 void ItemBar::OnKeyDown(int keyCode) {
-    if (selectedIndex + ALLEGRO_KEY_1 == keyCode) // 連按
-        if (GetSelectedSkill())
+    if (selectedIndex + ALLEGRO_KEY_1 == keyCode){ // 連按
+        // std::cout << "AAA" << selectedIndex << std::endl;
+        if (GetSelectedSkill()){
             GetSelectedSkill()->Activate();
+            // std::cout << "BBB" << selectedIndex << std::endl;
+        }
+    }
     if (keyCode >= ALLEGRO_KEY_1 && keyCode <= ALLEGRO_KEY_1 + SlotAmount - 1)
         SelectSlot(keyCode - ALLEGRO_KEY_1);
         

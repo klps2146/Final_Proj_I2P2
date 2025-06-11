@@ -7,13 +7,14 @@
 
 class Particle {
 public:
-    Engine::Point position, velocity;
+    Engine::Point position;
+    Engine::Point velocity;
     float life;
     ALLEGRO_COLOR color;
 
     Particle(const Engine::Point& pos, const Engine::Point& vel, float life, ALLEGRO_COLOR color);
     void Update(float deltaTime);
-    void Draw() const;
+    void Draw(const Engine::Point& cameraPos) const;
     bool IsAlive() const;
 };
 

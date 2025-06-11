@@ -1,3 +1,4 @@
+// Particle.cpp
 #include "Particle.hpp"
 
 Particle::Particle(const Engine::Point& pos, const Engine::Point& vel, float life, ALLEGRO_COLOR color)
@@ -6,12 +7,17 @@ Particle::Particle(const Engine::Point& pos, const Engine::Point& vel, float lif
 void Particle::Update(float deltaTime) {
     position.x += velocity.x * deltaTime;
     position.y += velocity.y * deltaTime;
+    
     life -= deltaTime;
 }
-
-void Particle::Draw() const {
-    if (life > 0)
-        al_draw_filled_circle(position.x, position.y, 3, color);
+#include <iostream>
+void Particle::Draw(const Engine::Point& cameraPos) const {
+    if (life > 0) {
+        float drawX = position.x - cameraPos.x;
+        float drawY = position.y - cameraPos.y;
+        // std::cout << "Draw particle (" << drawX << ", " << drawY << ")" << std::endl;
+        al_draw_filled_circle(drawX, drawY, 15, color);
+    }
 }
 
 bool Particle::IsAlive() const {

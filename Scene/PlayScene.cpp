@@ -33,6 +33,7 @@
 
 #include "Skill/SkillBase.hpp"
 #include "Skill/DashSkill.hpp"
+#include "Skill/AreaSkill.hpp"
 
 
 bool PlayScene::DebugMode = false;
@@ -80,7 +81,9 @@ void PlayScene::Initialize() {
     character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 200, 32);
     character->SetSpriteSource(0, 0, 96, 96);
     character->SetSize(70, 70);
+
     character->AddSkill(new DashSkill());
+    character->AddSkill(new AreaSkill("MagicCircle", "skill/trump.png", 140, 8.0f, 5.0f));
 
 
     AddNewControlObject(character);
@@ -185,6 +188,8 @@ void PlayScene::Update(float deltaTime) {
 }
 void PlayScene::Draw() const {
     IScene::Draw();
+
+    //// new
     character->Draw();
     if (character->IsAlive()) {
         character->DrawBars();

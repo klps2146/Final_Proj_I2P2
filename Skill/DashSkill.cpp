@@ -15,5 +15,4 @@ void DashSkill::SkillAnimation() {
         float dura = (float)level * 3.0f;
         scene->character->setTimer(dura);
     }
-    
 }

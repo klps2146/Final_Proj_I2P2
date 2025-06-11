@@ -119,6 +119,10 @@ add_executable(2025_I2P2_TowerDefense
     UI/Component/Label.hpp
     UI/Component/Slider.cpp
     UI/Component/Slider.hpp
+    UI/Effect/ParticleSystemManager.cpp
+    UI/Effect/ParticleSystemManager.hpp
+    UI/Effect/Particle.cpp
+    UI/Effect/Particle.hpp
 
     Weapon/BulletBoom.cpp
     Weapon/BulletBoom.hpp
@@ -135,6 +139,8 @@ add_executable(2025_I2P2_TowerDefense
     Skill/SkillBase.hpp
     Skill/DashSkill.cpp
     Skill/DashSkill.hpp
+    Skill/AreaSkill.hpp
+    Skill/AreaSkill.cpp
 
     main.cpp
 )

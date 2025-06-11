@@ -307,6 +307,4 @@ namespace Engine {
         if (index < 0 || index > itemBar_.slots.size()-1) return;
         itemBar_.slots[index]->Activate();
     }
-
-    
 }
