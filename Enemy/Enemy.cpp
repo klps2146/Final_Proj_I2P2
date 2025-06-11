@@ -35,15 +35,21 @@ Enemy::Enemy(std::string img, float x, float y, float radius, float speed, float
 {
     CollisionRadius = radius;
 }
-void Enemy::Hit(float damage) {
+void Enemy::Hit(float damage,bool byplayer) {
     hp -= damage;
+    Playerhit = byplayer; // 標記是被玩家打的
     if (hp <= 0) {
         OnExplode();
         for (auto &it : lockedTurrets)
             it->Target = nullptr;
         for (auto &it : lockedBullets)
             it->Target = nullptr;
-        getPlayScene()->player_exp += money * 1.945;
+
+        //getPlayScene()->EarnMoney(money);
+        if(Playerhit){
+            getPlayScene()->player_exp += money * 1.945;
+            getPlayScene()->SpawnCoin(Position.x, Position.y, money);
+        }
         getPlayScene()->EnemyGroup->RemoveObject(objectIterator);
         AudioHelper::PlayAudio("explosion.wav");
     }
@@ -85,8 +91,10 @@ void Enemy::Update(float deltaTime) {
     }
     float distanceToPlayer = (Position - scene->character->Position).Magnitude();
     if (distanceToPlayer < CollisionRadius + scene->character->CollisionRadius) {
+        
         scene->Hit(dmg);
-        Hit(hp);
+        Playerhit = false;
+        Hit(hp,false);
         return;
     }
     Rotation = atan2(Velocity.y, Velocity.x);

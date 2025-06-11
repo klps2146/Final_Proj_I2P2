@@ -142,6 +142,9 @@ add_executable(2025_I2P2_TowerDefense
     Skill/AreaSkill.hpp
     Skill/AreaSkill.cpp
 
+    Drop/coin.hpp
+    Drop/coin.cpp
+
     main.cpp
 )
 

@@ -3,14 +3,11 @@
 #include <list>
 #include <string>
 #include <vector>
-
 #include "Engine/Point.hpp"
 #include "Engine/Sprite.hpp"
-
 class Bullet;
 class PlayScene;
 class Turret;
-
 class Enemy : public Engine::Sprite {
 protected:
     float speed;
@@ -24,10 +21,11 @@ protected:
     virtual void OnExplode();
     Engine::Point currentDirection;
 public:
+    bool Playerhit = false;
     std::list<Turret *> lockedTurrets;
     std::list<Bullet *> lockedBullets;
     Enemy(std::string img, float x, float y, float radius, float speed, float hp, int money);
-    void Hit(float damage);
+    void Hit(float damage,bool byplayer);
     void Update(float deltaTime) override;
     void Draw() const override;
     void change_speed(float dv_mul, float duration);
