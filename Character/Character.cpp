@@ -26,6 +26,7 @@ namespace Engine {
         HP = 1000;
         POWER = 500;
 
+
     }
 
     void Character::OnKeyDown(int keyCode) {
@@ -38,7 +39,11 @@ namespace Engine {
             HP -= 100;
             std::cout <<"HURT: " << HP<<std::endl;
         }
-
+        else if (keyCode == ALLEGRO_KEY_SPACE){
+            speed *= 2;
+            std::cout <<"SPEED: " << speed <<std::endl;
+            
+        }
         // 物品欄的
         itemBar_.OnKeyDown(keyCode);
 
@@ -148,7 +153,7 @@ namespace Engine {
                 cur_frame = (cur_frame + 1);
 
                 if (cur_frame > max_frames-1){
-                    std::cout << "お前はもう死んでる" << std::endl;
+                    // std::cout << "お前はもう死んでる" << std::endl;
                     isDead = 1;
                 }
 
@@ -163,8 +168,7 @@ namespace Engine {
             Engine::GameEngine::GetInstance().ChangeScene("lose");
         }
 
-
-        // Calculate new position based on velocity and delta time
+        // 碰撞和實際移動
         Point newPosition = Position + Velocity * deltaTime;
 
         auto& mapState = getPlayScene()->mapState;
@@ -179,16 +183,24 @@ namespace Engine {
         int tileTop = (int)((newPosition.y - CollisionRadius) / BlockSize);
         int tileBottom = (int)((newPosition.y + CollisionRadius) / BlockSize);
 
-        tileLeft = std::max(0, tileLeft);
-        tileRight = std::min(mapWidth - 1, tileRight);
-        tileTop = std::max(0, tileTop);
-        tileBottom = std::min(mapHeight - 1, tileBottom);
+        // tileLeft = std::max(0, tileLeft);
+        // tileRight = std::min(mapWidth - 1, tileRight);
+        // tileTop = std::max(0, tileTop);
+        // tileBottom = std::min(mapHeight - 1, tileBottom);
+
+        int mapW = getPlayScene()->MapWidth;
+        int mapH = getPlayScene()->MapHeight;
 
         for (int ty = tileTop; ty <= tileBottom; ++ty) {
             for (int tx = tileLeft; tx <= tileRight; ++tx) {
+                if (tx < 0 || tx >= mapWidth || ty < 0 || ty >= mapHeight) {
+                    collisionDetected = true;
+                    break;
+                }
+
                 int tile = mapState[ty][tx];
 
-                if (tile == getPlayScene()->TILE_WATER || tile == getPlayScene()->TILE_ROCK) {
+                if (tile == getPlayScene()->TILE_WATER || tile == getPlayScene()->TILE_ROCK || tile == getPlayScene()->TILE_HOME) {
                     Point tileMin(tx * BlockSize, ty * BlockSize);
                     Point tileMax = tileMin + Point(BlockSize, BlockSize);
 

@@ -26,8 +26,17 @@ namespace Engine {
         }
 
         Point screenSize = GameEngine::GetInstance().GetScreenSize();
+
         if (Position.x < 0 || Position.x >  PlayScene::MapWidth*64 || Position.y < 0 || Position.y > PlayScene::MapHeight*64) {
             Visible = false;
+            
         }
+        // else if (scene){ 會CRASH
+        //     int mx = (Position.x + scene->BlockSize) / scene->BlockSize + 1;
+        //     int my = (Position.y + scene->BlockSize) / scene->BlockSize + 1;
+        //     if (mx >= 0 && my >= 0 && scene->mapState[mx][my] == scene->TILE_HOME){
+        //         Visible = false;
+        //     }
+        // }
     }
 }

@@ -14,6 +14,7 @@ GodEnemy::GodEnemy(int x, int y)
       buff_picture("play/gold-circle.png", x, y, buff_radus * 2, buff_radus * 2), targetRotation(0) {
     buff_picture.Visible = false;
     buff_picture.Tint = al_map_rgba(255, 255, 255, 200);
+    dmg = 10;
 }
 void GodEnemy::Draw() const {
     Enemy::Draw();
