@@ -21,7 +21,6 @@ int main(int argc, char **argv) {
     game.AddNewScene("stage-select", new StageSelectScene());
     game.AddNewScene("scoreboard-scene", new ScoreboardScene());
 	game.AddNewScene("play", new PlayScene());
-
 	game.AddNewScene("lose", new LoseScene());
 	game.AddNewScene("win", new WinScene());
 

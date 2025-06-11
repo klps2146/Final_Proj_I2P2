@@ -42,7 +42,8 @@ protected:
 public:
     //// new
     int homeposi,homeposj;
-    int homeset = 0;
+    int homeset;
+    int gohomekey = 0;
     float turret_coin_mul = 1.0f; 
     float turret_coolDown_mul = 1.0f; // 越小 頻率越高
     
@@ -92,6 +93,7 @@ public:
     Group *UIGroup;
     Engine::Label *UIMoney;
     Engine::Label *UILives;
+    Engine::Label *UIHome;
     Engine::Image *imgTarget;
     Engine::Sprite *dangerIndicator;
     Turret *preview;

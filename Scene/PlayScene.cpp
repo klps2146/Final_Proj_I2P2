@@ -71,12 +71,12 @@ void PlayScene::Initialize() {
     lives = 10;
     money = 666;
     SpeedMult = 1;
+    homeset=0;
 
 
 
-    
     //// chracter
-    character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 200, 32);
+    character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 500, 32);
     character->SetSpriteSource(0, 0, 96, 96);
     character->SetSize(70, 70); // real size
     AddNewControlObject(character);
@@ -107,7 +107,7 @@ void PlayScene::Initialize() {
     ReadEnemyWave();
     mapDistance = CalculateBFSDistance();
     ConstructUI();
-    imgTarget = new Engine::Image("play/target.png", 0, 0);
+    imgTarget = new Engine::Image("play/target.png", 0, 0); // pkboie is handsome
     imgTarget->Visible = false;
     preview = nullptr;
     UIGroup->AddNewObject(imgTarget);
@@ -128,6 +128,18 @@ void PlayScene::Update(float deltaTime) {
     // Reference: Bullet-Through-Paper
     WeaponBulletGroup->Update(deltaTime);
     gun->SetCharacterPosition(character->Position);
+
+    //go home
+    if(gohomekey==0)
+        UIHome->Text = std::string("");
+        if(character->Position.x>homeposj*BlockSize-40 && character->Position.x<(homeposj+2)*BlockSize+40
+            &&character->Position.y>homeposi*BlockSize-40 && character->Position.y<(homeposi+2)*BlockSize+40) gohomekey=1;
+    if(gohomekey==1){
+        UIHome->Text = std::string("Press F to go home");
+        if(!(character->Position.x>homeposj*BlockSize-40 && character->Position.x<(homeposj+2)*BlockSize+40
+            &&character->Position.y>homeposi*BlockSize-40 && character->Position.y<(homeposi+2)*BlockSize+40)) gohomekey=0;
+    }
+    
 
     if (SpeedMult == 0)
         deathCountDown = -1;
@@ -391,6 +403,38 @@ void PlayScene::OnKeyDown(int keyCode) {
         // Hotkey for Speed up.
         // SpeedMult = keyCode - ALLEGRO_KEY_0;
     }
+    if(gohomekey && keyCode == ALLEGRO_KEY_F){
+        // 讀取當前 whichscene.txt 的值
+        std::ifstream fin("../Resource/whichscene.txt");
+        char scenenum = '0'; // 默認值
+        if (fin.is_open()) {
+            fin >> scenenum;
+            fin.close();
+        } else {
+            std::cerr << "Failed to read whichscene.txt, using default '0'" << std::endl;
+        }
+
+        // 切換值：'0' -> '1', '1' -> '0'
+        char newScene = (scenenum == '0') ? '1' : '0';
+
+        // 寫入新的值到 whichscene.txt
+        std::ofstream fout("../Resource/whichscene.txt", std::ios::trunc);
+        if (fout.is_open()) {
+            fout << newScene; // 寫入 '0' 或 '1'
+            fout.flush(); // 確保立即寫入
+            if (fout.fail()) {
+                std::cerr << "Failed to write to whichscene.txt" << std::endl;
+                return;
+            }
+        } else {
+            std::cerr << "Failed to open whichscene.txt for writing" << std::endl;
+            return;
+        }
+
+        // 根據新值切換場景
+        Engine::GameEngine::GetInstance().ChangeScene("play"); // mapX.txt
+        
+    }
 }
 void PlayScene::Hit() {
     lives--;
@@ -430,7 +474,15 @@ void PlayScene::EarnMoney(int money) {
 }
 
 void PlayScene::ReadMap() {
-    std::string filename = std::string("Resource/map") + std::to_string(MapId) + ".txt";
+    std::string filename;
+    //
+    std::string whichfile = std::string("../Resource/whichscene.txt");
+    std::ifstream f(whichfile);
+    char scenenum;
+    f >> scenenum;
+    //
+    if(scenenum=='0') filename = std::string("Resource/map") + std::to_string(MapId) + ".txt";
+    else if(scenenum=='1') filename = std::string("Resource/homemap.txt");
     // Read map file.
     char c;
     std::vector<int> mapData;
@@ -555,7 +607,6 @@ void PlayScene::ReadMap() {
                 TileMapGroup->AddNewObject(new Engine::Image("play/water.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
                 TileMapGroup->AddNewObject(new Engine::Image("play/stonebridge.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
             }
-
         }
     }
     if(homeset)TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 2*BlockSize, 2*BlockSize));
@@ -610,7 +661,7 @@ void PlayScene::ConstructUI() {
     UIGroup->AddNewObject(new Engine::Label(std::string("Stage ") + std::to_string(MapId), "pirulen.ttf", 32, 1294, 0));
     UIGroup->AddNewObject(UIMoney = new Engine::Label(std::string("$") + std::to_string(money), "pirulen.ttf", 24, 1294, 48));
     UIGroup->AddNewObject(UILives = new Engine::Label(std::string("Life ") + std::to_string(lives), "pirulen.ttf", 24, 1294, 88));
-    
+    /*if(gohomekey==1)*/ UIGroup->AddNewObject(UIHome = new Engine::Label(std::string(""), "pirulen.ttf", 24,  600, 600));
     //// new
     UIGroup->AddNewObject(player_exp_l = new Engine::Label(std::string("EXP ") + std::to_string((int)player_exp) + "/" + std::to_string((int)level_req.front()), "pirulen.ttf", 24, 1294, 130));
     UIGroup->AddNewObject(player_level_l= new Engine::Label(std::string("Level ") + std::to_string((int)player_level) + "/8", "pirulen.ttf", 24, 1294, 155));
