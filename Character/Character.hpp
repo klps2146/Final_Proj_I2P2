@@ -75,6 +75,8 @@ namespace Engine {
         float speedTimer = 0;
         float originalSpeed;
         Point direction;
+        float rotation = 0.0f;
+
         bool isMoving;
         bool isDying;
         bool isDead;
@@ -91,7 +93,9 @@ namespace Engine {
         float HP;
         float speed;
         float POWER;
-        ItemBar itemBar_;
+        int VisableLevel;
+    
+        ItemBar itemBar_; // 裡面有 std::vector<SkillBase*> slots; 技能在裡面
 
         void AddSkill(SkillBase* skill);
         void UseSkill(int index);
@@ -111,6 +115,9 @@ namespace Engine {
         void OnMouseUp(int button, int mx, int my) override;
         bool IsAlive();
         void setTimer(float time);
-    };
+
+        float GetRotation() const { return rotation; }
+        void SetRotation(float angle) { rotation = angle; }
+    };   
 }
 #endif

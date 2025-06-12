@@ -111,6 +111,8 @@ add_executable(2025_I2P2_TowerDefense
     UI/Animation/Plane.cpp
     UI/Animation/Plane.hpp
 
+    UI/Component/ColoredRectangle.cpp
+    UI/Component/ColoredRectangle.hpp
     UI/Component/Image.cpp
     UI/Component/Image.hpp
     UI/Component/ImageButton.cpp
@@ -149,6 +151,9 @@ add_executable(2025_I2P2_TowerDefense
 
     Drop/coin.hpp
     Drop/coin.cpp
+
+    Minimap/Minimap.cpp
+    Minimap/Minimap.hpp
 
     main.cpp
 )

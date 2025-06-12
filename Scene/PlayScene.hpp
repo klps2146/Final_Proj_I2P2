@@ -13,6 +13,8 @@
 #include "Weapon/Gun.hpp"
 #include "Weapon/MeleeWeapon.hpp"
 #include "Drop/coin.hpp" // 新增 coin.hpp 包含
+#include "Minimap/Minimap.hpp"
+
 class Turret;
 namespace Engine {
     class Group;
@@ -68,6 +70,7 @@ public:
     Engine::Label* player_skill_point_l;
 
     Engine::Character* character;
+    MiniMap miniMap;
     Engine::Gun* gun;
     Engine::MeleeWeapon* sword;
     WeaponType currentWeapon;

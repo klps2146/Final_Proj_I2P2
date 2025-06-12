@@ -450,8 +450,8 @@ namespace Engine {
                 }
             }
         }
-
-        if (HP == 0 && !isDying) {
+        
+        if(HP <= 0 && !isDying) { // 快死了
             cur_frame = frame_timer = 0;
             isDying = 1;
         } else if (HP <= 0 && isDying) {

@@ -2,6 +2,12 @@
 #define ISCENE_HPP
 
 #include "Group.hpp"
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_color.h>
+#include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_image.h>
+#include <iostream>
+#include "UI/Component/Image.hpp"
 
 namespace Engine {
     /// <summary>
@@ -16,6 +22,11 @@ namespace Engine {
         /// The interface cannot be instantiated directly, must be inherited.
         /// </summary>
         explicit IScene() = default;
+
+        //// 魔改
+        ALLEGRO_COLOR backgroundColor = al_map_rgba(0, 0, 0, 0);
+        std::string backgroundImagePath = "";
+        Image* backgroundImage;
 
     public:
         /// <summary>
@@ -44,6 +55,11 @@ namespace Engine {
         /// Delegate the draw event to all visible objects.
         /// </summary>
         void Draw() const override;
+
+
+        //// 魔改
+        void SetBackgroundColor(ALLEGRO_COLOR color);
+        void SetBackgroundImage(const std::string& path);
     };
 }
 #endif   // ISCENE_HPP

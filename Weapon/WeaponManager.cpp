@@ -72,8 +72,10 @@ void WeaponManager::DrawWeaponBar(const Engine::Point& cameraPos, const Engine::
     float margin = 20;          // 邊距
 
     // 將武器欄靠右垂直排列
-    float x = screenSize.x - slotSize - margin;
-    float startY = margin;
+    // 將武器欄靠左下垂直排列
+    float x = margin;
+    float startY = screenSize.y - slotSize - margin - (WeaponSlots - 1) * (slotSize + spacing);
+
 
     for (int i = 0; i < WeaponSlots; ++i) {
         float y = startY + i * (slotSize + spacing);
