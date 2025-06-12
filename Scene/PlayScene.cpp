@@ -36,6 +36,7 @@
 #include "Skill/AreaSkill.hpp"
 
 #include "Drop/coin.hpp"
+#include "Store/Store.hpp"
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
 const int PlayScene::BlockSize = 64;
@@ -74,6 +75,8 @@ void PlayScene::Initialize() {
     money = 666;
     SpeedMult = 1;
     homeset=0;
+    storeset=0;
+    buying=false;
 
     std::ifstream fin("../Resource/whichscene.txt");
     char whichscene; // 默認值
@@ -90,8 +93,8 @@ void PlayScene::Initialize() {
         MapHeight = 18;
     }*/
         
+    store=new Store();
     
-
     //// chracter
     character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 200, 32);
     character->SetSpriteSource(0, 0, 96, 96);
@@ -156,16 +159,29 @@ void PlayScene::Update(float deltaTime) {
     gun->SetCharacterPosition(character->Position);
     sword->SetCharacterPosition(character->Position);
     //go home
-    if(gohomekey==0)
+    if(gohomekey==0){
         UIHome->Text = std::string("");
         if(character->Position.x>homeposj*BlockSize-40 && character->Position.x<(homeposj+2)*BlockSize+40
             &&character->Position.y>homeposi*BlockSize-40 && character->Position.y<(homeposi+2)*BlockSize+40) gohomekey=1;
+    }
     if(gohomekey==1){
         UIHome->Text = std::string("Press F to go home");
         if(!(character->Position.x>homeposj*BlockSize-40 && character->Position.x<(homeposj+2)*BlockSize+40
             &&character->Position.y>homeposi*BlockSize-40 && character->Position.y<(homeposi+2)*BlockSize+40)) gohomekey=0;
     }
     
+    //go store
+    if(gostorekey==0){
+        UIStore->Text = std::string("");
+        if(character->Position.x>storeposj*BlockSize-40 && character->Position.x<(storeposj+2)*BlockSize+40
+            &&character->Position.y>storeposi*BlockSize-40 && character->Position.y<(storeposi+2)*BlockSize+40) gostorekey=1;
+    }
+    if(gostorekey==1){
+        UIStore->Text = std::string("Press F to go store");
+        if(!(character->Position.x>storeposj*BlockSize-40 && character->Position.x<(storeposj+2)*BlockSize+40
+            &&character->Position.y>storeposi*BlockSize-40 && character->Position.y<(storeposi+2)*BlockSize+40)) gostorekey=0;
+    }
+    store->Update(deltaTime);
 
     if (SpeedMult == 0)
         deathCountDown = -1;
@@ -406,8 +422,10 @@ void PlayScene::OnKeyDown(int keyCode) {
 
         // 根據新值切換場景
         Engine::GameEngine::GetInstance().ChangeScene("play"); // mapX.txt
-
     }
+    //bulid store
+    if(gostorekey && keyCode == ALLEGRO_KEY_F)buying=!buying;
+
 }
 void PlayScene::Hit(float damage) {
     lives--;
@@ -581,6 +599,7 @@ void PlayScene::ReadHomeMap() {
             case '2': mapData.push_back(2); break;
             case '3': mapData.push_back(3); break;
             case '4': mapData.push_back(4); break;
+            case '5': mapData.push_back(5); break;
             case '\n':
             case '\r':
                 if (static_cast<int>(mapData.size()) / MapWidth != 0)
@@ -618,6 +637,13 @@ void PlayScene::ReadHomeMap() {
                     homeposj = j;
                     homeset = 1;
                 }
+            } else if (num == 5) {
+                mapState[i][j] = TILE_STORE;
+                if (!storeset) {
+                    storeposi = i;
+                    storeposj = j;
+                    storeset = 1;
+                }
             }
         }
     }
@@ -641,6 +667,7 @@ void PlayScene::ReadHomeMap() {
         }
     }
     if (homeset) TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 2 * BlockSize, 2 * BlockSize));
+    if (storeset) TileMapGroup->AddNewObject(new Engine::Image("play/turret-fire.png", storeposj * BlockSize, storeposi * BlockSize, 2 * BlockSize, 2 * BlockSize));
     //add edge bush
     for (int i = 0; i < MapHeight; i++) {
         int j = -1;
@@ -683,7 +710,8 @@ void PlayScene::ConstructUI() {
     UIGroup->AddNewObject(new Engine::Label(std::string("Stage ") + std::to_string(MapId), "pirulen.ttf", 32, 1294, 0));
     UIGroup->AddNewObject(UIMoney = new Engine::Label(std::string("$") + std::to_string(money), "pirulen.ttf", 24, 1294, 48));
     UIGroup->AddNewObject(UILives = new Engine::Label(std::string("Life ") + std::to_string(lives), "pirulen.ttf", 24, 1294, 88));
-    /*if(gohomekey==1)*/ UIGroup->AddNewObject(UIHome = new Engine::Label(std::string(""), "pirulen.ttf", 24,  600, 600));
+    UIGroup->AddNewObject(UIHome = new Engine::Label(std::string(""), "pirulen.ttf", 24,  600, 600));
+    UIGroup->AddNewObject(UIStore = new Engine::Label(std::string(""), "pirulen.ttf", 24,  600, 600));
     //// new
     UIGroup->AddNewObject(player_exp_l = new Engine::Label(std::string("EXP ") + std::to_string((int)player_exp) + "/" + std::to_string((int)level_req.front()), "pirulen.ttf", 24, 1294, 130));
     UIGroup->AddNewObject(player_level_l = new Engine::Label(std::string("Level ") + std::to_string((int)player_level) + "/8", "pirulen.ttf", 24, 1294, 155));
@@ -754,7 +782,78 @@ Engine::Point PlayScene::GetValidSpawnPoint() {
 void PlayScene::SpawnCoin(float x, float y, int value) {
     GroundEffectGroup->AddNewObject(new Coin(this, x, y, value));
 }
+bool PlayScene::tile_crossable(int t) {
+    if(t==0||t==2||t==5||t==6)return 0;
+    return 1;
+}
+void PlayScene::ConstructStore() {
+    // Background
+    //UIGroup->AddNewObject(new Engine::Image("play/sand.png", 1280, 0, 320, 832));
+    float charx=character->Position.x;
+    float chary=character->Position.y;
+    //UIGroup->RemoveObject(preview->GetObjectIterator());
+    UIGroup->AddNewObject(new Engine::Image("play/sand.png",  charx, chary, 500, 500));
+    // Text
+    // UIGroup->AddNewObject(new Engine::Label(std::string("Stage ") + std::to_string(MapId), "pirulen.ttf", 32, 1294, 0));
+    // UIGroup->AddNewObject(UIMoney = new Engine::Label(std::string("$") + std::to_string(money), "pirulen.ttf", 24, 1294, 48));
+    // UIGroup->AddNewObject(UILives = new Engine::Label(std::string("Life ") + std::to_string(lives), "pirulen.ttf", 24, 1294, 88));
+    
+    // //// new
+    // UIGroup->AddNewObject(player_exp_l = new Engine::Label(std::string("EXP ") + std::to_string((int)player_exp) + "/" + std::to_string((int)level_req.front()), "pirulen.ttf", 24, 1294, 130));
+    // UIGroup->AddNewObject(player_level_l= new Engine::Label(std::string("Level ") + std::to_string((int)player_level) + "/8", "pirulen.ttf", 24, 1294, 155));
+    // UIGroup->AddNewObject(player_skill_point_l = new Engine::Label(std::string("Points: ") + std::to_string((int)player_skill_point), "pirulen.ttf", 24, 1294, 180));
+    
+    // TurretButton *btn;
+    // // Button 1
+    // btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                        Engine::Sprite("play/tower-base.png", 1294, 136+112, 0, 0, 0, 0),
+    //                        Engine::Sprite("play/turret-1.png", 1294, 136+112 - 8, 0, 0, 0, 0), 1294, 136+112, MachineGunTurret::Price);
+    // // Reference: Class Member Function Pointer and std::bind.
+    // btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 0));
+    // UIGroup->AddNewControlObject(btn);
+    // // Button 2
+    // btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                        Engine::Sprite("play/tower-base.png", 1370, 136+112, 0, 0, 0, 0),
+    //                        Engine::Sprite("play/turret-2.png", 1370, 136+112 - 8, 0, 0, 0, 0), 1370, 136+112, LaserTurret::Price);
+    // btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 1));
+    // UIGroup->AddNewControlObject(btn);
+    // //// new
+    // btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                        Engine::Sprite("play/tower-base.png", 1446, 136+112, 0, 0, 0, 0),
+    //                        Engine::Sprite("play/turret-6.png", 1446, 136+112 - 8, 0, 0, 0, 0), 1446, 136+112, CoolTurret::Price);
+    // btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 2));
+    // UIGroup->AddNewControlObject(btn);
+    // // 鏟子
+    // btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                        Engine::Sprite("play/sand.png", 1294, 700, 0, 0, 0, 0),
+    //                        Engine::Sprite("play/shovel.png", 1294, 700, 0, 0, 0, 0), 1294, 700, 0);
+    // btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 666));
+    // UIGroup->AddNewControlObject(btn);
+    
+    // // 新家
+    // btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                        Engine::Sprite("play/sand.png", 1294, 231+212, 0, 0, 0, 0),
+    //                        Engine::Sprite("play/coin.png", 1294, 231+212, 0, 0, 0, 0), 1294, 231+212, 0);
 
+    // UIGroup->AddNewObject(coin_lv_l= new Engine::Label("LV. " + std::to_string(coin_lv), "pirulen.ttf", 30, 1294+70, 231+212+10));
+    // btn->SetOnClickCallback(std::bind(&PlayScene::buff_adder, this, 0));
+    // UIGroup->AddNewControlObject(btn);
+
+    //     btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                        Engine::Sprite("play/sand.png", 1294, 231+212+78, 0, 0, 0, 0),
+    //                        Engine::Sprite("play/speed-up.png", 1294, 231+212+78, 0, 0, 0, 0), 1294, 231+212+78, 0);
+
+    // UIGroup->AddNewObject(coolDown_lv_l= new Engine::Label("LV. " + std::to_string(coolDown_lv), "pirulen.ttf", 30, 1294+70, 231+212+78+10));
+    // btn->SetOnClickCallback(std::bind(&PlayScene::buff_adder, this, 1));
+    // UIGroup->AddNewControlObject(btn);
+
+    // int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
+    // int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
+    // int shift = 135 + 25;
+    // dangerIndicator = new Engine::Sprite("play/benjamin.png", w - shift, h - shift);
+    // dangerIndicator->Tint.a = 0;
+    // UIGroup->AddNewObject(dangerIndicator);
+}
 // #include <algorithm>
 // #include <allegro5/allegro.h>
 // #include <cmath>

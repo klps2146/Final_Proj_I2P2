@@ -5,6 +5,7 @@
 #include "Scene/PlayScene.hpp"
 #include <iostream>
 
+
 #include <allegro5/allegro_primitives.h>
 
 PlayScene *Engine::Character::getPlayScene() {
@@ -210,8 +211,8 @@ namespace Engine {
                 }
 
                 int tile = mapState[ty][tx];
-
-                if (tile == getPlayScene()->TILE_WATER || tile == getPlayScene()->TILE_ROCK || tile == getPlayScene()->TILE_HOME) {
+                //if (tile == getPlayScene()->TILE_WATER || tile == getPlayScene()->TILE_ROCK || tile == getPlayScene()->TILE_HOME){
+                if (!getPlayScene()->tile_crossable(tile)) {
                     Point tileMin(tx * BlockSize, ty * BlockSize);
                     Point tileMax = tileMin + Point(BlockSize, BlockSize);
 
