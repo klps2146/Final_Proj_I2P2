@@ -7,6 +7,7 @@
 #include "Engine/IScene.hpp"
 #include "Engine/Point.hpp"
 #include "BulletBoom.hpp"
+#include "Engine/AudioHelper.hpp"
 #include "Scene/PlayScene.hpp"
 
 namespace Engine {
@@ -27,6 +28,7 @@ namespace Engine {
             Point bulletPos = Position + bulletDir * 30.0f;
             BulletBoom* bullet = new BulletBoom(bulletPos.x, bulletPos.y, bulletDir * bulletSpeed, 30);
             scene->AddNewObject(bullet);
+            AudioHelper::PlayAudio("laser.wav");
             cooldownTimer = fireCooldown;
         }
     }
