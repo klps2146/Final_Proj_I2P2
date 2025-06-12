@@ -16,6 +16,7 @@ namespace Engine {
         float originalSpeed;
 
         Point direction;
+        float rotation = 0.0f;
 
         bool isMoving;
         bool isDying;
@@ -34,6 +35,7 @@ namespace Engine {
         float HP;
         float speed;
         float POWER;
+        int VisableLevel;
     
         ItemBar itemBar_; // 裡面有 std::vector<SkillBase*> slots; 技能在裡面
 
@@ -53,6 +55,9 @@ namespace Engine {
         void Draw() const override;
         bool IsAlive();
         void setTimer(float time);
+
+        float GetRotation() const { return rotation; }
+        void SetRotation(float angle) { rotation = angle; }
     };   
 }
 #endif //

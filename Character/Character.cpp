@@ -110,6 +110,11 @@ namespace Engine {
         // 技能冷卻(所有)
         itemBar_.Update(deltaTime);
 
+        // rotation
+        if (direction.x != 0 || direction.y != 0) {
+            rotation = std::atan2(direction.y, direction.x);
+        }
+        
         // 動畫
         if (!isDying){
             if (isMoving) {
@@ -151,7 +156,7 @@ namespace Engine {
             }
         }
         
-        if(HP == 0 && !isDying) { // 快死了
+        if(HP <= 0 && !isDying) { // 快死了
             cur_frame = frame_timer = 0;
             isDying = 1;
         }

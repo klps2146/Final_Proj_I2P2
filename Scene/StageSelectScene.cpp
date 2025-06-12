@@ -16,6 +16,7 @@
 #include "UI/Component/Slider.hpp"
 
 void StageSelectScene::Initialize() {
+    SetBackgroundColor(al_map_rgba(255, 255, 255, 254));
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
     int halfW = w / 2;

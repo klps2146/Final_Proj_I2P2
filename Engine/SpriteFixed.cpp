@@ -36,7 +36,6 @@ namespace Engine {
     void SpriteFixed::Draw() const {
         float srcW = SourceW > 0 ? SourceW : GetBitmapWidth();
         float srcH = SourceH > 0 ? SourceH : GetBitmapHeight();
-        PlayScene* scene = (dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetActiveScene()));
 
         al_draw_tinted_scaled_rotated_bitmap_region(
             bmp.get(),

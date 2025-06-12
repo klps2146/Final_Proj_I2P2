@@ -30,10 +30,13 @@
 #include "UI/Animation/DirtyEffect.hpp"
 #include "UI/Animation/Plane.hpp"
 #include "UI/Component/Label.hpp"
+#include "UI/Component/ColoredRectangle.hpp"
 
 #include "Skill/SkillBase.hpp"
 #include "Skill/DashSkill.hpp"
 #include "Skill/AreaSkill.hpp"
+
+#include "Minimap/Minimap.hpp"
 
 #include "Drop/coin.hpp"
 bool PlayScene::DebugMode = false;
@@ -52,6 +55,8 @@ Engine::Point PlayScene::GetClientSize() {
     return Engine::Point(MapWidth * BlockSize, MapHeight * BlockSize);
 }
 void PlayScene::Initialize() {
+    SetBackgroundImage("map/mapBG.png");
+
     mapState.clear();
     keyStrokes.clear();
     while (!level_req.empty()) level_req.pop();
@@ -99,11 +104,18 @@ void PlayScene::Initialize() {
 
     character->AddSkill(new DashSkill());
     character->AddSkill(new AreaSkill("MagicCircle", "skill/trump.png", 140, 8.0f, 5.0f));
-
-
+    character->VisableLevel = 1;
     AddNewControlObject(character);
+    
 
     CameraPos = Engine::Point(0, 0);
+
+    //// 小地圖
+    miniMap = MiniMap(
+        MapWidth, MapHeight,
+        1295.f, 5.f,// 座標
+        300.f, 300.f // 大小 
+    ),
 
     gun = new Engine::Gun(this, character->Position);
     AddNewControlObject(gun);
@@ -138,6 +150,10 @@ void PlayScene::Terminate() {
 void PlayScene::Update(float deltaTime) {
     WeaponBulletGroup->Update(deltaTime);
     gun->SetCharacterPosition(character->Position);
+
+    // miniMap
+    miniMap.SetEnemyPositions(EnemyGroup);
+    miniMap.SetPlayer(character->Position, character->GetRotation());
 
     //go home
     if(gohomekey==0)
@@ -203,8 +219,8 @@ void PlayScene::Update(float deltaTime) {
     }
 }
 void PlayScene::Draw() const {
-    IScene::Draw();
-
+    al_clear_to_color(al_map_rgb(135, 206, 235));
+    IScene::Draw(); 
     //// new
     character->Draw();
     if (character->IsAlive()) {
@@ -212,6 +228,9 @@ void PlayScene::Draw() const {
         gun->Draw();
     }
     WeaponBulletGroup->Draw();
+
+    /// 小地圖
+    miniMap.Draw();
 
     if (DebugMode) {
         for (int i = 0; i < MapHeight; i++) {
@@ -626,20 +645,26 @@ void PlayScene::ReadEnemyWave() {
     fin.close();
 }
 void PlayScene::ConstructUI() {
-    UIGroup->AddNewObject(new Engine::Label(std::string("Stage ") + std::to_string(MapId), "pirulen.ttf", 32, 1294, 0));
-    UIGroup->AddNewObject(UIMoney = new Engine::Label(std::string("$") + std::to_string(money), "pirulen.ttf", 24, 1294, 48));
-    UIGroup->AddNewObject(UILives = new Engine::Label(std::string("Life ") + std::to_string(lives), "pirulen.ttf", 24, 1294, 88));
+    UIGroup->AddNewObject(new ColoredRectangle(0, 0, 200, 220, al_map_rgba(255, 255, 255, 70),2.0f, al_map_rgba(255, 255, 255, 1)));
+
+    UIGroup->AddNewObject(new Engine::Label(std::string("Stage ") + std::to_string(MapId), "pirulen.ttf", 32, 12, 0));
+    UIGroup->AddNewObject(UIMoney = new Engine::Label(std::string("$") + std::to_string(money), "pirulen.ttf", 24, 12, 48));
+    UIGroup->AddNewObject(UILives = new Engine::Label(std::string("Life ") + std::to_string(lives), "pirulen.ttf", 24, 12, 88));
     /*if(gohomekey==1)*/ UIGroup->AddNewObject(UIHome = new Engine::Label(std::string(""), "pirulen.ttf", 24,  600, 600));
     //// new
-    UIGroup->AddNewObject(player_exp_l = new Engine::Label(std::string("EXP ") + std::to_string((int)player_exp) + "/" + std::to_string((int)level_req.front()), "pirulen.ttf", 24, 1294, 130));
-    UIGroup->AddNewObject(player_level_l = new Engine::Label(std::string("Level ") + std::to_string((int)player_level) + "/8", "pirulen.ttf", 24, 1294, 155));
-    UIGroup->AddNewObject(player_skill_point_l = new Engine::Label(std::string("Points: ") + std::to_string((int)player_skill_point), "pirulen.ttf", 24, 1294, 180));
+    UIGroup->AddNewObject(player_exp_l = new Engine::Label(std::string("EXP ") + std::to_string((int)player_exp) + "/" + std::to_string((int)level_req.front()), "pirulen.ttf", 24, 12, 130));
+    UIGroup->AddNewObject(player_level_l = new Engine::Label(std::string("Level ") + std::to_string((int)player_level) + "/8", "pirulen.ttf", 24, 12, 155));
+    UIGroup->AddNewObject(player_skill_point_l = new Engine::Label(std::string("Points: ") + std::to_string((int)player_skill_point), "pirulen.ttf", 24, 12, 180));
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
     int shift = 135 + 25;
     dangerIndicator = new Engine::Sprite("play/benjamin.png", w - shift, h - shift);
     dangerIndicator->Tint.a = 0;
     UIGroup->AddNewObject(dangerIndicator);
+
+
+    //// 小地圖
+
 }
 void PlayScene::buff_adder(int state) {
 }

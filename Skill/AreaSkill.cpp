@@ -45,7 +45,7 @@ void AreaSkill::Update(float deltaTime) {
                     Enemy* emy = dynamic_cast<Enemy*>(enemy);
                     if (dist < radius) {
                         if (emy)
-                        emy->Hit(21);
+                        emy->Hit(21, true);
                     }
                 }
             }

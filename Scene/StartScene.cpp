@@ -5,6 +5,7 @@
 #include "StartScene.h"
 #include <allegro5/allegro_audio.h>
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -20,13 +21,15 @@
 
 // TODO HACKATHON-2 (1/3): You can imitate the 2 files: 'StartScene.hpp', 'StartScene.cpp' to implement your SettingsScene.
 void StartScene::Initialize() {
+    SetBackgroundImage("stage-select/yuanSuang.png");
+
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
     int halfW = w / 2;
     int halfH = h / 2;
     Engine::ImageButton *btn;
 
-    AddNewObject(new Engine::Label("NiGAY Defense", "pirulen.ttf", 120, halfW, halfH / 3 + 50, 10, 255, 100, 255, 0.5, 0.5));
+    AddNewObject(new Engine::Label("Genshin Dener", "pirulen.ttf", 120, halfW, halfH / 3 + 50, 10, 10, 11, 255, 0.5, 0.5));
 
     btn = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", halfW - 200, halfH / 2 + 200, 400, 100);
     btn->SetOnClickCallback(std::bind(&StartScene::PlayOnClick, this, 1));
@@ -46,4 +49,8 @@ void StartScene::PlayOnClick(int stage) {
 }
 void StartScene::SettingsOnClick(int stage) {
     Engine::GameEngine::GetInstance().ChangeScene("settings");
+}
+
+void StartScene::Draw() const {
+    IScene::Draw();
 }
