@@ -14,6 +14,8 @@
 #include "Weapon/MeleeWeapon.hpp"
 #include "Drop/coin.hpp" // 新增 coin.hpp 包含
 #include "Store/Store.hpp"
+#include "Minimap/Minimap.hpp"
+
 class Turret;
 namespace Engine {
     class Group;
@@ -43,7 +45,6 @@ protected:
     int lives;
     int money;
     int SpeedMult;
-
 public:
     //// new
     int scenenum;//0 for play, 1 for home, 2 for boss
@@ -71,6 +72,7 @@ public:
     Engine::Label* player_skill_point_l;
 
     Engine::Character* character;
+    MiniMap miniMap;
     Engine::Gun* gun;
     Engine::MeleeWeapon* sword;
     WeaponType currentWeapon;
@@ -138,7 +140,6 @@ public:
     Engine::Point GetValidSpawnPoint();
     void SpawnCoin(float x, float y, int value);
     bool tile_crossable(int t) ;
-    void ConstructStore();
 };
 #endif
 // PLAYSCENE_HPP

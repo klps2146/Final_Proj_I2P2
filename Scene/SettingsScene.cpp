@@ -14,6 +14,7 @@
 #include "UI/Component/Slider.hpp"
 
 void SettingsScene::Initialize() {
+    SetBackgroundImage("stage-select/settingBG.png");
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
     int halfW = w / 2;

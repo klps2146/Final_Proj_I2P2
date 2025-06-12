@@ -2,146 +2,121 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro5.h>
 #include <iostream>
+#include <string>
 #include "Engine/GameEngine.hpp"
 #include "Scene/PlayScene.hpp"
-#include "Engine/Group.hpp"
+#include "Engine/LOG.hpp"
 
 
-PlayScene *Store::getPlayScene() {
-    return dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetActiveScene());
+// StoreItem Implementation
+StoreItem::StoreItem(const std::string& imagePath, int price, float x, float y)
+    : price(price) {
+    bmp = new Engine::Image(imagePath, x, y, 0, 0);
+}
+
+void StoreItem::Update(float deltaTime) {
+    
+}
+
+void StoreItem::Draw() const {
+    bmp->Draw();
+}
+
+bool StoreItem::IsClicked(float mouseX, float mouseY) const {
+    float x = bmp->Position.x;
+    float y = bmp->Position.y;
+    float w = bmp->Size.x;
+    float h = bmp->Size.y;
+    return (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h);
+}
+
+void StoreItem::SetPosition(float x, float y) {
+    bmp->Position.x = x;
+    bmp->Position.y = y;
+}
+
+void StoreItem::SetSize(float w, float h) {
+    bmp->Size.x = w;
+    bmp->Size.y = h;
+}
+
+// Store Implementation
+PlayScene* Store::getPlayScene() const {
+    return dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetActiveScene());
 }
 
 Store::Store() {
-    //items.resize(SlotAmount, nullptr);
-    //AddNewControlObject(UIGroup = new Engine::Group());
+    int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
+    int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
+    background = ColoredRectangle((w - 500) / 2, (h - 500) / 2, 500, 500, al_map_rgb(100, 100, 100), 2.0f, al_map_rgb(255, 255, 255));
+
+    // 初始化商品
+    float slotSize = 80;
+    float spacing = 20;
+    float totalWidth = 4*(slotSize + spacing) - spacing; // 每行 4 個商品
+    float startX = background.Position.x + (background.Size.x - totalWidth) / 2;
+    float startY = background.Position.y + 50;
+
+    for (int i = 0; i < 16; ++i) {
+        int row = i / 4; // 第 0 或 1 行
+        int col = i % 4; // 第 0 到 3 列
+        float x = startX + col * (slotSize + spacing);
+        float y = startY + row * (slotSize + spacing);
+        StoreItem* item = new StoreItem("play/home.png", 100, x, y);
+        item->SetSize(slotSize, slotSize);
+        items.push_back(item);
+    }
 }
+
 
 void Store::Update(float deltaTime) {
-    if(getPlayScene()->buying){
-        getPlayScene()->ConstructStore();
-    }
-    /*for (StoreItem* item : items) {
-        if (item)
-            item->Update(deltaTime);
-    }*/
-}
-
-void Store::Draw(const Engine::Point& cameraPos, const Engine::Point& screenSize) {
-    float barY = screenSize.y - 120; // 商店位置稍微高於 ItemBar
-    float slotSize = 60; // 商店槽位稍大
-    float spacing = 15;
-    float totalWidth = SlotAmount * (slotSize + spacing) - spacing;
-    float startX = (screenSize.x - totalWidth) / 2;
-    UIGroup->AddNewObject(new Engine::Image("play/sand.png",  cameraPos.x, cameraPos.y, 500, 500));
-    /*
-    for (int i = 0; i < SlotAmount; ++i) {
-        float x = startX + i * (slotSize + spacing);
-        float y = barY;
-        ALLEGRO_COLOR borderColor = (i == selectedIndex) ? al_map_rgb(255, 215, 0) : al_map_rgb(180, 180, 180);
-        al_draw_rectangle(x, y, x + slotSize, y + slotSize, borderColor, 3);
-
-        if (items[i]) {
-            items[i]->Position.x = x;
-            items[i]->Position.y = y;
-            items[i]->Anchor = Engine::Point(0, 0);
-            items[i]->SetSize(slotSize, slotSize);
-            items[i]->Draw();
-
-            // 繪製商品可用性遮罩（例如已售出）
-            float availabilityRatio = items[i]->GetAvailabilityRatio();
-            if (availabilityRatio < 1.0f) {
-                al_draw_filled_rectangle(x, y, x + slotSize, y + slotSize * (1.0f - availabilityRatio), al_map_rgba(100, 100, 100, 150));
-            }
-        }
-    }*/
-}
-
-void Store::SelectSlot(int index) {
-    if (index >= 0 && index < SlotAmount)
-        selectedIndex = index;
-}
-
-void Store::OnKeyDown(int keyCode) {
-    if (selectedIndex + ALLEGRO_KEY_1 == keyCode) { // 連按激活
-        /*if (GetSelectedItem()) {
-            GetSelectedItem()->Purchase();
-        }*/
-    }
-    if (keyCode >= ALLEGRO_KEY_1 && keyCode <= ALLEGRO_KEY_1 + SlotAmount - 1)
-        SelectSlot(keyCode - ALLEGRO_KEY_1);
-}
-/*
-StoreItem* Store::GetSelectedItem() const {
-    return items[selectedIndex];
-}
-#include "Itembar.hpp"
-#include "Skill/SkillBase.hpp"
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro5.h>
-#include <iostream>
-
-ItemBar::ItemBar() {
-    slots.resize(SlotAmount, nullptr);
-}
-
-void ItemBar::Update(float deltaTime) {
-    for (SkillBase* skill : slots) {
-        if (skill)
-            skill->Update(deltaTime);
+    for (auto item : items) {
+        item->Update(deltaTime);
     }
 }
 
-void ItemBar::Draw(const Engine::Point& cameraPos, const Engine::Point& screenSize) {
-    float barY = screenSize.y - 80;
-    float slotSize = 48;
-    float spacing = 10;
-    float totalWidth = SlotAmount * (slotSize + spacing) - spacing;
-    float startX = (screenSize.x - totalWidth) / 2;
+void Store::Draw() const {
+    background.Draw();
 
-    for (int i = 0; i < SlotAmount; ++i) {
-        float x = startX + i * (slotSize + spacing);
-        float y = barY;
-        ALLEGRO_COLOR borderColor = (i == selectedIndex) ? al_map_rgb(255, 255, 0) : al_map_rgb(150, 150, 150);
-        al_draw_rectangle(x, y, x + slotSize, y + slotSize, borderColor, 3);
-
-        if (slots[i]) {
-            slots[i]->Position.x = x;
-            slots[i]->Position.y = y;
-
-            slots[i]->Anchor = Engine::Point(0, 0);
-
-            slots[i]->SetSize(slotSize, slotSize);
-
-            slots[i]->Draw();
-
-            // 畫冷卻遮罩
-            float ratio = slots[i]->GetCooldownRatio();
-            if (ratio > 0) {
-                al_draw_filled_rectangle(x, y, x + slotSize, y + slotSize * ratio, al_map_rgba(0, 0, 0, 150));
-            }
-        }
-    }
-}
-
-void ItemBar::SelectSlot(int index) {
-    if (index >= 0 && index < SlotAmount)
-        selectedIndex = index;
-}
-#include <iostream>
-void ItemBar::OnKeyDown(int keyCode) {
-    if (selectedIndex + ALLEGRO_KEY_1 == keyCode){ // 連按
-        // std::cout << "AAA" << selectedIndex << std::endl;
-        if (GetSelectedSkill()){
-            GetSelectedSkill()->Activate();
-            // std::cout << "BBB" << selectedIndex << std::endl;
-        }
-    }
-    if (keyCode >= ALLEGRO_KEY_1 && keyCode <= ALLEGRO_KEY_1 + SlotAmount - 1)
-        SelectSlot(keyCode - ALLEGRO_KEY_1);
+    // 繪製商品
+    for (size_t i = 0; i < items.size(); ++i) {
+        float x = items[i]->bmp->Position.x;
+        float y = items[i]->bmp->Position.y;
+        float w = items[i]->bmp->Size.x;
+        float h = items[i]->bmp->Size.y;
         
+        al_draw_rectangle(x, y, x + w, y + h, al_map_rgb(180, 180, 180), 2); // 繪製邊框
+        items[i]->Draw();
+    }
+
+    // 顯示金幣數量
+    PlayScene* scene = getPlayScene();
+    if (scene) {
+        Engine::Label moneyLabel("Money: $" + std::to_string(scene->GetMoney()), "pirulen.ttf", 24,
+                                background.Position.x + 10, background.Position.y + background.Size.y - 30);
+        moneyLabel.Draw();
+
+        Engine::Label exitLabel("press F to exit", "pirulen.ttf", 40,
+                                background.Position.x + 10, background.Position.y + background.Size.y + 30);
+        exitLabel.Draw();
+    }
 }
 
-SkillBase* ItemBar::GetSelectedSkill() const {
-    return slots[selectedIndex];
+void Store::OnMouseDown(int button, int mx, int my) {
+    PlayScene* scene = getPlayScene();
+    if (!scene || !scene->buying) return;
+
+    if (button == 1) {
+        for (size_t i = 0; i < items.size(); ++i) {
+            if (items[i]->IsClicked(static_cast<float>(mx), static_cast<float>(my))) {
+                if (scene->GetMoney() >= items[i]->GetPrice()) {
+                    scene->EarnMoney(-items[i]->GetPrice());
+                    Engine::LOG(Engine::INFO) << "purchase succeed";
+                } else {
+                    Engine::LOG(Engine::INFO) << "purchase error, you fucking poor";
+                }
+                break;
+            }
+        }
+    }
 }
-*/

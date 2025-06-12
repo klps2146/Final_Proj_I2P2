@@ -1,45 +1,35 @@
 #pragma once
 #include <vector>
 #include "Engine/Point.hpp"
-#include "Engine/Group.hpp"
+#include "UI/Component/ColoredRectangle.hpp"
+#include "UI/Component/Image.hpp"
+#include "UI/Component/Label.hpp"
+
 class PlayScene;
-namespace Engine {
-    class Group;
-    class Image;
-    class Label;
-    class Sprite;
-}   // namespace Engine
-class Store  : public Engine::IObject{
+
+class StoreItem : public Engine::IObject {
 public:
-    static const int SlotAmount = 4; // 商店槽位數量
-    //std::vector<StoreItem*> items;
-    int selectedIndex = 0;
-    Engine::Group *UIGroup;
+    PlayScene* getPlayScene() const;
+    StoreItem(const std::string& imagePath, int price, float x, float y);
+    void Update(float deltaTime) override;
+    void Draw() const override;
+    int GetPrice() const { return price; }
+    bool IsClicked(float mouseX, float mouseY) const;
+    void SetPosition(float x, float y);
+    void SetSize(float w, float h);
+
+    Engine::Image* bmp;
+    int price;
+};
+
+class Store : public Engine::IObject {
+public:
     Store();
-    void Update(float deltaTime);
-    void Draw(const Engine::Point& cameraPos, const Engine::Point& screenSize);
-    void SelectSlot(int index);
-    void OnKeyDown(int keyCode);
-    //StoreItem* GetSelectedItem() const;
-    PlayScene *getPlayScene();
+    void Update(float deltaTime) override;
+    void Draw() const override;
+    void OnMouseDown(int button, int mx, int my);
+
+    ColoredRectangle background;
+    std::vector<StoreItem*> items;
+    PlayScene* getPlayScene()const;
 };
-/*#pragma once
-#include <vector>
-#include "Engine/Point.hpp"
-
-class SkillBase;
-
-class ItemBar {
-public:
-    static const int SlotAmount = 5;
-    std::vector<SkillBase*> slots;
-    int selectedIndex = 0;
-
-    ItemBar();
-    void Update(float deltaTime);
-    void Draw(const Engine::Point& cameraPos, const Engine::Point& screenSize);
-    void SelectSlot(int index);
-    void OnKeyDown(int keyCode);
-    SkillBase* GetSelectedSkill() const;
-};
-*/
