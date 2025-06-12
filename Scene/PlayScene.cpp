@@ -112,13 +112,14 @@ void PlayScene::Initialize() {
     AddNewControlObject(sword);
 
 
-    currentWeapon = WeaponType::GUN; // Default to gun
-    gun->isActive = true;
-    sword->isActive = false;
+    // currentWeapon = WeaponType::GUN; // Default to gun
+    // gun->isActive = true;
+    // sword->isActive = false;
 
 
 
-
+    character->AddWeapon(std::make_unique<Engine::Gun>(this, character->Position));
+    character->AddWeapon(std::make_unique<Engine::MeleeWeapon>(this, character->Position));
 
 
 
@@ -153,8 +154,8 @@ void PlayScene::Terminate() {
 }
 void PlayScene::Update(float deltaTime) {
     WeaponBulletGroup->Update(deltaTime);
-    gun->SetCharacterPosition(character->Position);
-    sword->SetCharacterPosition(character->Position);
+   // gun->SetCharacterPosition(character->Position);
+   // sword->SetCharacterPosition(character->Position);
     //go home
     if(gohomekey==0)
         UIHome->Text = std::string("");
@@ -185,7 +186,7 @@ void PlayScene::Update(float deltaTime) {
     for (int i = 0; i < SpeedMult; i++) {
         IScene::Update(deltaTime);
         ticks += deltaTime;
-        const float spawnInterval = 3; // 每2秒生成一隻敵人，可依需要調整
+        const float spawnInterval = 1; // 每2秒生成一隻敵人，可依需要調整
         static float spawnTimer = 0.0f;
         spawnTimer += deltaTime;
         if (spawnTimer >= spawnInterval) {
@@ -218,11 +219,11 @@ void PlayScene::Update(float deltaTime) {
 
 
 
-    if (currentWeapon == WeaponType::GUN) {
-        gun->Update(deltaTime);
-    } else if (currentWeapon == WeaponType::MELEE) {
-        sword->Update(deltaTime);
-    }
+    // if (currentWeapon == WeaponType::GUN) {
+    //     gun->Update(deltaTime);
+    // } else if (currentWeapon == WeaponType::MELEE) {
+    //     sword->Update(deltaTime);
+    // }
 
     if (preview) {
         preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
@@ -254,11 +255,11 @@ void PlayScene::Draw() const {
     if (character->IsAlive()) {
         character->DrawBars();
         // Draw only the active weapon
-        if (currentWeapon == WeaponType::GUN) {
-            gun->Draw();
-        } else if (currentWeapon == WeaponType::MELEE) {
-            sword->Draw();
-        }
+        // if (currentWeapon == WeaponType::GUN) {
+        //     gun->Draw();
+        // } else if (currentWeapon == WeaponType::MELEE) {
+        //     sword->Draw();
+        // }
     }
     WeaponBulletGroup->Draw();
 
@@ -362,13 +363,13 @@ void PlayScene::OnKeyDown(int keyCode) {
 
 
     if (keyCode == ALLEGRO_KEY_Q) {
-        currentWeapon = WeaponType::GUN;
-        gun->isActive = true;
-        sword->isActive = false;
+        // currentWeapon = WeaponType::GUN;
+        // gun->isActive = true;
+        // sword->isActive = false;
     }else if (keyCode == ALLEGRO_KEY_E){
-        currentWeapon = WeaponType::MELEE;
-        gun->isActive = false;
-        sword->isActive = true;
+        // currentWeapon = WeaponType::MELEE;
+        // gun->isActive = false;
+        // sword->isActive = true;
     }
 
                     

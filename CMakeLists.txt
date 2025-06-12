@@ -134,6 +134,8 @@ add_executable(2025_I2P2_TowerDefense
 
     Weapon/MeleeWeapon.cpp
     Weapon/MeleeWeapon.hpp
+    Weapon/WeaponManager.hpp
+    Weapon/WeaponManager.cpp
 
     ItemBar/Itembar.cpp
     ItemBar/Itembar.hpp
