@@ -14,7 +14,7 @@
 #include "Weapon/MeleeWeapon.hpp"
 #include "Drop/coin.hpp" // 新增 coin.hpp 包含
 #include "Minimap/Minimap.hpp"
-
+#include "Enemy/boss.hpp"
 class Turret;
 namespace Engine {
     class Group;
@@ -54,6 +54,10 @@ public:
     int storeposi,storeposj;
     int storeset;
     int gostorekey = 0;
+
+
+    bool isBossActive;  // 新增：標誌位，表示 Boss 是否活躍
+   // Boss* currentBoss;  // 新增：指向當前活躍的 Boss
 
     float turret_coin_mul = 1.0f; 
     float turret_coolDown_mul = 1.0f;
@@ -97,6 +101,7 @@ public:
     Group *DebugIndicatorGroup;
     Group *BulletGroup;
     Group* WeaponBulletGroup;
+    Group* EnemyBulletGroup;
     Group *TowerGroup;
     Group *EnemyGroup;
     Group *EffectGroup;
