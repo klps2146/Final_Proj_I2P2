@@ -120,6 +120,22 @@ void PlayScene::Initialize() {
     gun = new Engine::Gun(this, character->Position);
     AddNewControlObject(gun);
 
+    sword = new Engine::MeleeWeapon(this, character->Position);
+    AddNewControlObject(sword);
+
+
+    currentWeapon = WeaponType::GUN; // Default to gun
+    gun->isActive = true;
+    sword->isActive = false;
+
+
+
+
+
+
+
+
+
     AddNewObject(TileMapGroup = new Group());
     AddNewObject(GroundEffectGroup = new Group());
     AddNewObject(DebugIndicatorGroup = new Group());
@@ -155,6 +171,7 @@ void PlayScene::Update(float deltaTime) {
     miniMap.SetEnemyPositions(EnemyGroup);
     miniMap.SetPlayer(character->Position, character->GetRotation());
 
+    sword->SetCharacterPosition(character->Position);
     //go home
     if(gohomekey==0)
         UIHome->Text = std::string("");
@@ -185,7 +202,7 @@ void PlayScene::Update(float deltaTime) {
     for (int i = 0; i < SpeedMult; i++) {
         IScene::Update(deltaTime);
         ticks += deltaTime;
-        const float spawnInterval = 0.5f; // 每2秒生成一隻敵人，可依需要調整
+        const float spawnInterval = 3; // 每2秒生成一隻敵人，可依需要調整
         static float spawnTimer = 0.0f;
         spawnTimer += deltaTime;
         if (spawnTimer >= spawnInterval) {
@@ -211,8 +228,30 @@ void PlayScene::Update(float deltaTime) {
                     continue;
             }
             enemy->Update(ticks);
+                std::cout << "Enemy" << type << "spawned at position: (" 
+            << spawnPos.x << ", " << spawnPos.y << ")\n";
         }
     }
+
+
+
+    if (currentWeapon == WeaponType::GUN) {
+        gun->Update(deltaTime);
+    } else if (currentWeapon == WeaponType::MELEE) {
+        sword->Update(deltaTime);
+    }
+
+    if (preview) {
+        preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
+        preview->Update(deltaTime);
+    }
+
+
+
+
+
+
+
     if (preview) {
         preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
         preview->Update(deltaTime);
@@ -223,9 +262,20 @@ void PlayScene::Draw() const {
     IScene::Draw(); 
     //// new
     character->Draw();
+    // if (character->IsAlive()) {
+    //     character->DrawBars();
+    //     gun->Draw();
+    //     sword->Draw();
+    // }
+
     if (character->IsAlive()) {
         character->DrawBars();
-        gun->Draw();
+        // Draw only the active weapon
+        if (currentWeapon == WeaponType::GUN) {
+            gun->Draw();
+        } else if (currentWeapon == WeaponType::MELEE) {
+            sword->Draw();
+        }
     }
     WeaponBulletGroup->Draw();
 
@@ -329,16 +379,19 @@ void PlayScene::OnKeyDown(int keyCode) {
         if (keyStrokes.size() > code.size())
             keyStrokes.pop_front();
     }
+
+
     if (keyCode == ALLEGRO_KEY_Q) {
-        // Hotkey for MachineGunTurret.
-        // UIBtnClicked(0);
-    } else if (keyCode == ALLEGRO_KEY_W) {
-        // Hotkey for LaserTurret.
-        // UIBtnClicked(1);
+        currentWeapon = WeaponType::GUN;
+        gun->isActive = true;
+        sword->isActive = false;
+    }else if (keyCode == ALLEGRO_KEY_E){
+        currentWeapon = WeaponType::MELEE;
+        gun->isActive = false;
+        sword->isActive = true;
     }
-    else if (keyCode == ALLEGRO_KEY_E){
-        // UIBtnClicked(2); //// new
-    }
+
+                    
     else if (keyCode >= ALLEGRO_KEY_0 && keyCode <= ALLEGRO_KEY_9) {
         // Hotkey for Speed up.
         // SpeedMult = keyCode - ALLEGRO_KEY_0;
@@ -431,6 +484,8 @@ void PlayScene::ReadMap() {
         {{4, 1}, {2, 2}},
         {{5, 6}, {3, 3}}
     };
+    int height = mapState.size();      // 地圖實際行數
+    int width  = mapState[0].size();   // 地圖實際列數
     for (int i = 0; i < MapHeight; i++) {
         for (int j = 0; j < MapWidth; j++) {
             const int num = mapData[i * MapWidth + j];
@@ -719,6 +774,7 @@ Engine::Point PlayScene::GetValidSpawnPoint() {
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, validPoints.size() - 1);
     Engine::Point gridPos = validPoints[dis(gen)];
+
     return Engine::Point(gridPos.x * BlockSize + BlockSize / 2, gridPos.y * BlockSize + BlockSize / 2);
 }
 void PlayScene::SpawnCoin(float x, float y, int value) {

@@ -17,12 +17,14 @@ namespace Engine {
         Point characterPosition; // Position of the character holding the gun
 
     public:
+        bool isActive; // Added to track if the gun is active
         explicit Gun(IScene* scene, Point characterPos);
         void Update(float deltaTime) override;
         void OnMouseMove(int mx, int my) override;
         void OnMouseDown(int button, int mx, int my) override;
         void OnMouseUp(int button, int mx, int my) override;
         void SetCharacterPosition(Point pos);
+    
     };
 }
 #endif // GUN_HPP

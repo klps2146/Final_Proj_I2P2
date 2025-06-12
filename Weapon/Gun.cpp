@@ -10,13 +10,15 @@
 namespace Engine {
     Gun::Gun(IScene* scene, Point characterPos) 
         : Sprite("play/Weapon1.png", characterPos.x, characterPos.y+10, 50, 28, 0.5f, 0.5f),
-          scene(scene), fireCooldown(0.1f), cooldownTimer(0.0f), characterPosition(characterPos) {
+          scene(scene), fireCooldown(0.1f), cooldownTimer(0.0f), characterPosition(characterPos) ,isActive(false){
     }
 
     void Gun::Update(float deltaTime) {
         Sprite::Update(deltaTime); // Update position if velocity exists
         cooldownTimer = std::max(0.0f, cooldownTimer - deltaTime); // Decrease cooldown
 
+
+        if (!isActive) return; // Only update firing if active
         // Check if left mouse button is held
         ALLEGRO_MOUSE_STATE mouseState;
         al_get_mouse_state(&mouseState);
@@ -32,6 +34,9 @@ namespace Engine {
     }
 
     void Gun::OnMouseMove(int mx, int my) {
+
+        if (!isActive) return; // Only respond if active
+
         // Convert mouse screen coordinates to world coordinates
         PlayScene* playScene = dynamic_cast<PlayScene*>(scene);
         Point cameraPos = playScene->CameraPos;
@@ -43,10 +48,12 @@ namespace Engine {
     }
 
     void Gun::OnMouseDown(int button, int mx, int my) {
+       if (!isActive) return;
         // No immediate action needed; firing is handled in Update
     }
 
     void Gun::OnMouseUp(int button, int mx, int my) {
+       if (!isActive) return;
         // No action needed; firing stops when button is released
     }
 

@@ -11,6 +11,7 @@
 #include "Engine/IScene.hpp"
 #include "Engine/Point.hpp"
 #include "Weapon/Gun.hpp"
+#include "Weapon/MeleeWeapon.hpp"
 #include "Drop/coin.hpp" // 新增 coin.hpp 包含
 #include "Minimap/Minimap.hpp"
 
@@ -34,7 +35,10 @@ public:
     };
     ALLEGRO_SAMPLE_ID bgmId;
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> deathBGMInstance;
-
+    enum class WeaponType { // Added enum for weapon switching
+        GUN,
+        MELEE
+    };
 protected:
     int lives;
     int money;
@@ -68,6 +72,8 @@ public:
     Engine::Character* character;
     MiniMap miniMap;
     Engine::Gun* gun;
+    Engine::MeleeWeapon* sword;
+    WeaponType currentWeapon;
 
     Engine::Point CameraPos;
 

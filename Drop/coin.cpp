@@ -3,7 +3,7 @@
 #include "Engine/Point.hpp"
 
 Coin::Coin(PlayScene* scene, float x, float y, int val) 
-    : Sprite("play/coin.png", x, y), playScene(scene), value(val) {}
+    : Sprite("play/coin.png", x, y,32,32), playScene(scene), value(val) {}
 
 void Coin::Update(float deltaTime) {
     Engine::Point playerPos = playScene->character->Position;
