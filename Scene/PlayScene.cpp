@@ -202,7 +202,7 @@ void PlayScene::Update(float deltaTime) {
     for (int i = 0; i < SpeedMult; i++) {
         IScene::Update(deltaTime);
         ticks += deltaTime;
-        const float spawnInterval = 3; // 每2秒生成一隻敵人，可依需要調整
+        const float spawnInterval = 0.5f; // 每2秒生成一隻敵人，可依需要調整
         static float spawnTimer = 0.0f;
         spawnTimer += deltaTime;
         if (spawnTimer >= spawnInterval) {
@@ -211,6 +211,7 @@ void PlayScene::Update(float deltaTime) {
             //const Engine::Point SpawnCoordinate = Engine::Point(SpawnGridPoint.x * BlockSize + BlockSize / 2, SpawnGridPoint.y * BlockSize + BlockSize / 2);
             Enemy *enemy;
             Engine::Point spawnPos = GetValidSpawnPoint();
+
             switch (type) {
                 case 1:
                     EnemyGroup->AddNewObject(enemy = new SoldierEnemy(spawnPos.x, spawnPos.y));
@@ -233,8 +234,6 @@ void PlayScene::Update(float deltaTime) {
         }
     }
 
-
-
     if (currentWeapon == WeaponType::GUN) {
         gun->Update(deltaTime);
     } else if (currentWeapon == WeaponType::MELEE) {
@@ -246,12 +245,6 @@ void PlayScene::Update(float deltaTime) {
         preview->Update(deltaTime);
     }
 
-
-
-
-
-
-
     if (preview) {
         preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
         preview->Update(deltaTime);
@@ -259,7 +252,7 @@ void PlayScene::Update(float deltaTime) {
 }
 void PlayScene::Draw() const {
     al_clear_to_color(al_map_rgb(135, 206, 235));
-    IScene::Draw(); 
+    IScene::Draw();
     //// new
     character->Draw();
     // if (character->IsAlive()) {
@@ -717,9 +710,6 @@ void PlayScene::ConstructUI() {
     dangerIndicator->Tint.a = 0;
     UIGroup->AddNewObject(dangerIndicator);
 
-
-    //// 小地圖
-
 }
 void PlayScene::buff_adder(int state) {
 }
@@ -757,26 +747,58 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance(Engine::Point star
     }
     return map;
 }
+// Engine::Point PlayScene::GetValidSpawnPoint() {
+//     std::vector<Engine::Point> validPoints;
+//     for (int y = 0; y < MapHeight; y++) {
+//         for (int x = 0; x < MapWidth; x++) {
+//             if ((x > 0 && y > 0) &&
+//                 ((mapState[y][x] == TILE_GRASS || mapState[y][x] == TILE_BRIDGE )&& (mapState[y][x] != TILE_WATER))) {
+//                 validPoints.emplace_back(x, y);
+//             }
+//         }
+//     }
+//     if (validPoints.empty()) {
+//         return Engine::Point(BlockSize / 2, BlockSize / 2); // 預設也要符合大於 0 的規則
+//     }
+//     std::random_device rd;
+//     std::mt19937 gen(rd());
+//     std::uniform_int_distribution<> dis(0, validPoints.size() - 1);
+//     Engine::Point gridPos = validPoints[dis(gen)];
+
+//     return Engine::Point(gridPos.x * BlockSize + BlockSize / 2, gridPos.y * BlockSize + BlockSize / 2);
+// }
+
+// 修正
 Engine::Point PlayScene::GetValidSpawnPoint() {
     std::vector<Engine::Point> validPoints;
-    for (int y = 0; y < MapHeight; y++) {
-        for (int x = 0; x < MapWidth; x++) {
-            if ((x > 0 && y > 0) &&
-                ((mapState[y][x] == TILE_GRASS || mapState[y][x] == TILE_BRIDGE )&& (mapState[y][x] != TILE_WATER))) {
+    for (int y = 1; y < MapHeight - 1; y++) {
+        for (int x = 1; x < MapWidth - 1; x++) {
+            // 只要是 grass 或 bridge 就當合法點
+            if (mapState[y][x] == TILE_GRASS || mapState[y][x] == TILE_BRIDGE) {
                 validPoints.emplace_back(x, y);
             }
         }
     }
+
+    // 如果沒找到合法點，就回傳地圖中心
     if (validPoints.empty()) {
-        return Engine::Point(BlockSize / 2, BlockSize / 2); // 預設也要符合大於 0 的規則
+        return Engine::Point(MapWidth * BlockSize / 2, MapHeight * BlockSize / 2);
     }
+
+    // 隨機挑一個格子位置
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, validPoints.size() - 1);
     Engine::Point gridPos = validPoints[dis(gen)];
 
-    return Engine::Point(gridPos.x * BlockSize + BlockSize / 2, gridPos.y * BlockSize + BlockSize / 2);
+    // 回傳該格子的中心像素座標
+    return Engine::Point(
+        gridPos.x * BlockSize + BlockSize / 2,
+        gridPos.y * BlockSize + BlockSize / 2
+    );
 }
+
+
 void PlayScene::SpawnCoin(float x, float y, int value) {
     GroundEffectGroup->AddNewObject(new Coin(this, x, y, value));
 }

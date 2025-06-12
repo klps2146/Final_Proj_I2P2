@@ -17,7 +17,7 @@
 #include "UI/Animation/DirtyEffect.hpp"
 #include "UI/Animation/ExplosionEffect.hpp"
 
-PlayScene *Enemy::getPlayScene() {
+PlayScene *Enemy::getPlayScene() const{
     return dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetActiveScene());
 }
 void Enemy::OnExplode() {
@@ -33,6 +33,7 @@ void Enemy::OnExplode() {
 Enemy::Enemy(std::string img, float x, float y, float radius, float speed, float hp, int money) : Engine::Sprite(img, x, y), speed(speed), hp(hp), money(money) 
 , currentDirection(0, 0)//新增
 {
+    max_hp = hp;
     CollisionRadius = radius;
 }
 void Enemy::Hit(float damage,bool byplayer) {
@@ -108,6 +109,46 @@ void Enemy::Update(float deltaTime) {
         }
     }
 }
+
+void Enemy::Draw() const {
+    Sprite::Draw();
+    DrawBars();
+
+    if (PlayScene::DebugMode) {
+        al_draw_circle(Position.x, Position.y, CollisionRadius, al_map_rgb(255, 0, 0), 2);
+    }
+}
+void Enemy::change_speed(float dv_mul, float duration) {
+    if (!speed_changed) {
+        original_speed = speed;
+    } else {
+        speed = original_speed;
+    }
+    speed_changed = true;
+    speed *= dv_mul;
+    speed_duration = duration;
+    speed_timer = 0;
+}
+
+void Enemy::DrawBars() const{
+    // 血
+    const float barWidth = 60;
+    const float barHeight = 7;
+    const float offsetY = -48; // 在腳色頭上
+
+    float healthPercent = (float)hp / max_hp;
+
+    ALLEGRO_COLOR bgColor = al_map_rgb(100, 100, 100);
+    ALLEGRO_COLOR frontColor = al_map_rgb(255, 0, 0);
+
+    float barX = Position.x - barWidth / 2 - getPlayScene()->CameraPos.x;
+    float barY = Position.y + offsetY - getPlayScene()->CameraPos.y;
+
+    al_draw_filled_rectangle(barX, barY, barX + barWidth, barY + barHeight, bgColor);
+    al_draw_filled_rectangle(barX, barY, barX + barWidth * healthPercent, barY + barHeight, frontColor);
+}
+
+
 /*void Enemy::Update(float deltaTime) {
     int x = static_cast<int>(floor(Position.x / PlayScene::BlockSize));
     int y = static_cast<int>(floor(Position.y / PlayScene::BlockSize));
@@ -154,23 +195,8 @@ void Enemy::Update(float deltaTime) {
         }
     }
 }*/
-void Enemy::Draw() const {
-    Sprite::Draw();
-    if (PlayScene::DebugMode) {
-        al_draw_circle(Position.x, Position.y, CollisionRadius, al_map_rgb(255, 0, 0), 2);
-    }
-}
-void Enemy::change_speed(float dv_mul, float duration) {
-    if (!speed_changed) {
-        original_speed = speed;
-    } else {
-        speed = original_speed;
-    }
-    speed_changed = true;
-    speed *= dv_mul;
-    speed_duration = duration;
-    speed_timer = 0;
-}
+
+
 // #include <allegro5/allegro_primitives.h>
 // #include <allegro5/color.h>
 // #include <cmath>
