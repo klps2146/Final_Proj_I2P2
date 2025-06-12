@@ -6,6 +6,7 @@
 #include <iostream>
 #include <allegro5/allegro_primitives.h>
 #include "UI/Component/Label.hpp"
+#include <cassert>
 
 PlayScene *Engine::Character::getPlayScene() {
     return dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetActiveScene());
@@ -23,8 +24,9 @@ namespace Engine {
         SetSpriteSource(0, 0, 96, 96);
         isDying = 0;
         isDead = 0;
-        HP = 1000;
-        POWER = 5000;
+        HP = 99999;
+        POWER = 500000;
+        VisableLevel = 1;
     }
 
     void Character::AddWeapon(std::unique_ptr<Weapon> weapon) {
@@ -302,12 +304,15 @@ namespace Engine {
             HP = 0;
             return false;
         }
+        else if (HP > MAX_HP){
+            HP = MAX_HP;
+        }
         return true;
     }
 
     bool Character::ChangePOWER(float dPOWER){
         POWER += dPOWER;
-
+        
         if (POWER <= 0){
             POWER -= dPOWER;
             return false;

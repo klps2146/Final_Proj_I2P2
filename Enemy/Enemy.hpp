@@ -25,6 +25,7 @@ protected:
 
     Engine::Point currentDirection;
 public:
+    virtual void HandlePlayerCollision();
     bool Playerhit = false;
     std::list<Turret *> lockedTurrets;
     std::list<Bullet *> lockedBullets;

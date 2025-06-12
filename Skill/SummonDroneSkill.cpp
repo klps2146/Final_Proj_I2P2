@@ -21,7 +21,7 @@ void SummonDroneSkill::SkillAnimation() {
         float angle = 2 * ALLEGRO_PI * i / droneCount;
         float offsetX = cos(angle) * 40 + (rand() % 20 - 10); // 附近隨機生成
         float offsetY = sin(angle) * 40 + (rand() % 20 - 10);
-        
+         
         Engine::Point followOffset(30, 30);
         Drone* drone = new Drone(center.x + offsetX, center.y + offsetY, droneRadius, droneCooldown, droneLife, followOffset);
         getPlayScene()->DroneGroup->AddNewObject(drone);

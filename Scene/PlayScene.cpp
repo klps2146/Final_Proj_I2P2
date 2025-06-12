@@ -12,12 +12,18 @@
 #include "Enemy/Enemy.hpp"
 #include "Enemy/PlaneEnemy.hpp"
 #include "Enemy/GodEnemy.hpp"
+
+#include "Enemy/EnemyBullet.hpp"
+#include "Enemy/Bomb.hpp"
+#include "Enemy/BombThrowerEnemy.hpp"
+
 #include "Turret/CoolTurret.hpp"
 #include "Tool/ShovelTool.hpp"
 #include "Character/Character.hpp"
 #include "Engine/IScene.hpp"
 #include "Enemy/SoldierEnemy.hpp"
 #include "Enemy/TankEnemy.hpp"
+#include "Enemy/ShootEnemy.hpp"
 #include "Engine/AudioHelper.hpp"
 #include "Engine/GameEngine.hpp"
 #include "Engine/Group.hpp"
@@ -105,11 +111,10 @@ void PlayScene::Initialize() {
 
     character->AddSkill(new DashSkill());
     character->AddSkill(new AreaSkill("MagicCircle", "skill/trump.png", 140, 8.0f, 5.0f));
-    character->AddSkill(new SummonDroneSkill(1, 25.0f, 500.0f, 0.9f));
+    character->AddSkill(new SummonDroneSkill(6, 25.0f, 500.0f, 0.9f));
+    character->VisableLevel = 2;
 
-    character->VisableLevel = 1;
     AddNewControlObject(character);
-    
 
     CameraPos = Engine::Point(0, 0);
 
@@ -120,11 +125,11 @@ void PlayScene::Initialize() {
         300.f, 300.f // 大小 
     ),
 
-    gun = new Engine::Gun(this, character->Position);
-    AddNewControlObject(gun);
+    //gun = new Engine::Gun(this, character->Position);
+    //AddNewControlObject(gun);
 
-    sword = new Engine::MeleeWeapon(this, character->Position);
-    AddNewControlObject(sword);
+    //sword = new Engine::MeleeWeapon(this, character->Position);
+    //AddNewControlObject(sword);
 
 
     // currentWeapon = WeaponType::GUN; // Default to gun
@@ -137,6 +142,9 @@ void PlayScene::Initialize() {
     character->AddWeapon(std::make_unique<Engine::MeleeWeapon>(this, character->Position));
 
 
+
+
+    AddNewObject(EnemyBulletGroup = new Group());
     AddNewObject(DroneGroup = new Group());
     
     AddNewObject(TileMapGroup = new Group());
@@ -168,6 +176,7 @@ void PlayScene::Terminate() {
 }
 void PlayScene::Update(float deltaTime) {
     WeaponBulletGroup->Update(deltaTime);
+    EnemyBulletGroup->Update(deltaTime);
     DroneGroup->Update(deltaTime);
 
     // miniMap
@@ -205,12 +214,12 @@ void PlayScene::Update(float deltaTime) {
     for (int i = 0; i < SpeedMult; i++) {
         IScene::Update(deltaTime);
         ticks += deltaTime;
-        const float spawnInterval = 1; // 每2秒生成一隻敵人，可依需要調整
+        const float spawnInterval = 0.5; // 每2秒生成一隻敵人，可依需要調整
         static float spawnTimer = 0.0f;
         spawnTimer += deltaTime;
         if (spawnTimer >= spawnInterval) {
             spawnTimer -= spawnInterval;
-            int type = rand() % 4 + 1; // 隨機產生 1~4 的敵人類型
+            int type = rand() % 6 + 1; // 隨機產生 1~4 的敵人類型
             //const Engine::Point SpawnCoordinate = Engine::Point(SpawnGridPoint.x * BlockSize + BlockSize / 2, SpawnGridPoint.y * BlockSize + BlockSize / 2);
             Enemy *enemy;
             Engine::Point spawnPos = GetValidSpawnPoint();
@@ -228,12 +237,17 @@ void PlayScene::Update(float deltaTime) {
                 case 4:
                     EnemyGroup->AddNewObject(enemy = new GodEnemy(spawnPos.x, spawnPos.y));
                     break;
+                case 5:
+                    EnemyGroup->AddNewObject(enemy = new ShootEnemy(spawnPos.x, spawnPos.y));
+                case 6:
+                    EnemyGroup->AddNewObject(new BombThrowerEnemy(spawnPos.x, spawnPos.y));
                 default:
                     continue;
             }
-            enemy->Update(ticks);
-                std::cout << "Enemy" << type << "spawned at position: (" 
+            std::cout << "Enemy" << type << "spawned at position: (" 
             << spawnPos.x << ", " << spawnPos.y << ")\n";
+            enemy->Update(ticks);
+
         }
     }
 
@@ -276,6 +290,7 @@ void PlayScene::Draw() const {
         // }
     }
     WeaponBulletGroup->Draw();
+    EnemyBulletGroup->Draw();
     
     DroneGroup->Draw();
 

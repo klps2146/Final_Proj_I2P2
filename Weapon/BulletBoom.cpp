@@ -31,12 +31,5 @@ namespace Engine {
             Visible = false;
             
         }
-        // else if (scene){ 會CRASH
-        //     int mx = (Position.x + scene->BlockSize) / scene->BlockSize + 1;
-        //     int my = (Position.y + scene->BlockSize) / scene->BlockSize + 1;
-        //     if (mx >= 0 && my >= 0 && scene->mapState[mx][my] == scene->TILE_HOME){
-        //         Visible = false;
-        //     }
-        // }
     }
 }

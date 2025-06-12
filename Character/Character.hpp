@@ -22,8 +22,8 @@ namespace Engine {
         bool isDying;
         bool isDead;
         
-        float MAX_HP = 1000;
-        float MAX_POWER = 5000;
+        float MAX_HP = 99999;
+        float MAX_POWER = 500000;
         float POWER;
 
         Engine::Point last_idle_dir;
