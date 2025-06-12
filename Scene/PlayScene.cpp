@@ -97,7 +97,6 @@ void PlayScene::Initialize() {
         MapHeight = 18;
     }*/
         
-    
 
     //// chracter
     character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 200, 32);

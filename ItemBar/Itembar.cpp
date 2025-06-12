@@ -2,6 +2,7 @@
 #include "Skill/SkillBase.hpp"
 
 #include "Skill/SummonDroneSkill.hpp"
+#include "UI/Component/Label.hpp"
 
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro5.h>
