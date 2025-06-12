@@ -197,6 +197,14 @@ namespace Engine {
         /// </summary>
         /// <returns>A linked-list of all controls contained.</returns>
         std::list<IControl *> GetControls();
+
+
+        //// 魔改
+        void RemoveObject(IObject* obj) {
+            objects.remove_if([obj](const std::pair<bool, IObject*>& item) {
+                return item.second == obj;
+            });
+        }
     };
 }
 #endif   // GROUP_HPP

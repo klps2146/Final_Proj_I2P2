@@ -16,11 +16,16 @@ protected:
     float speed_timer = 0;
     float speed_duration = 0;
     float hp;
+    float max_hp;
     int money;
-    PlayScene *getPlayScene();
+    PlayScene *getPlayScene() const;
     virtual void OnExplode();
+
+    void DrawBars() const;
+
     Engine::Point currentDirection;
 public:
+    virtual void HandlePlayerCollision();
     bool Playerhit = false;
     std::list<Turret *> lockedTurrets;
     std::list<Bullet *> lockedBullets;
@@ -31,7 +36,8 @@ public:
     void change_speed(float dv_mul, float duration);
     float dmg;
 };
-#endif   // ENEMY_HPP
+#endif  
+ // ENEMY_HPP
 // #ifndef ENEMY_HPP
 // #define ENEMY_HPP
 // #include <list>

@@ -1,25 +1,20 @@
-// Weapon.hpp
 #ifndef WEAPON_HPP
 #define WEAPON_HPP
-
-#include <string>
 #include "Engine/Sprite.hpp"
-#include "Engine/Point.hpp"
+#include "Engine/IControl.hpp"
 
-class PlayScene;
-
-class Weapon : public Engine::Sprite {
-public:
-    Weapon(std::string img, float x, float y, float coolDown);
-    void Update(float deltaTime) override;
-    void Draw() const override;
-    void Fire(); // 發射子彈
-protected:
-    virtual void CreateBullet() = 0; // 純虛函數，讓子類實現具體的子彈創建
-    PlayScene* getPlayScene();
-private:
-    float coolDown; // 冷卻時間
-    float reload;   // 當前冷卻計時器
-};
-
+namespace Engine {
+    class Weapon : public Sprite, public IControl {
+    public:
+        Weapon(std::string img, float x, float y, float w = 0, float h = 0,
+               float anchorX = 0.5f, float anchorY = 0.5f);
+        virtual void Update(float deltaTime) override = 0;
+        virtual void OnMouseMove(int mx, int my) override = 0;
+        virtual void OnMouseDown(int button, int mx, int my) override = 0;
+        virtual void OnMouseUp(int button, int mx, int my) override = 0;
+        virtual void SetCharacterPosition(Point pos) = 0;
+        virtual void Draw() const override = 0;
+        bool isActive = false;
+    };
+}
 #endif

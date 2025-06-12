@@ -42,6 +42,20 @@ add_executable(2025_I2P2_TowerDefense
     Enemy/SoldierEnemy.hpp
     Enemy/TankEnemy.cpp
     Enemy/TankEnemy.hpp
+    Enemy/EnemyBullet.cpp
+    Enemy/EnemyBullet.hpp
+    Enemy/EnemyBullet1.cpp
+    Enemy/EnemyBullet1.hpp
+    Enemy/ShootEnemy.cpp
+    Enemy/ShootEnemy.hpp
+    Enemy/Bomb.cpp
+    Enemy/Bomb.hpp  
+    Enemy/BombThrowerEnemy.cpp
+    Enemy/BombThrowerEnemy.hpp
+    Enemy/Boss.cpp
+    Enemy/Boss.hpp
+
+
 
     Engine/Allegro5Exception.cpp
     Engine/Allegro5Exception.hpp
@@ -136,6 +150,8 @@ add_executable(2025_I2P2_TowerDefense
 
     Weapon/MeleeWeapon.cpp
     Weapon/MeleeWeapon.hpp
+    Weapon/WeaponManager.hpp
+    Weapon/WeaponManager.cpp
 
     ItemBar/Itembar.cpp
     ItemBar/Itembar.hpp
@@ -148,12 +164,17 @@ add_executable(2025_I2P2_TowerDefense
     Skill/DashSkill.hpp
     Skill/AreaSkill.hpp
     Skill/AreaSkill.cpp
+    Skill/SummonDroneSkill.cpp
+    Skill/SummonDroneSkill.hpp
 
     Drop/coin.hpp
     Drop/coin.cpp
 
     Minimap/Minimap.cpp
     Minimap/Minimap.hpp
+
+    Partner/Drone.cpp
+    Partner/Drone.hpp
 
     main.cpp
 )

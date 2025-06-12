@@ -3,7 +3,7 @@
 #include "Character/Character.hpp"
 
 DashSkill::DashSkill()
-    : SkillBase("Dash", "skill/yuan.png", 0, 0, 5.0f) { // 冷卻 5
+    : SkillBase("Dash", "skill/yuan.png", 0, 0, 5.0f, 30.0) { // 冷卻 5
     Unlock();
 }
 

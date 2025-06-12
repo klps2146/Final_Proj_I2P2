@@ -1,5 +1,8 @@
 #include "Itembar.hpp"
 #include "Skill/SkillBase.hpp"
+
+#include "Skill/SummonDroneSkill.hpp"
+
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro5.h>
 #include <iostream>
@@ -35,6 +38,10 @@ void ItemBar::Draw(const Engine::Point& cameraPos, const Engine::Point& screenSi
             slots[i]->Anchor = Engine::Point(0, 0);
 
             slots[i]->SetSize(slotSize, slotSize);
+            
+            // SummonDroneSkill* sdk = dynamic_cast<SummonDroneSkill*>(slots[i]);
+
+            // if (sdk && sdk)
 
             slots[i]->Draw();
 
@@ -54,10 +61,10 @@ void ItemBar::SelectSlot(int index) {
 #include <iostream>
 void ItemBar::OnKeyDown(int keyCode) {
     if (selectedIndex + ALLEGRO_KEY_1 == keyCode){ // 連按
-        // std::cout << "AAA" << selectedIndex << std::endl;
+        std::cout << "AAA " << selectedIndex << std::endl;
         if (GetSelectedSkill()){
             GetSelectedSkill()->Activate();
-            // std::cout << "BBB" << selectedIndex << std::endl;
+            std::cout << "BBB " << selectedIndex << std::endl;
         }
     }
     if (keyCode >= ALLEGRO_KEY_1 && keyCode <= ALLEGRO_KEY_1 + SlotAmount - 1)

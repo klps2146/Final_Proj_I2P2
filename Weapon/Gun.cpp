@@ -1,65 +1,62 @@
+
+
 #include "Gun.hpp"
 #include <allegro5/allegro.h>
 #include <cmath>
 #include "Engine/GameEngine.hpp"
 #include "Engine/IScene.hpp"
 #include "Engine/Point.hpp"
-#include "BulletBoom.hpp" // Assume this is a simple bullet class
-#include "Scene/PlayScene.hpp" // Added to access PlayScene for camera position
+#include "BulletBoom.hpp"
+#include "Engine/AudioHelper.hpp"
+#include "Scene/PlayScene.hpp"
 
 namespace Engine {
     Gun::Gun(IScene* scene, Point characterPos) 
-        : Sprite("play/Weapon1.png", characterPos.x, characterPos.y+10, 50, 28, 0.5f, 0.5f),
-          scene(scene), fireCooldown(0.1f), cooldownTimer(0.0f), characterPosition(characterPos) ,isActive(false){
+        : Weapon("play/Weapon1.png", characterPos.x, characterPos.y + 10, 50, 28, 0.5f, 0.5f),
+          scene(scene), fireCooldown(0.1f), cooldownTimer(0.0f), characterPosition(characterPos) {
     }
 
     void Gun::Update(float deltaTime) {
-        Sprite::Update(deltaTime); // Update position if velocity exists
-        cooldownTimer = std::max(0.0f, cooldownTimer - deltaTime); // Decrease cooldown
-
-
-        if (!isActive) return; // Only update firing if active
-        // Check if left mouse button is held
+        Sprite::Update(deltaTime);
+        cooldownTimer = std::max(0.0f, cooldownTimer - deltaTime);
+        if (!isActive) return;
         ALLEGRO_MOUSE_STATE mouseState;
         al_get_mouse_state(&mouseState);
-        if (mouseState.buttons & 1 && cooldownTimer <= 0.0f) { // Left button pressed
-            // Create a bullet at the gun's tip
+        if (mouseState.buttons & 1 && cooldownTimer <= 0.0f) {
             float bulletSpeed = 400.0f;
             Point bulletDir(std::cos(Rotation), std::sin(Rotation));
-            Point bulletPos = Position + bulletDir * 30.0f; // Offset to gun tip
+            Point bulletPos = Position + bulletDir * 30.0f;
             BulletBoom* bullet = new BulletBoom(bulletPos.x, bulletPos.y, bulletDir * bulletSpeed, 30);
-            scene->AddNewObject(bullet); // Add bullet to scene
-            cooldownTimer = fireCooldown; // Reset cooldown
+            scene->AddNewObject(bullet);
+            AudioHelper::PlayAudio("laser.wav");
+            cooldownTimer = fireCooldown;
         }
     }
 
     void Gun::OnMouseMove(int mx, int my) {
-
-        if (!isActive) return; // Only respond if active
-
-        // Convert mouse screen coordinates to world coordinates
+        if (!isActive) return;
         PlayScene* playScene = dynamic_cast<PlayScene*>(scene);
         Point cameraPos = playScene->CameraPos;
         Point mouseWorldPos(mx + cameraPos.x, my + cameraPos.y);
-
-        // Rotate gun toward mouse position
         Point direction = mouseWorldPos - characterPosition;
-        Rotation = std::atan2(direction.y, direction.x); // Set rotation in radians
+        Rotation = std::atan2(direction.y, direction.x);
     }
 
     void Gun::OnMouseDown(int button, int mx, int my) {
-       if (!isActive) return;
-        // No immediate action needed; firing is handled in Update
+        // Handled in Update
     }
 
     void Gun::OnMouseUp(int button, int mx, int my) {
-       if (!isActive) return;
-        // No action needed; firing stops when button is released
+        // No action needed
     }
 
     void Gun::SetCharacterPosition(Point pos) {
         characterPosition = pos;
-        Position.x = pos.x; // Update gun position to match character
+        Position.x = pos.x;
         Position.y = pos.y + 10;
+    }
+
+    void Gun::Draw() const {
+        if (isActive) Sprite::Draw();
     }
 }
