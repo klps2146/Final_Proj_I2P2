@@ -108,6 +108,22 @@ void PlayScene::Initialize() {
     gun = new Engine::Gun(this, character->Position);
     AddNewControlObject(gun);
 
+    sword = new Engine::MeleeWeapon(this, character->Position);
+    AddNewControlObject(sword);
+
+
+    currentWeapon = WeaponType::GUN; // Default to gun
+    gun->isActive = true;
+    sword->isActive = false;
+
+
+
+
+
+
+
+
+
     AddNewObject(TileMapGroup = new Group());
     AddNewObject(GroundEffectGroup = new Group());
     AddNewObject(DebugIndicatorGroup = new Group());
@@ -138,7 +154,7 @@ void PlayScene::Terminate() {
 void PlayScene::Update(float deltaTime) {
     WeaponBulletGroup->Update(deltaTime);
     gun->SetCharacterPosition(character->Position);
-
+    sword->SetCharacterPosition(character->Position);
     //go home
     if(gohomekey==0)
         UIHome->Text = std::string("");
@@ -200,6 +216,25 @@ void PlayScene::Update(float deltaTime) {
         }
     }
 
+
+
+    if (currentWeapon == WeaponType::GUN) {
+        gun->Update(deltaTime);
+    } else if (currentWeapon == WeaponType::MELEE) {
+        sword->Update(deltaTime);
+    }
+
+    if (preview) {
+        preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
+        preview->Update(deltaTime);
+    }
+
+
+
+
+
+
+
     if (preview) {
         preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
         preview->Update(deltaTime);
@@ -210,9 +245,20 @@ void PlayScene::Draw() const {
 
     //// new
     character->Draw();
+    // if (character->IsAlive()) {
+    //     character->DrawBars();
+    //     gun->Draw();
+    //     sword->Draw();
+    // }
+
     if (character->IsAlive()) {
         character->DrawBars();
-        gun->Draw();
+        // Draw only the active weapon
+        if (currentWeapon == WeaponType::GUN) {
+            gun->Draw();
+        } else if (currentWeapon == WeaponType::MELEE) {
+            sword->Draw();
+        }
     }
     WeaponBulletGroup->Draw();
 
@@ -313,16 +359,19 @@ void PlayScene::OnKeyDown(int keyCode) {
         if (keyStrokes.size() > code.size())
             keyStrokes.pop_front();
     }
+
+
     if (keyCode == ALLEGRO_KEY_Q) {
-        // Hotkey for MachineGunTurret.
-        // UIBtnClicked(0);
-    } else if (keyCode == ALLEGRO_KEY_W) {
-        // Hotkey for LaserTurret.
-        // UIBtnClicked(1);
+        currentWeapon = WeaponType::GUN;
+        gun->isActive = true;
+        sword->isActive = false;
+    }else if (keyCode == ALLEGRO_KEY_E){
+        currentWeapon = WeaponType::MELEE;
+        gun->isActive = false;
+        sword->isActive = true;
     }
-    else if (keyCode == ALLEGRO_KEY_E){
-        // UIBtnClicked(2); //// new
-    }
+
+                    
     else if (keyCode >= ALLEGRO_KEY_0 && keyCode <= ALLEGRO_KEY_9) {
         // Hotkey for Speed up.
         // SpeedMult = keyCode - ALLEGRO_KEY_0;
