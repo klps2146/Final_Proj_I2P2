@@ -2,8 +2,8 @@
 #include "Scene/PlayScene.hpp"
 #include "Engine/GameEngine.hpp"
 
-SkillBase::SkillBase(const std::string& name, const std::string& img, float x, float y, float maxCD)
-    : Engine::SpriteFixed(img, x, y), name(name), CDTimer(0), maxCD(maxCD), isUnlocked(false) {
+SkillBase::SkillBase(const std::string& name, const std::string& img, float x, float y, float maxCD, float powerExpense)
+    : Engine::SpriteFixed(img, x, y), name(name), CDTimer(0), maxCD(maxCD), isUnlocked(false), PowerExpense(powerExpense) {
 }
 
 void SkillBase::Update(float deltaTime) {
@@ -41,6 +41,7 @@ void SkillBase::SkillAnimation() {
 
 void SkillBase::Activate() {
     if (IsReady()) {
+        if (!consumePower()) return; // 不夠
         CDTimer = maxCD;
         SkillAnimation();
     }
@@ -53,4 +54,11 @@ int SkillBase::getLevel(){
 
 PlayScene* SkillBase::getPlayScene() {
     return dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetActiveScene());
+}
+
+bool SkillBase::consumePower(){
+    if (getPlayScene()){
+        return getPlayScene()->character->ChangePOWER(-1 * PowerExpense);
+    }
+    return false;
 }

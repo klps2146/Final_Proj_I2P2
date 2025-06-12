@@ -92,6 +92,10 @@ public:
     int MapId;
     float ticks;
     float deathCountDown;
+
+    //// new
+    Group *DroneGroup;
+
     Group *TileMapGroup;
     Group *GroundEffectGroup;
     Group *DebugIndicatorGroup;

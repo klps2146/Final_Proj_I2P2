@@ -6,7 +6,7 @@
 #include <iostream>
 
 AreaSkill::AreaSkill(const std::string& name, const std::string& img, float radius, float maxCD, float duration)
-    : SkillBase(name, img, 0, 0, maxCD), radius(radius), effectDuration(duration), effectTimer(0), showingEffect(false) {
+    : SkillBase(name, img, 0, 0, maxCD, 245.0), radius(radius), effectDuration(duration), effectTimer(0), showingEffect(false) {
     Unlock();
 }
 
@@ -45,7 +45,7 @@ void AreaSkill::Update(float deltaTime) {
                     Enemy* emy = dynamic_cast<Enemy*>(enemy);
                     if (dist < radius) {
                         if (emy)
-                        emy->Hit(21, true);
+                        emy->Hit(14, true);
                     }
                 }
             }
