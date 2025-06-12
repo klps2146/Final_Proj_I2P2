@@ -162,12 +162,17 @@ add_executable(2025_I2P2_TowerDefense
     Skill/DashSkill.hpp
     Skill/AreaSkill.hpp
     Skill/AreaSkill.cpp
+    Skill/SummonDroneSkill.cpp
+    Skill/SummonDroneSkill.hpp
 
     Drop/coin.hpp
     Drop/coin.cpp
 
     Minimap/Minimap.cpp
     Minimap/Minimap.hpp
+
+    Partner/Drone.cpp
+    Partner/Drone.hpp
 
     main.cpp
 )

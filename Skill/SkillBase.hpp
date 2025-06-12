@@ -12,10 +12,12 @@ protected:
     float maxCD;
     bool isUnlocked;
 
-    int level = 1;
+    float PowerExpense = 0;
 
 public:
-    SkillBase(const std::string& name, const std::string& img, float x, float y, float maxCD);
+    int level = 1;
+
+    SkillBase(const std::string& name, const std::string& img, float x, float y, float maxCD, float powerExpense);
 
     void Update(float deltaTime) override;
     void Draw() const override;
@@ -28,6 +30,7 @@ public:
     float GetCooldownRatio() const;
     std::string GetName() const;
     void Unlock();
+    bool consumePower();
 
     static PlayScene* getPlayScene();
 };

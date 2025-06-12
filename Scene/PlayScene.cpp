@@ -29,6 +29,7 @@
 #include "Engine/Group.hpp"
 #include "Engine/LOG.hpp"
 #include "Engine/Resources.hpp"
+#include "Engine/SpriteFixed.hpp"
 #include "PlayScene.hpp"
 #include "Turret/LaserTurret.hpp"
 #include "Turret/MachineGunTurret.hpp"
@@ -41,6 +42,7 @@
 #include "Skill/SkillBase.hpp"
 #include "Skill/DashSkill.hpp"
 #include "Skill/AreaSkill.hpp"
+#include "Skill/SummonDroneSkill.hpp"
 
 #include "Minimap/Minimap.hpp"
 
@@ -81,7 +83,7 @@ void PlayScene::Initialize() {
 
     ticks = 0;
     deathCountDown = -1;
-    lives = 10000;
+    lives = 5000;
     money = 666;
     SpeedMult = 1;
     homeset=0;
@@ -110,6 +112,8 @@ void PlayScene::Initialize() {
 
     character->AddSkill(new DashSkill());
     character->AddSkill(new AreaSkill("MagicCircle", "skill/trump.png", 140, 8.0f, 5.0f));
+    character->AddSkill(new SummonDroneSkill(1, 25.0f, 500.0f, 0.9f));
+
     character->VisableLevel = 1;
     AddNewControlObject(character);
     
@@ -143,6 +147,8 @@ void PlayScene::Initialize() {
 
 
     AddNewObject(EnemyBulletGroup = new Group());
+    AddNewObject(DroneGroup = new Group());
+    
     AddNewObject(TileMapGroup = new Group());
     AddNewObject(GroundEffectGroup = new Group());
     AddNewObject(DebugIndicatorGroup = new Group());
@@ -173,6 +179,7 @@ void PlayScene::Terminate() {
 void PlayScene::Update(float deltaTime) {
     WeaponBulletGroup->Update(deltaTime);
     EnemyBulletGroup->Update(deltaTime);
+    DroneGroup->Update(deltaTime);
 
     // miniMap
     miniMap.SetEnemyPositions(EnemyGroup);
@@ -218,6 +225,7 @@ void PlayScene::Update(float deltaTime) {
             //const Engine::Point SpawnCoordinate = Engine::Point(SpawnGridPoint.x * BlockSize + BlockSize / 2, SpawnGridPoint.y * BlockSize + BlockSize / 2);
             Enemy *enemy;
             Engine::Point spawnPos = GetValidSpawnPoint();
+
             switch (type) {
                 case 1:
                     EnemyGroup->AddNewObject(enemy = new SoldierEnemy(spawnPos.x, spawnPos.y));
@@ -247,7 +255,7 @@ void PlayScene::Update(float deltaTime) {
 
 
 
-    // if (currentWeapon == WeaponType::GUN) {
+    // if (cuFㄐㄟrrentWeapon == WeaponType::GUN) {
     //     gun->Update(deltaTime);
     // } else if (currentWeapon == WeaponType::MELEE) {
     //     sword->Update(deltaTime);
@@ -258,12 +266,6 @@ void PlayScene::Update(float deltaTime) {
         preview->Update(deltaTime);
     }
 
-
-
-
-
-
-
     if (preview) {
         preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
         preview->Update(deltaTime);
@@ -271,7 +273,7 @@ void PlayScene::Update(float deltaTime) {
 }
 void PlayScene::Draw() const {
     al_clear_to_color(al_map_rgb(135, 206, 235));
-    IScene::Draw(); 
+    IScene::Draw();
     //// new
     character->Draw();
     // if (character->IsAlive()) {
@@ -291,6 +293,9 @@ void PlayScene::Draw() const {
     }
     WeaponBulletGroup->Draw();
     EnemyBulletGroup->Draw();
+    
+    DroneGroup->Draw();
+
     /// 小地圖
     miniMap.Draw();
 
@@ -443,7 +448,7 @@ void PlayScene::OnKeyDown(int keyCode) {
 }
 void PlayScene::Hit(float damage) {
     lives--;
-    character->HP -= damage;
+    character->ChangeHP(-1 * damage);
     if (lives <= 0) {
         Engine::GameEngine::GetInstance().ChangeScene("lose");
     }
@@ -711,26 +716,25 @@ void PlayScene::ReadEnemyWave() {
     }
     fin.close();
 }
+
 void PlayScene::ConstructUI() {
+
     UIGroup->AddNewObject(new ColoredRectangle(0, 0, 200, 220, al_map_rgba(255, 255, 255, 70),2.0f, al_map_rgba(255, 255, 255, 1)));
 
     UIGroup->AddNewObject(new Engine::Label(std::string("Stage ") + std::to_string(MapId), "pirulen.ttf", 32, 12, 0));
-    UIGroup->AddNewObject(UIMoney = new Engine::Label(std::string("$") + std::to_string(money), "pirulen.ttf", 24, 12, 48));
-    UIGroup->AddNewObject(UILives = new Engine::Label(std::string("Life ") + std::to_string(lives), "pirulen.ttf", 24, 12, 88));
+
+    UIGroup->AddNewObject(new Engine::SpriteFixed("play/coin.png", 22, 62, 34, 34, 0.5, 0.5));
+    UIGroup->AddNewObject(UIMoney = new Engine::Label(std::to_string(money), "pirulen.ttf", 24, 46, 48));
     /*if(gohomekey==1)*/ UIGroup->AddNewObject(UIHome = new Engine::Label(std::string(""), "pirulen.ttf", 24,  600, 600));
     //// new
     UIGroup->AddNewObject(player_exp_l = new Engine::Label(std::string("EXP ") + std::to_string((int)player_exp) + "/" + std::to_string((int)level_req.front()), "pirulen.ttf", 24, 12, 130));
     UIGroup->AddNewObject(player_level_l = new Engine::Label(std::string("Level ") + std::to_string((int)player_level) + "/8", "pirulen.ttf", 24, 12, 155));
-    UIGroup->AddNewObject(player_skill_point_l = new Engine::Label(std::string("Points: ") + std::to_string((int)player_skill_point), "pirulen.ttf", 24, 12, 180));
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
     int shift = 135 + 25;
     dangerIndicator = new Engine::Sprite("play/benjamin.png", w - shift, h - shift);
     dangerIndicator->Tint.a = 0;
     UIGroup->AddNewObject(dangerIndicator);
-
-
-    //// 小地圖
 
 }
 void PlayScene::buff_adder(int state) {
@@ -769,26 +773,58 @@ std::vector<std::vector<int>> PlayScene::CalculateBFSDistance(Engine::Point star
     }
     return map;
 }
+// Engine::Point PlayScene::GetValidSpawnPoint() {
+//     std::vector<Engine::Point> validPoints;
+//     for (int y = 0; y < MapHeight; y++) {
+//         for (int x = 0; x < MapWidth; x++) {
+//             if ((x > 0 && y > 0) &&
+//                 ((mapState[y][x] == TILE_GRASS || mapState[y][x] == TILE_BRIDGE )&& (mapState[y][x] != TILE_WATER))) {
+//                 validPoints.emplace_back(x, y);
+//             }
+//         }
+//     }
+//     if (validPoints.empty()) {
+//         return Engine::Point(BlockSize / 2, BlockSize / 2); // 預設也要符合大於 0 的規則
+//     }
+//     std::random_device rd;
+//     std::mt19937 gen(rd());
+//     std::uniform_int_distribution<> dis(0, validPoints.size() - 1);
+//     Engine::Point gridPos = validPoints[dis(gen)];
+
+//     return Engine::Point(gridPos.x * BlockSize + BlockSize / 2, gridPos.y * BlockSize + BlockSize / 2);
+// }
+
+// 修正
 Engine::Point PlayScene::GetValidSpawnPoint() {
     std::vector<Engine::Point> validPoints;
-    for (int y = 0; y < MapHeight; y++) {
-        for (int x = 0; x < MapWidth; x++) {
-            if ((x > 0 && y > 0) &&
-                ((mapState[y][x] == TILE_GRASS || mapState[y][x] == TILE_BRIDGE )&& (mapState[y][x] != TILE_WATER))) {
+    for (int y = 1; y < MapHeight - 1; y++) {
+        for (int x = 1; x < MapWidth - 1; x++) {
+            // 只要是 grass 或 bridge 就當合法點
+            if (mapState[y][x] == TILE_GRASS || mapState[y][x] == TILE_BRIDGE) {
                 validPoints.emplace_back(x, y);
             }
         }
     }
+
+    // 如果沒找到合法點，就回傳地圖中心
     if (validPoints.empty()) {
-        return Engine::Point(BlockSize / 2, BlockSize / 2); // 預設也要符合大於 0 的規則
+        return Engine::Point(MapWidth * BlockSize / 2, MapHeight * BlockSize / 2);
     }
+
+    // 隨機挑一個格子位置
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, validPoints.size() - 1);
     Engine::Point gridPos = validPoints[dis(gen)];
 
-    return Engine::Point(gridPos.x * BlockSize + BlockSize / 2, gridPos.y * BlockSize + BlockSize / 2);
+    // 回傳該格子的中心像素座標
+    return Engine::Point(
+        gridPos.x * BlockSize + BlockSize / 2,
+        gridPos.y * BlockSize + BlockSize / 2
+    );
 }
+
+
 void PlayScene::SpawnCoin(float x, float y, int value) {
     GroundEffectGroup->AddNewObject(new Coin(this, x, y, value));
 }

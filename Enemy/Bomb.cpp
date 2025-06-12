@@ -24,9 +24,9 @@ void Bomb::Explode() {
     exploded = true;
     PlayScene* scene = getPlayScene();
     float distance = (scene->character->Position - Position).Magnitude();
-    if (distance <= explosionRadius) {
+    /*if (distance <= explosionRadius) {
         scene->Hit(explosionDamage); // 對玩家造成傷害
-    }
+    }*/
     // 添加爆炸效果
     scene->EffectGroup->AddNewObject(new ExplosionEffect(Position.x, Position.y));
     // 播放音效

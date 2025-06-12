@@ -17,7 +17,7 @@
 #include "UI/Animation/DirtyEffect.hpp"
 #include "UI/Animation/ExplosionEffect.hpp"
 
-PlayScene *Enemy::getPlayScene() {
+PlayScene *Enemy::getPlayScene() const{
     return dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetActiveScene());
 }
 void Enemy::OnExplode() {
@@ -33,6 +33,7 @@ void Enemy::OnExplode() {
 Enemy::Enemy(std::string img, float x, float y, float radius, float speed, float hp, int money) : Engine::Sprite(img, x, y), speed(speed), hp(hp), money(money) 
 , currentDirection(0, 0)//新增
 {
+    max_hp = hp;
     CollisionRadius = radius;
 }
 
@@ -114,8 +115,28 @@ void Enemy::Update(float deltaTime) {
     }
 }
 
+// void Enemy::Draw() const {
+//     Sprite::Draw();
+//     if (PlayScene::DebugMode) {
+//         al_draw_circle(Position.x, Position.y, CollisionRadius, al_map_rgb(255, 0, 0), 2);
+//     }
+// }
+// void Enemy::change_speed(float dv_mul, float duration) {
+//     if (!speed_changed) {
+//         original_speed = speed;
+//     } else {
+//         speed = original_speed;
+//     }
+//     speed_changed = true;
+//     speed *= dv_mul;
+//     speed_duration = duration;
+//     speed_timer = 0;
+// }
+
 void Enemy::Draw() const {
     Sprite::Draw();
+    DrawBars();
+
     if (PlayScene::DebugMode) {
         al_draw_circle(Position.x, Position.y, CollisionRadius, al_map_rgb(255, 0, 0), 2);
     }
@@ -131,4 +152,78 @@ void Enemy::change_speed(float dv_mul, float duration) {
     speed_duration = duration;
     speed_timer = 0;
 }
+
+void Enemy::DrawBars() const{
+    // 血
+    const float barWidth = 60;
+    const float barHeight = 7;
+    const float offsetY = -48; // 在腳色頭上
+
+    float healthPercent = (float)hp / max_hp;
+
+    ALLEGRO_COLOR bgColor = al_map_rgb(100, 100, 100);
+    ALLEGRO_COLOR frontColor = al_map_rgb(255, 0, 0);
+
+    float barX = Position.x - barWidth / 2 - getPlayScene()->CameraPos.x;
+    float barY = Position.y + offsetY - getPlayScene()->CameraPos.y;
+
+    al_draw_filled_rectangle(barX, barY, barX + barWidth, barY + barHeight, bgColor);
+    al_draw_filled_rectangle(barX, barY, barX + barWidth * healthPercent, barY + barHeight, frontColor);
+}
+
+
+/*void Enemy::Update(float deltaTime) {
+    int x = static_cast<int>(floor(Position.x / PlayScene::BlockSize));
+    int y = static_cast<int>(floor(Position.y / PlayScene::BlockSize));
+    if (x < 0) x = 0;
+    if (x >= PlayScene::MapWidth) x = PlayScene::MapWidth - 1;
+    if (y < 0) y = 0;
+    if (y >= PlayScene::MapHeight) y = PlayScene::MapHeight - 1;
+
+    PlayScene* scene = getPlayScene();
+    int minDist = scene->mapDistance[y][x];
+    Engine::Point nextMove = Engine::Point(x, y);
+    for (auto &dir : PlayScene::directions) {
+        int nx = x + dir.x;
+        int ny = y + dir.y;
+        if (nx >= 0 && nx < PlayScene::MapWidth && ny >= 0 && ny < PlayScene::MapHeight &&
+            scene->mapState[ny][nx] != PlayScene::TILE_OCCUPIED &&
+            scene->mapDistance[ny][nx] != -1 && scene->mapDistance[ny][nx] < minDist) {
+            minDist = scene->mapDistance[ny][nx];
+            nextMove = Engine::Point(nx, ny);
+        }
+    }
+    if (nextMove != Engine::Point(x, y)) {
+        Engine::Point target = nextMove * PlayScene::BlockSize + Engine::Point(PlayScene::BlockSize / 2, PlayScene::BlockSize / 2);
+        Engine::Point vec = target - Position;
+        Velocity = vec.Normalize() * speed;
+        Position = Position + Velocity * deltaTime;
+    } else {
+        Velocity = Engine::Point(0, 0);
+    }
+    float distanceToPlayer = (Position - scene->character->Position).Magnitude();
+    if (distanceToPlayer < CollisionRadius + scene->character->CollisionRadius) {
+        scene->Hit();
+        Hit(hp);
+        return;
+    }
+    Rotation = atan2(Velocity.y, Velocity.x);
+    Sprite::Update(deltaTime);
+    if (speed_changed) {
+        speed_timer += deltaTime;
+        if (speed_timer >= speed_duration) {
+            speed = original_speed;
+            speed_changed = false;
+            speed_duration = 0;
+        }
+    }
+}*/
+
+
+// #include <allegro5/allegro_primitives.h>
+// #include <allegro5/color.h>
+// #include <cmath>
+// #include <random>
+// #include <string>
+// #include <vector>
 
