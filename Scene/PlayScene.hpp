@@ -15,7 +15,7 @@
 #include "Drop/coin.hpp" // 新增 coin.hpp 包含
 #include "Store/Store.hpp"
 #include "Minimap/Minimap.hpp"
-#include "Enemy/boss.hpp"
+#include "Enemy/Boss.hpp"
 
 class Turret;
 namespace Engine {

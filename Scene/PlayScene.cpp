@@ -44,11 +44,15 @@
 #include "Skill/DashSkill.hpp"
 #include "Skill/AreaSkill.hpp"
 #include "Skill/SummonDroneSkill.hpp"
+#include "Skill/NuclearSkill.hpp"
+#include "Skill/ShieldSkill.hpp"
+#include "Skill/OrbitBulletSkill.hpp"
 
 #include "Minimap/Minimap.hpp"
 
 #include "Drop/coin.hpp"
 #include "Store/Store.hpp"
+
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
 const int PlayScene::BlockSize = 64;
@@ -100,13 +104,17 @@ void PlayScene::Initialize() {
     
 
     //// chracter
+    
     character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 200, 32);
     character->SetSpriteSource(0, 0, 96, 96);
     character->SetSize(70, 70);
 
     character->AddSkill(new DashSkill());
+    character->AddSkill(new ShieldSkill());
     character->AddSkill(new AreaSkill("MagicCircle", "skill/trump.png", 140, 8.0f, 5.0f));
-    character->AddSkill(new SummonDroneSkill(6, 25.0f, 500.0f, 0.9f));
+    character->AddSkill(new SummonDroneSkill(2, 25.0f, 500.0f, 0.9f));
+    character->AddSkill(new OrbitSkill(0, 0));
+    character->AddSkill(new NuclearSkill());
     character->VisableLevel = 2;
     AddNewControlObject(character);
 
@@ -119,20 +127,22 @@ void PlayScene::Initialize() {
     std::ifstream fin("../Resource/whichscene.txt");
     char whichscene = '0';
     if (fin.is_open()) {
-        int skillnum=character->itemBar_.slots.size(); //error, unkown reason
-        skillnum=3;
-        std::string money_record, hp_record, power_record, speed_record, level_record;
+        const int skillnum = 6;
+        std::string money_record, hp_record, shield_record, power_record, speed_record, level_record;
         std::string  skill_level[skillnum];
-        fin >> whichscene >> money_record >> hp_record >> power_record >> speed_record >> level_record;
+        std::string  skill_unlock[skillnum];
+        fin >> whichscene >> money_record >> hp_record >> shield_record >> power_record >> speed_record >> level_record;
         for(int i=0;i<skillnum;i++)fin >> skill_level[i];
+        for(int i=0;i<skillnum;i++)fin >> skill_unlock[i];
         fin.close();
         money=std::stoi(money_record);
         character->HP=std::stoi(hp_record);
+        character->shield=std::stoi(shield_record);
         character->POWER=std::stoi(power_record);
         character->speed=std::stoi(speed_record);
         player_level=std::stoi(level_record);
-        
         for(int i=0;i<skillnum;i++)character->itemBar_.slots[i]->level=std::stoi(skill_level[i]);
+        for(int i=0;i<skillnum;i++)character->itemBar_.slots[i]->isUnlocked=(std::stoi(skill_unlock[i]) == 1 ? 1 : 0);
     } else {
         std::cerr << "Failed to read whichscene.txt" << std::endl;
     }
@@ -177,6 +187,7 @@ void PlayScene::Initialize() {
     AddNewControlObject(UIGroup = new Group());
     if(scenenum==0||scenenum==2) ReadMap();
     else if(scenenum==1) ReadHomeMap();
+
     ReadEnemyWave();
     ConstructUI();
     imgTarget = new Engine::Image("play/target.png", 0, 0); // pkboie is handsome
@@ -192,10 +203,10 @@ void PlayScene::Terminate() {
     AudioHelper::StopBGM(bgmId);
     AudioHelper::StopSample(deathBGMInstance);
     deathBGMInstance = std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE>();
+
     IScene::Terminate();
 }
 void PlayScene::Update(float deltaTime) {
-    // std::cout << "clear 11.1\n";
 
     WeaponBulletGroup->Update(deltaTime);
     EnemyBulletGroup->Update(deltaTime);
@@ -262,13 +273,14 @@ void PlayScene::Update(float deltaTime) {
     Engine::Point playerGrid(playerX, playerY);
     mapDistance = CalculateBFSDistance(playerGrid);
 
+    
     for (int i = 0; i < SpeedMult; i++) {
         if(!buying) IScene::Update(deltaTime);
         ticks += deltaTime;
-        const float spawnInterval = 0.5; // 每2秒生成一隻敵人，可依需要調整
+        const float spawnInterval = 1.8; // 每2秒生成一隻敵人，可依需要調整
         static float spawnTimer = 0.0f;
         spawnTimer += deltaTime;
-        if (spawnTimer >= spawnInterval) {
+        if (spawnTimer >= spawnInterval && scenenum!=1) {
             spawnTimer -= spawnInterval;
             int type = rand() % 6 + 1; // 隨機產生 1~4 的敵人類型
             //const Engine::Point SpawnCoordinate = Engine::Point(SpawnGridPoint.x * BlockSize + BlockSize / 2, SpawnGridPoint.y * BlockSize + BlockSize / 2);
@@ -295,8 +307,8 @@ void PlayScene::Update(float deltaTime) {
                 default:
                     continue;
             }
-            std::cout << "Enemy" << type << "spawned at position: (" 
-            << spawnPos.x << ", " << spawnPos.y << ")\n";
+            // std::cout << "Enemy" << type << "spawned at position: (" 
+            // << spawnPos.x << ", " << spawnPos.y << ")\n";
             enemy->Update(ticks);
 
         }
@@ -467,22 +479,28 @@ void PlayScene::OnKeyDown(int keyCode) {
         // Hotkey for Speed up.
         // SpeedMult = keyCode - ALLEGRO_KEY_0;
     }
-    if(gohomekey && keyCode == ALLEGRO_KEY_F){
-        char newScene = (scenenum == 1) ? '0' : '1';
-
+    if((gohomekey||gobossroomkey) && keyCode == ALLEGRO_KEY_F){
+        char newScene='1';
+        if(gohomekey)newScene = (scenenum == 1) ? '0' : '1';
+        else if(gobossroomkey) newScene =  '2';
+        else std::cout<<"errorrr\n";
+        
         // 寫入新的值到 whichscene.txt
         std::ofstream fout("../Resource/whichscene.txt", std::ios::trunc);
         if (fout.is_open()) {
             fout << newScene << " "  // 切換場景編號
                 << money << " "                          // 金幣
                 << character->HP << " "                  // 血量
+                << character->shield << " "              // 護盾
                 << character->POWER << " "               // 能量
                 << character->speed << " "               // 速度
-                << player_level<<" ";                    // 等級
+                << player_level<<"\n";                    // 等級
             int skillnum=character->itemBar_.slots.size();  //error, unkown reason       
-            skillnum=3;             
+            skillnum=6;             
             for(int i=0;i<skillnum-1;i++)fout <<character->itemBar_.slots[i]->level<<" ";
-            fout <<character->itemBar_.slots[skillnum-1]->level;
+            fout <<character->itemBar_.slots[skillnum-1]->level<<"\n";
+            for(int i=0;i<skillnum-1;i++)fout <<(character->itemBar_.slots[i]->getUnlock()? 1 : 0 )<<" ";
+            fout <<(character->itemBar_.slots[skillnum-1]->getUnlock()? 1 : 0 );
             fout.flush();
         } else {
             std::cerr << "Failed to save game data!" << std::endl;
@@ -492,30 +510,6 @@ void PlayScene::OnKeyDown(int keyCode) {
         Engine::GameEngine::GetInstance().ChangeScene("play");
     }
 
-    if(gobossroomkey && keyCode == ALLEGRO_KEY_F){
-        char newScene =  '2';
-
-        // 寫入新的值到 whichscene.txt
-        std::ofstream fout("../Resource/whichscene.txt", std::ios::trunc);
-        if (fout.is_open()) {
-            fout << newScene << " "  // 切換場景編號
-                << money << " "                          // 金幣
-                << character->HP << " "                  // 血量
-                << character->POWER << " "               // 能量
-                << character->speed << " "               // 速度
-                << player_level<<" ";                    // 等級
-            int skillnum=character->itemBar_.slots.size();  //error, unkown reason       
-            skillnum=3;             
-            for(int i=0;i<skillnum-1;i++)fout <<character->itemBar_.slots[i]->level<<" ";
-            fout <<character->itemBar_.slots[skillnum-1]->level;
-            fout.flush();
-        } else {
-            std::cerr << "Failed to save game data!" << std::endl;
-            return;
-        }
-        // 切換場景
-        Engine::GameEngine::GetInstance().ChangeScene("play");
-    }
     //send keycode to store
     /*if (buying) {
         store->OnKeyDown(keyCode);
@@ -804,7 +798,7 @@ void PlayScene::drawedgebush(){
 
 
     // Add five layers of edge forest
-    for (int layer = 1; layer < 15; layer++) {
+    for (int layer = 1; layer < 2; layer++) {
         // Vertical edges (left and right)
         for (int i = -layer; i < MapHeight + layer; i++) {
             int j = -1 - layer; // Left edge

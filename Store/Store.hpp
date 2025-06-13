@@ -21,6 +21,7 @@ public:
     void SetSize(float w, float h);
 
     Engine::Image* iconImage ;
+    SkillBase* skillHere;
     int price;
 };
 
@@ -32,7 +33,8 @@ public:
     void Update(float deltaTime) override;
     void Draw() const override;
     void OnMouseDown(int button, int mx, int my);
-
+    float slotSize = 80;
+    float spacing = 20;
     ColoredRectangle background;
     std::vector<StoreItem*> items;
     PlayScene* getPlayScene()const;

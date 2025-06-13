@@ -21,6 +21,8 @@ add_executable(2025_I2P2_TowerDefense
     Bullet/FireBullet.hpp
     Bullet/LaserBullet.cpp
     Bullet/LaserBullet.hpp
+    Bullet/OrbitingBullet.cpp
+    Bullet/OrbitingBullet.hpp
 
 
 
@@ -166,6 +168,12 @@ add_executable(2025_I2P2_TowerDefense
     Skill/AreaSkill.cpp
     Skill/SummonDroneSkill.cpp
     Skill/SummonDroneSkill.hpp
+    Skill/ShieldSkill.cpp
+    Skill/ShieldSkill.hpp
+    Skill/NuclearSkill.cpp
+    Skill/NuclearSkill.hpp
+    Skill/OrbitBulletSkill.cpp
+    Skill/OrbitBulletSkill.hpp
 
     Drop/coin.hpp
     Drop/coin.cpp

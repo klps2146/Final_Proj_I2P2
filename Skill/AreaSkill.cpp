@@ -6,8 +6,13 @@
 #include <iostream>
 
 AreaSkill::AreaSkill(const std::string& name, const std::string& img, float radius, float maxCD, float duration)
-    : SkillBase(name, img, 0, 0, maxCD, 245.0), radius(radius), effectDuration(duration), effectTimer(0), showingEffect(false) {
+    : SkillBase(name, img, 0, 0, maxCD, 245.0), radius(radius * level), effectDuration(duration), effectTimer(0), showingEffect(false) {
     // Unlock();
+    upgradeExpenseMoney.push(650); // unlock
+    upgradeExpenseMoney.push(850); // ut 2
+    upgradeExpenseMoney.push(1050); // ut 3
+    upgradeExpenseMoney.push(1600);
+    upgradeExpenseMoney.push(2850);
 }
 
 void AreaSkill::SkillAnimation() {

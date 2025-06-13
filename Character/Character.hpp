@@ -22,10 +22,10 @@ namespace Engine {
         bool isDying;
         bool isDead;
         
-        float MAX_HP = 99999;
-        float MAX_POWER = 500000;
-        
+        float MAX_HP = 14000;
+        float MAX_POWER = 12000;
 
+    
         Engine::Point last_idle_dir;
         float frame_timer = 0.0f;
         int cur_frame = 0;
@@ -37,6 +37,9 @@ namespace Engine {
         float HP;
         float POWER;
         float speed;
+        float shield;
+        float MAX_SHIELD = 6000;
+        
         int VisableLevel;
     
         ItemBar itemBar_; // 裡面有 std::vector<SkillBase*> slots; 技能在裡面
@@ -58,13 +61,14 @@ namespace Engine {
         void OnMouseDown(int button, int mx, int my) override;
         void OnMouseUp(int button, int mx, int my) override;
         bool IsAlive();
-        void setTimer(float time);
+        void setTimer(float time, float amt);
 
         float GetRotation() const { return rotation; }
         void SetRotation(float angle) { rotation = angle; }
 
         bool ChangeHP(float d);
         bool ChangePOWER(float d);
+        void changeShield(float d);
     };   
 }
 #endif

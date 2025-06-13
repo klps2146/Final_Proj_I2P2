@@ -9,6 +9,11 @@ SummonDroneSkill::SummonDroneSkill(int count, float lifetime, float radius, floa
     : SkillBase("Summon Drone", "skill/Drone.png", 0, 0, 10.0f, 590.0f),
       droneCount(count), droneLife(lifetime * level), droneRadius(radius), droneCooldown(cooldown) {
     // Unlock();
+    upgradeExpenseMoney.push(750); // unlock
+    upgradeExpenseMoney.push(1150); // ut 2
+    upgradeExpenseMoney.push(1550); // ut 3
+    upgradeExpenseMoney.push(2000);
+    upgradeExpenseMoney.push(4050);
 }
 
 void SummonDroneSkill::SkillAnimation() {
