@@ -31,7 +31,7 @@ void Drone::Update(float deltaTime) {
     lifeTime -= deltaTime;
     if (lifeTime <= 0) {
         Enabled = false;
-        scene->DroneGroup->RemoveObject(this);
+        scene->DroneGroup->RemoveObject(objectIterator);
     }
 }
 
@@ -39,10 +39,10 @@ void Drone::CreateBullet() {
     if (!Target) return;
 
     Engine::Point diff = (Target->Position - Position);
+    float rotation = atan2(diff.y, diff.x);
     Engine::Point normalized = diff.Normalize();
-    float rotation = atan2(normalized.y, normalized.x);
 
-    getPlayScene()->BulletGroup->AddNewObject(new FireBullet(Position + normalized * 36, diff, rotation, this));
+    getPlayScene()->DroneBulletGroup->AddNewObject(new FireBullet(Position + normalized * 36, diff, rotation, this));
     
     // AudioHelper::PlayAudio("gun.wav");
 }

@@ -200,11 +200,11 @@ namespace Engine {
 
 
         //// 魔改
-        void RemoveObject(IObject* obj) {
-            objects.remove_if([obj](const std::pair<bool, IObject*>& item) {
-                return item.second == obj;
-            });
-        }
+        // void RemoveObject(IObject* obj) {
+        //     objects.remove_if([obj](const std::pair<bool, IObject*>& item) {
+        //         return item.second == obj;
+        //     });
+        // }
     };
 }
 #endif   // GROUP_HPP
