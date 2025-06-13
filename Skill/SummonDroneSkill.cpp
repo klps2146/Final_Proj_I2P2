@@ -8,7 +8,12 @@
 SummonDroneSkill::SummonDroneSkill(int count, float lifetime, float radius, float cooldown)
     : SkillBase("Summon Drone", "skill/Drone.png", 0, 0, 10.0f, 590.0f),
       droneCount(count), droneLife(lifetime * level), droneRadius(radius), droneCooldown(cooldown) {
-    Unlock();
+    // Unlock();
+    upgradeExpenseMoney.push(750); // unlock
+    upgradeExpenseMoney.push(1150); // ut 2
+    upgradeExpenseMoney.push(1550); // ut 3
+    upgradeExpenseMoney.push(2000);
+    upgradeExpenseMoney.push(4050);
 }
 
 void SummonDroneSkill::SkillAnimation() {
@@ -21,7 +26,7 @@ void SummonDroneSkill::SkillAnimation() {
         float angle = 2 * ALLEGRO_PI * i / droneCount;
         float offsetX = cos(angle) * 40 + (rand() % 20 - 10); // 附近隨機生成
         float offsetY = sin(angle) * 40 + (rand() % 20 - 10);
-        
+         
         Engine::Point followOffset(30, 30);
         Drone* drone = new Drone(center.x + offsetX, center.y + offsetY, droneRadius, droneCooldown, droneLife, followOffset);
         getPlayScene()->DroneGroup->AddNewObject(drone);

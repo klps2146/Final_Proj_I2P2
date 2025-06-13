@@ -17,9 +17,15 @@
 #include "LOG.hpp"
 #include "Point.hpp"
 #include "Resources.hpp"
+#include "Character/Character.hpp"
 
 namespace Engine {
+    //// new
+
+    // Character* GameEngine::GlobalCharacter = nullptr;
+
     void GameEngine::initAllegro5() {
+
         if (!al_init()) throw Allegro5Exception("failed to initialize allegro");
 
         // Initialize add-ons.

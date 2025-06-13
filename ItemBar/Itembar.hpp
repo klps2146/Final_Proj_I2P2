@@ -6,7 +6,7 @@ class SkillBase;
 
 class ItemBar {
 public:
-    static const int SlotAmount = 5;
+    static const int SlotAmount = 6;
     std::vector<SkillBase*> slots;
     int selectedIndex = 0;
 

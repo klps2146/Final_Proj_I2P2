@@ -13,6 +13,7 @@
 #include "Weapon/Gun.hpp"
 #include "Weapon/MeleeWeapon.hpp"
 #include "Drop/coin.hpp" // 新增 coin.hpp 包含
+#include "Store/Store.hpp"
 #include "Minimap/Minimap.hpp"
 class Turret;
 namespace Engine {
@@ -31,6 +32,9 @@ public:
         TILE_OCCUPIED,
         TILE_BRIDGE,
         TILE_HOME,
+        TILE_STORE,
+        TILE_FOUNTAIN,
+        TILE_BOSSROOM,
     };
     ALLEGRO_SAMPLE_ID bgmId;
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> deathBGMInstance;
@@ -42,17 +46,21 @@ protected:
     int lives;
     int money;
     int SpeedMult;
-
 public:
     //// new
-    int scenenum;//0 for play, 1 for home
+    int scenenum;//0 for play, 1 for home, 2 for boss
     int homeposi,homeposj;
     int homeset;
     int gohomekey = 0;
 
+    int bossroomposi,bossroomposj;
+    int bossroomset;
+    int gobossroomkey = 0;
+
     int storeposi,storeposj;
     int storeset;
     int gostorekey = 0;
+    bool buying;
 
     float turret_coin_mul = 1.0f; 
     float turret_coolDown_mul = 1.0f;
@@ -69,10 +77,14 @@ public:
     Engine::Label* player_skill_point_l;
 
     Engine::Character* character;
+    Engine::Label* SkillWarn;
+
     MiniMap miniMap;
     Engine::Gun* gun;
     Engine::MeleeWeapon* sword;
     WeaponType currentWeapon;
+
+    Store* store;
 
     Engine::Point CameraPos;
 
@@ -103,7 +115,10 @@ public:
     Group *TileMapGroup;
     Group *GroundEffectGroup;
     Group *DebugIndicatorGroup;
+
     Group *BulletGroup;
+    Group *DroneBulletGroup;
+
     Group* WeaponBulletGroup;
     Group* EnemyBulletGroup;
     Group *TowerGroup;
@@ -113,6 +128,8 @@ public:
     Engine::Label *UIMoney;
     Engine::Label *UILives;
     Engine::Label *UIHome;
+    Engine::Label *UIBossroom;
+    Engine::Label *UIStore;
     Engine::Image *imgTarget;
     Engine::Sprite *dangerIndicator;
     Turret *preview;
@@ -135,16 +152,18 @@ public:
     void EarnMoney(int money);
     void ReadMap();
     void ReadHomeMap();
+    void ReadBossroomMap();
     void ReadEnemyWave();
     void ConstructUI();
     void UIBtnClicked(int id);
+    void drawedgebush();
     bool CheckSpaceValid(int x, int y);
     std::vector<std::vector<int>> CalculateBFSDistance(Engine::Point start);
     std::vector<Engine::Point> FindPathAStar(Engine::Point start, Engine::Point end);
     Engine::Point GetValidSpawnPoint();
     void SpawnBosses(); // 新增函數聲明
     void SpawnCoin(float x, float y, int value);
-    Engine::Point getPlayerPosition();
+    bool tile_crossable(int t) ;
 };
 #endif
 // PLAYSCENE_HPP

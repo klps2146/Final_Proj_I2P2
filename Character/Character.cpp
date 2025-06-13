@@ -4,8 +4,11 @@
 #include "Engine/Collider.hpp"
 #include "Scene/PlayScene.hpp"
 #include <iostream>
+
+
 #include <allegro5/allegro_primitives.h>
 #include "UI/Component/Label.hpp"
+#include <cassert>
 
 PlayScene *Engine::Character::getPlayScene() {
     return dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetActiveScene());
@@ -23,8 +26,10 @@ namespace Engine {
         SetSpriteSource(0, 0, 96, 96);
         isDying = 0;
         isDead = 0;
-        HP = 1000;
-        POWER = 5000;
+        HP = 14000;
+        POWER = 12000;
+        shield = 110;
+        VisableLevel = 1;
     }
 
     void Character::AddWeapon(std::unique_ptr<Weapon> weapon) {
@@ -111,9 +116,15 @@ namespace Engine {
         itemBar_.Update(deltaTime);
         weaponManager.Update(deltaTime);
 
+        if (direction.x != 0 || direction.y != 0) {
+            rotation = std::atan2(direction.y, direction.x);
+        }
+        
         if (!isDying) {
             if (isMoving) {
                 Velocity = direction * speed;
+
+        
                 frame_timer += deltaTime;
                 if (frame_timer >= frame_duration) {
                     frame_timer -= frame_duration;
@@ -184,7 +195,8 @@ namespace Engine {
                     break;
                 }
                 int tile = mapState[ty][tx];
-                if (tile == getPlayScene()->TILE_WATER || tile == getPlayScene()->TILE_ROCK || tile == getPlayScene()->TILE_HOME) {
+                //if (tile == getPlayScene()->TILE_WATER || tile == getPlayScene()->TILE_ROCK || tile == getPlayScene()->TILE_HOME){
+                if (!getPlayScene()->tile_crossable(tile)) {
                     Point tileMin(tx * BlockSize, ty * BlockSize);
                     Point tileMax = tileMin + Point(BlockSize, BlockSize);
                     float closestX = std::max(tileMin.x, std::min(newPosition.x, tileMax.x));
@@ -250,6 +262,21 @@ namespace Engine {
         Engine::Label powerLabel(powerText, "pirulen.ttf", 16, powerBarX + 4, powerBarY - 3.2, 255, 255, 255, 255);
         powerLabel.Draw();
 
+        if (shield > 0) {
+            float shieldBarX = hpBarX;
+            float shieldBarY = hpBarY - barHeight - 3;
+
+            ALLEGRO_COLOR shieldColor = al_map_rgb(120, 255, 120);
+            float shieldPercent = static_cast<float>(shield) / MAX_SHIELD;
+
+            al_draw_filled_rectangle(shieldBarX, shieldBarY, shieldBarX + barWidth, shieldBarY + barHeight, bgColor);
+            al_draw_filled_rectangle(shieldBarX, shieldBarY, shieldBarX + barWidth * shieldPercent, shieldBarY + barHeight, shieldColor);
+
+            std::string shieldText = std::to_string((int)shield);
+            Engine::Label shieldLabel(shieldText, "pirulen.ttf", 16, shieldBarX + 4, shieldBarY -3.2, 255, 255, 255, 255);
+            shieldLabel.Draw();
+        }
+
         // 技能欄
         itemBar_.Draw(getPlayScene()->CameraPos, GameEngine::GetInstance().GetScreenSize());
         weaponManager.DrawWeaponBar(getPlayScene()->CameraPos, GameEngine::GetInstance().GetScreenSize()); // 添加這一行
@@ -276,9 +303,9 @@ namespace Engine {
         return !isDead;
     }
 
-    void Character::setTimer(float time) {
+    void Character::setTimer(float time, float amt) {
         speedTimer = time;
-        originalSpeed = speed / 2;
+        originalSpeed = speed / amt;
     }
 
     void Character::AddSkill(SkillBase* skill) {
@@ -297,22 +324,38 @@ namespace Engine {
     }
 
     bool Character::ChangeHP(float dHP){
+        if (shield > 0 && dHP < 0){
+            float shieldAbsorb = std::min(-dHP, shield);
+            changeShield(-shieldAbsorb);
+            dHP += shieldAbsorb; 
+        }
         HP += dHP;
         if (HP <= 0){
             HP = 0;
             return false;
         }
+        else if (HP > MAX_HP){
+            HP = MAX_HP;
+        }
+    
         return true;
+        
     }
 
     bool Character::ChangePOWER(float dPOWER){
         POWER += dPOWER;
-
+        
         if (POWER <= 0){
             POWER -= dPOWER;
             return false;
         }
         return true;
+    }
+
+    void Character::changeShield(float d) {
+        shield += d;
+        if (shield < 0) shield = 0;
+        if (shield > MAX_SHIELD) shield = MAX_SHIELD;
     }
 
 }
