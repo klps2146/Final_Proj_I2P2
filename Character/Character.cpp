@@ -26,8 +26,9 @@ namespace Engine {
         SetSpriteSource(0, 0, 96, 96);
         isDying = 0;
         isDead = 0;
-        HP = 99999;
-        POWER = 500000;
+        HP = 14000;
+        POWER = 12000;
+        shield = 110;
         VisableLevel = 1;
     }
 
@@ -261,6 +262,21 @@ namespace Engine {
         Engine::Label powerLabel(powerText, "pirulen.ttf", 16, powerBarX + 4, powerBarY - 3.2, 255, 255, 255, 255);
         powerLabel.Draw();
 
+        if (shield > 0) {
+            float shieldBarX = hpBarX;
+            float shieldBarY = hpBarY - barHeight - 3;
+
+            ALLEGRO_COLOR shieldColor = al_map_rgb(120, 255, 120);
+            float shieldPercent = static_cast<float>(shield) / MAX_SHIELD;
+
+            al_draw_filled_rectangle(shieldBarX, shieldBarY, shieldBarX + barWidth, shieldBarY + barHeight, bgColor);
+            al_draw_filled_rectangle(shieldBarX, shieldBarY, shieldBarX + barWidth * shieldPercent, shieldBarY + barHeight, shieldColor);
+
+            std::string shieldText = std::to_string((int)shield);
+            Engine::Label shieldLabel(shieldText, "pirulen.ttf", 16, shieldBarX + 4, shieldBarY -3.2, 255, 255, 255, 255);
+            shieldLabel.Draw();
+        }
+
         // 技能欄
         itemBar_.Draw(getPlayScene()->CameraPos, GameEngine::GetInstance().GetScreenSize());
         weaponManager.DrawWeaponBar(getPlayScene()->CameraPos, GameEngine::GetInstance().GetScreenSize()); // 添加這一行
@@ -287,9 +303,9 @@ namespace Engine {
         return !isDead;
     }
 
-    void Character::setTimer(float time) {
+    void Character::setTimer(float time, float amt) {
         speedTimer = time;
-        originalSpeed = speed / 2;
+        originalSpeed = speed / amt;
     }
 
     void Character::AddSkill(SkillBase* skill) {
@@ -308,6 +324,11 @@ namespace Engine {
     }
 
     bool Character::ChangeHP(float dHP){
+        if (shield > 0 && dHP < 0){
+            float shieldAbsorb = std::min(-dHP, shield);
+            changeShield(-shieldAbsorb);
+            dHP += shieldAbsorb; 
+        }
         HP += dHP;
         if (HP <= 0){
             HP = 0;
@@ -316,7 +337,9 @@ namespace Engine {
         else if (HP > MAX_HP){
             HP = MAX_HP;
         }
+    
         return true;
+        
     }
 
     bool Character::ChangePOWER(float dPOWER){
@@ -327,6 +350,12 @@ namespace Engine {
             return false;
         }
         return true;
+    }
+
+    void Character::changeShield(float d) {
+        shield += d;
+        if (shield < 0) shield = 0;
+        if (shield > MAX_SHIELD) shield = MAX_SHIELD;
     }
 
 }

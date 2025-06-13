@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "Character/Character.hpp"
 #include "Point.hpp"
 
 /// <summary>
@@ -77,6 +78,10 @@ namespace Engine {
         void changeScene(const std::string &name);
 
     public:
+        //// 魔改
+        // static Character* GlobalCharacter;
+
+
         // Note: We'll ignore C++11's move constructor, move assignment operator in this project for simplicity.
         /// <summary>
         /// Copy constructor is deleted, no copying allowed.

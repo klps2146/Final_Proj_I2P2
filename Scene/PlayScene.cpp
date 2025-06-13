@@ -44,11 +44,15 @@
 #include "Skill/DashSkill.hpp"
 #include "Skill/AreaSkill.hpp"
 #include "Skill/SummonDroneSkill.hpp"
+#include "Skill/NuclearSkill.hpp"
+#include "Skill/ShieldSkill.hpp"
+#include "Skill/OrbitBulletSkill.hpp"
 
 #include "Minimap/Minimap.hpp"
 
 #include "Drop/coin.hpp"
 #include "Store/Store.hpp"
+
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
 const int PlayScene::BlockSize = 64;
@@ -84,12 +88,7 @@ void PlayScene::Initialize() {
 
     ticks = 0;
     deathCountDown = -1;
-    lives = 5000;
-    money = 666;
-    SpeedMult = 1;
-    homeset=0;
-    storeset=0;
-    buying=false;
+
 
     std::ifstream fin("../Resource/whichscene.txt");
     char whichscene; // 默認值
@@ -105,16 +104,26 @@ void PlayScene::Initialize() {
     /*if(scenenum==1){
         MapHeight = 18;
     }*/
+    buying=false;
+    storeset=0;
     
 
     //// chracter
+    lives = 5000;
+    money = 666;
+    SpeedMult = 1;
+    homeset=0;
+    
     character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 200, 32);
     character->SetSpriteSource(0, 0, 96, 96);
     character->SetSize(70, 70);
 
     character->AddSkill(new DashSkill());
+    character->AddSkill(new ShieldSkill());
     character->AddSkill(new AreaSkill("MagicCircle", "skill/trump.png", 140, 8.0f, 5.0f));
-    character->AddSkill(new SummonDroneSkill(6, 25.0f, 500.0f, 0.9f));
+    character->AddSkill(new SummonDroneSkill(2, 25.0f, 500.0f, 0.9f));
+    character->AddSkill(new OrbitSkill(0, 0));
+    character->AddSkill(new NuclearSkill());
     character->VisableLevel = 2;
 
     AddNewControlObject(character);
@@ -156,8 +165,10 @@ void PlayScene::Initialize() {
     AddNewObject(WeaponBulletGroup = new Group());
     AddNewObject(EffectGroup = new Group());
     AddNewControlObject(UIGroup = new Group());
+
     if(scenenum==0) ReadMap();
     else if(scenenum==1) ReadHomeMap();
+
     ReadEnemyWave();
     ConstructUI();
     imgTarget = new Engine::Image("play/target.png", 0, 0); // pkboie is handsome
@@ -173,6 +184,7 @@ void PlayScene::Terminate() {
     AudioHelper::StopBGM(bgmId);
     AudioHelper::StopSample(deathBGMInstance);
     deathBGMInstance = std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE>();
+
     IScene::Terminate();
 }
 void PlayScene::Update(float deltaTime) {

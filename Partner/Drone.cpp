@@ -18,9 +18,9 @@ void Drone::Update(float deltaTime) {
         Engine::Point dir = playerPos - Position;
         float distance = dir.Magnitude();
 
-        // 若距離大於一定值，朝向玩家移動
+        // 朝向玩家移動
         if (distance > 4) {
-            Engine::Point move = dir.Normalize() * 200 * deltaTime; // 移動速度150
+            Engine::Point move = dir.Normalize() * 200 * deltaTime; // 移動速度
             Position = Position + move;
         }
     }

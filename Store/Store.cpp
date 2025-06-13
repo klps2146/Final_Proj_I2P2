@@ -8,7 +8,7 @@
 #include "Engine/LOG.hpp"
 #include "Skill/SkillBase.hpp"
 #include "Engine/SpriteFixed.hpp"
-
+#include "UI/Component/Label.hpp"
 
 // StoreItem Implementation
 StoreItem::StoreItem(const std::string& imagePath, int price, float x, float y)
@@ -53,13 +53,13 @@ Store::Store() {
     background = ColoredRectangle((w - 500) / 2, (h - 500) / 2, 500, 500, al_map_rgba(200, 100, 225, 235), 2.0f, al_map_rgb(255, 255, 255));
 
     // 初始化商品
-    float slotSize = 80;
-    float spacing = 20;
     float totalWidth = 4*(slotSize + spacing) - spacing; // 每行 4 個商品
     float startX = background.Position.x + (background.Size.x - totalWidth) / 2;
     float startY = background.Position.y + 50;
 
-    // getPlayScene()->character->itemBar_.slots.
+    auto skB = getPlayScene()->character->itemBar_;
+    int idxSK = 0;
+
     for (int i = 0; i < 16; ++i) {
         int row = i / 4; // 第 0 或 1 行
         int col = i % 4; // 第 0 到 3 列
@@ -67,6 +67,16 @@ Store::Store() {
         float y = startY + row * (slotSize + spacing);
         StoreItem* item = new StoreItem("play/home.png", 100, x, y);
         item->SetSize(slotSize, slotSize);
+        if (i < skB.SlotAmount && skB.slots[i]){
+            item->skillHere = skB.slots[i];
+            idxSK++;
+            std::cout << ">>>>>>>>def " << i << " " << skB.SlotAmount << std::endl;
+        }
+        else{
+            item->skillHere = nullptr;
+        }
+        
+
         items.push_back(item);
     }
     
@@ -82,8 +92,6 @@ void Store::Update(float deltaTime) {
 
 void Store::Draw() const {
     background.Draw();
-    int idx = 0;
-
     // 繪製商品
     for (int i = 0; i < items.size(); i++) {
         float x = items[i]->iconImage ->Position.x;
@@ -92,15 +100,16 @@ void Store::Draw() const {
         float h = items[i]->iconImage ->Size.y;
 
         al_draw_rectangle(x, y, x + w, y + h, al_map_rgb(180, 180, 180), 2); // 繪製邊框
-
-        if (idx < getPlayScene()->character->itemBar_.SlotAmount){
-            if (getPlayScene()->character->itemBar_.slots[idx]){
-                getPlayScene()->character->itemBar_.slots[idx++]->Position.x = x;
-                getPlayScene()->character->itemBar_.slots[idx++]->Position.y = y;
-                getPlayScene()->character->itemBar_.slots[idx++]->Draw();
-            }
+        
+        if(items[i] && items[i]->skillHere){
+            auto itmp = items[i]->skillHere;
+            // std::cout << ">>>>>>>> " << itmp->GetName() << std::endl;
+            itmp->Position.x = x;
+            itmp->Position.y = y;
+            itmp->Anchor = Engine::Point(0, 0);
+            itmp->SetSize(slotSize, slotSize);
+            itmp->Draw();
         }
-
     }
     
 
@@ -124,10 +133,20 @@ void Store::OnMouseDown(int button, int mx, int my) {
 
     if (button == 1) {
         for (int i = 0; i < items.size(); i++) {
-            if (items[i]->IsClicked(static_cast<float>(mx), static_cast<float>(my))) {
-                if (scene->GetMoney() >= items[i]->GetPrice()) {
-                    scene->EarnMoney(-items[i]->GetPrice());
-                    Engine::LOG(Engine::INFO) << "purchase succeed";
+            if (items[i]->IsClicked(static_cast<float>(mx), static_cast<float>(my)) && items[i]->skillHere && !items[i]->skillHere->upgradeExpenseMoney.empty()) {
+                int requireCoins = items[i]->skillHere->upgradeExpenseMoney.front();
+                if (scene->GetMoney() >= requireCoins) {
+                    scene->EarnMoney(-1 * requireCoins);
+                    items[i]->skillHere->upgradeExpenseMoney.pop();
+                    if (!items[i]->skillHere->getUnlock()){
+                        items[i]->skillHere->Unlock();
+                    }
+                    else{
+                        if (items[i]->skillHere->level < items[i]->skillHere->MaxLevel)
+                        items[i]->skillHere->level++;
+                    }
+                    Engine::LOG(Engine::INFO) << "purchase succeed: " << items[i]->skillHere->GetName();
+
                 } else {
                     Engine::LOG(Engine::INFO) << "purchase error, you fucking poor";
                 }
