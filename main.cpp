@@ -14,26 +14,50 @@
 #include <cstdlib> // for srand()
 
 #include <iostream>
-#include "AI/ChatModel.hpp"
+// #include "AI/ChatModel.hpp"
 
 int main(int argc, char **argv) {
-    // ChatModel model(L"Resource/model/gpt2-10.onnx");
+    std::wstring model_path = L"Resource/model/gptneox_Opset18.onnx";
+    ChatModel model(model_path);
 
-    // std::string input = "hello world";
-    // auto tokens = model.Tokenize(input);
+    auto input_names = model.GetInputNames();
+    for (size_t i = 0; i < input_names.size(); i++) {
+        auto shape = model.GetInputShape(i);
+        std::cout << "Input[" << i << "] name: " << input_names[i] << " shape: [ ";
+        for (auto d : shape) {
+            std::cout << d << " ";
+        }
+        std::cout << "]" << std::endl;
+    }
 
-    // std::cout << "Input tokens: ";
-    // for (auto t : tokens) std::cout << t << " ";
-    // std::cout << std::endl;
+    int64_t batch_size = 1;
+    int64_t seq_len = 128;
 
-    // auto output_tokens = model.Infer(tokens);
+    std::unordered_map<std::string, std::vector<int64_t>> inputs_int64;
+    std::unordered_map<std::string, std::vector<int64_t>> input_shapes_map;
 
-    // std::cout << "Output tokens: ";
-    // for (auto t : output_tokens) std::cout << t << " ";
-    // std::cout << std::endl;
+    // 建立示範輸入資料，這裡全部用 0 和 1 填充
+    inputs_int64["input_ids"] = std::vector<int64_t>(batch_size * seq_len, 0);
+    input_shapes_map["input_ids"] = {batch_size, seq_len};
 
-    // std::string output_text = model.Detokenize(output_tokens);
-    // std::cout << "Output text: " << output_text << std::endl;
+    inputs_int64["attention_mask"] = std::vector<int64_t>(batch_size * seq_len, 1);
+    input_shapes_map["attention_mask"] = {batch_size, seq_len};
+
+    try {
+        auto output = model.Infer(inputs_int64, input_shapes_map);
+
+        std::cout << "Output size: " << output.size() << std::endl;
+        std::cout << "First 10 values: ";
+        for (size_t i = 0; i < std::min<size_t>(10, output.size()); i++) {
+            std::cout << output[i] << " ";
+        }
+        std::cout << std::endl;
+    }
+    catch (const std::exception& ex) {
+        std::cerr << "Error during inference: " << ex.what() << std::endl;
+    }
+
+
 
 
 	srand(time(0)); // 初始化隨機數種子

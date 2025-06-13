@@ -6,20 +6,24 @@
 
 class ChatModel {
 public:
-    explicit ChatModel(const std::wstring& model_path);
+    ChatModel(const std::wstring& model_path);
+    ~ChatModel();
 
-    std::vector<int64_t> Tokenize(const std::string& text);
-    std::string Detokenize(const std::vector<int64_t>& tokens);
+    std::vector<std::string> GetInputNames() const;
+    std::vector<int64_t> GetInputShape(size_t index) const;
 
-    std::vector<int64_t> Infer(const std::vector<int64_t>& input_ids);
+    // 多輸入推理：key=輸入名，value=float資料
+    // input_shapes_map 紀錄每個輸入的形狀
+    std::vector<float> Infer(const std::unordered_map<std::string, std::vector<int64_t>>& inputs,
+                            const std::unordered_map<std::string, std::vector<int64_t>>& input_shapes_map);
 
 private:
-    void InitVocab();
-
     Ort::Env env;
     Ort::SessionOptions session_options;
     Ort::Session session;
+    Ort::AllocatorWithDefaultOptions allocator;
 
-    std::unordered_map<std::string, int64_t> token2id;
-    std::unordered_map<int64_t, std::string> id2token;
+    std::vector<std::string> input_names;
+    std::vector<std::vector<int64_t>> input_shapes;
+    std::unordered_map<std::string, size_t> input_names_index;
 };
