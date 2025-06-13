@@ -184,8 +184,7 @@ add_executable(2025_I2P2_TowerDefense
     Partner/Drone.cpp
     Partner/Drone.hpp
 
-    AI/ChatModel.cpp
-    AI/ChatModel.hpp
+    
 
     main.cpp
 )

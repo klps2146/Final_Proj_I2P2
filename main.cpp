@@ -14,7 +14,7 @@
 #include <cstdlib> // for srand()
 
 #include <iostream>
-#include "AI/ChatModel.hpp"
+//#include "AI/ChatModel.hpp"
 
 int main(int argc, char **argv) {
     // ChatModel model(L"Resource/model/gpt2-10.onnx");
