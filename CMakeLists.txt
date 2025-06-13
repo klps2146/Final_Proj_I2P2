@@ -155,6 +155,8 @@ add_executable(2025_I2P2_TowerDefense
 
     ItemBar/Itembar.cpp
     ItemBar/Itembar.hpp
+    Store/Store.cpp
+    Store/Store.hpp
 
     Skill/SkillBase.cpp
     Skill/SkillBase.hpp

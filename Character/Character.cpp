@@ -4,6 +4,8 @@
 #include "Engine/Collider.hpp"
 #include "Scene/PlayScene.hpp"
 #include <iostream>
+
+
 #include <allegro5/allegro_primitives.h>
 #include "UI/Component/Label.hpp"
 #include <cassert>
@@ -113,9 +115,15 @@ namespace Engine {
         itemBar_.Update(deltaTime);
         weaponManager.Update(deltaTime);
 
+        if (direction.x != 0 || direction.y != 0) {
+            rotation = std::atan2(direction.y, direction.x);
+        }
+        
         if (!isDying) {
             if (isMoving) {
                 Velocity = direction * speed;
+
+        
                 frame_timer += deltaTime;
                 if (frame_timer >= frame_duration) {
                     frame_timer -= frame_duration;
@@ -186,7 +194,8 @@ namespace Engine {
                     break;
                 }
                 int tile = mapState[ty][tx];
-                if (tile == getPlayScene()->TILE_WATER || tile == getPlayScene()->TILE_ROCK || tile == getPlayScene()->TILE_HOME) {
+                //if (tile == getPlayScene()->TILE_WATER || tile == getPlayScene()->TILE_ROCK || tile == getPlayScene()->TILE_HOME){
+                if (!getPlayScene()->tile_crossable(tile)) {
                     Point tileMin(tx * BlockSize, ty * BlockSize);
                     Point tileMax = tileMin + Point(BlockSize, BlockSize);
                     float closestX = std::max(tileMin.x, std::min(newPosition.x, tileMax.x));

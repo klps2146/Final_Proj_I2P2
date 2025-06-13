@@ -13,6 +13,7 @@
 #include "Weapon/Gun.hpp"
 #include "Weapon/MeleeWeapon.hpp"
 #include "Drop/coin.hpp" // 新增 coin.hpp 包含
+#include "Store/Store.hpp"
 #include "Minimap/Minimap.hpp"
 #include "Enemy/boss.hpp"
 
@@ -33,6 +34,7 @@ public:
         TILE_OCCUPIED,
         TILE_BRIDGE,
         TILE_HOME,
+        TILE_STORE,
     };
     ALLEGRO_SAMPLE_ID bgmId;
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> deathBGMInstance;
@@ -44,10 +46,9 @@ protected:
     int lives;
     int money;
     int SpeedMult;
-
 public:
     //// new
-    int scenenum;//0 for play, 1 for home
+    int scenenum;//0 for play, 1 for home, 2 for boss
     int homeposi,homeposj;
     int homeset;
     int gohomekey = 0;
@@ -55,6 +56,7 @@ public:
     int storeposi,storeposj;
     int storeset;
     int gostorekey = 0;
+    bool buying;
 
 
     bool isBossActive;  // 新增：標誌位，表示 Boss 是否活躍
@@ -75,10 +77,14 @@ public:
     Engine::Label* player_skill_point_l;
 
     Engine::Character* character;
+    Engine::Label* SkillWarn;
+
     MiniMap miniMap;
     Engine::Gun* gun;
     Engine::MeleeWeapon* sword;
     WeaponType currentWeapon;
+
+    Store* store;
 
     Engine::Point CameraPos;
 
@@ -114,6 +120,7 @@ public:
     Engine::Label *UIMoney;
     Engine::Label *UILives;
     Engine::Label *UIHome;
+    Engine::Label *UIStore;
     Engine::Image *imgTarget;
     Engine::Sprite *dangerIndicator;
     Turret *preview;
@@ -144,6 +151,7 @@ public:
     std::vector<Engine::Point> FindPathAStar(Engine::Point start, Engine::Point end);
     Engine::Point GetValidSpawnPoint();
     void SpawnCoin(float x, float y, int value);
+    bool tile_crossable(int t) ;
 };
 #endif
 // PLAYSCENE_HPP

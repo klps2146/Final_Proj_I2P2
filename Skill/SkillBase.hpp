@@ -30,6 +30,7 @@ public:
     float GetCooldownRatio() const;
     std::string GetName() const;
     void Unlock();
+    bool getUnlock();
     bool consumePower();
 
     static PlayScene* getPlayScene();

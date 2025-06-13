@@ -8,7 +8,7 @@
 SummonDroneSkill::SummonDroneSkill(int count, float lifetime, float radius, float cooldown)
     : SkillBase("Summon Drone", "skill/Drone.png", 0, 0, 10.0f, 590.0f),
       droneCount(count), droneLife(lifetime * level), droneRadius(radius), droneCooldown(cooldown) {
-    Unlock();
+    // Unlock();
 }
 
 void SummonDroneSkill::SkillAnimation() {

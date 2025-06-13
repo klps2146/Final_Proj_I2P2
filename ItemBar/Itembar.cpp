@@ -3,6 +3,7 @@
 
 #include "Skill/SummonDroneSkill.hpp"
 #include "UI/Component/Label.hpp"
+#include "UI/Component/ColoredRectangle.hpp"
 
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro5.h>
@@ -37,14 +38,25 @@ void ItemBar::Draw(const Engine::Point& cameraPos, const Engine::Point& screenSi
             slots[i]->Position.y = y;
 
             slots[i]->Anchor = Engine::Point(0, 0);
-
             slots[i]->SetSize(slotSize, slotSize);
             
             // SummonDroneSkill* sdk = dynamic_cast<SummonDroneSkill*>(slots[i]);
-
             // if (sdk && sdk)
 
             slots[i]->Draw();
+            if (slots[i]->getUnlock()){
+                Engine::Label levelLab(std::to_string((int)slots[i]->level), "pirulen.ttf", 20, x + 2, y - 4, 255, 255, 255, 255);
+                ColoredRectangle bgrec(x, y, 18, 20, al_map_rgba(100, 100, 100 , 190));
+                bgrec.Draw();
+                levelLab.Draw();
+            }
+            else{
+                // 畫叉叉
+                float padding = 4;
+                ALLEGRO_COLOR crossColor = al_map_rgba(255, 50, 50, 215);
+                al_draw_line(x + padding, y + padding, x + slotSize - padding, y + slotSize - padding, crossColor, 2.0);
+                al_draw_line(x + padding, y + slotSize - padding, x + slotSize - padding, y + padding, crossColor, 2.0);
+            }
 
             // 畫冷卻遮罩
             float ratio = slots[i]->GetCooldownRatio();

@@ -2,6 +2,7 @@
 #include <allegro5/allegro.h>
 #include <cmath>
 #include <fstream>
+#include <iostream>
 #include <functional>
 #include <memory>
 #include <queue>
@@ -47,6 +48,7 @@
 #include "Minimap/Minimap.hpp"
 
 #include "Drop/coin.hpp"
+#include "Store/Store.hpp"
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
 const int PlayScene::BlockSize = 64;
@@ -64,7 +66,6 @@ Engine::Point PlayScene::GetClientSize() {
 }
 void PlayScene::Initialize() {
     SetBackgroundImage("map/mapBG.png");
-
     mapState.clear();
     keyStrokes.clear();
     while (!level_req.empty()) level_req.pop();
@@ -87,6 +88,8 @@ void PlayScene::Initialize() {
     money = 666;
     SpeedMult = 1;
     homeset=0;
+    storeset=0;
+    buying=false;
 
     std::ifstream fin("../Resource/whichscene.txt");
     char whichscene; // 默認值
@@ -102,7 +105,7 @@ void PlayScene::Initialize() {
     /*if(scenenum==1){
         MapHeight = 18;
     }*/
-        
+    
 
     //// chracter
     character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 200, 32);
@@ -117,6 +120,8 @@ void PlayScene::Initialize() {
     AddNewControlObject(character);
 
     CameraPos = Engine::Point(0, 0);
+
+    store = new Store();
 
     //// 小地圖
     miniMap = MiniMap(
@@ -136,13 +141,8 @@ void PlayScene::Initialize() {
     // gun->isActive = true;
     // sword->isActive = false;
 
-
-
     character->AddWeapon(std::make_unique<Engine::Gun>(this, character->Position));
     character->AddWeapon(std::make_unique<Engine::MeleeWeapon>(this, character->Position));
-
-
-
 
     AddNewObject(EnemyBulletGroup = new Group());
     AddNewObject(DroneGroup = new Group());
@@ -167,6 +167,7 @@ void PlayScene::Initialize() {
     deathBGMInstance = Engine::Resources::GetInstance().GetSampleInstance("astronomia.ogg");
     Engine::Resources::GetInstance().GetBitmap("lose/benjamin-happy.png");
     bgmId = AudioHelper::PlayBGM("play.ogg");
+    std::cout << "clear 1\n";
 }
 void PlayScene::Terminate() {
     AudioHelper::StopBGM(bgmId);
@@ -175,6 +176,8 @@ void PlayScene::Terminate() {
     IScene::Terminate();
 }
 void PlayScene::Update(float deltaTime) {
+    // std::cout << "clear 11.1\n";
+
     WeaponBulletGroup->Update(deltaTime);
     EnemyBulletGroup->Update(deltaTime);
     DroneGroup->Update(deltaTime);
@@ -185,17 +188,34 @@ void PlayScene::Update(float deltaTime) {
 
 
     //go home
-    if(gohomekey==0)
+    if(gohomekey==0){
         UIHome->Text = std::string("");
-        if(character->Position.x>homeposj*BlockSize-40 && character->Position.x<(homeposj+2)*BlockSize+40
-            &&character->Position.y>homeposi*BlockSize-40 && character->Position.y<(homeposi+2)*BlockSize+40) gohomekey=1;
+        if(character->Position.x>homeposj*BlockSize-40 && character->Position.x<(homeposj+4)*BlockSize+40
+            &&character->Position.y>homeposi*BlockSize-40 && character->Position.y<(homeposi+4)*BlockSize+40) gohomekey=1;
+    }
     if(gohomekey==1){
         UIHome->Text = std::string("Press F to go home");
-        if(!(character->Position.x>homeposj*BlockSize-40 && character->Position.x<(homeposj+2)*BlockSize+40
-            &&character->Position.y>homeposi*BlockSize-40 && character->Position.y<(homeposi+2)*BlockSize+40)) gohomekey=0;
+        if(!(character->Position.x>homeposj*BlockSize-40 && character->Position.x<(homeposj+4)*BlockSize+40
+            &&character->Position.y>homeposi*BlockSize-40 && character->Position.y<(homeposi+4)*BlockSize+40)) gohomekey=0;
     }
     
-
+    //go store
+    if(gostorekey==0){
+        UIStore->Text = std::string("");
+        if(character->Position.x>storeposj*BlockSize-40 && character->Position.x<(storeposj+4)*BlockSize+40
+            &&character->Position.y>storeposi*BlockSize-40 && character->Position.y<(storeposi+4)*BlockSize+40) gostorekey=1;
+    }
+    if(gostorekey==1){
+        UIStore->Text = std::string("Press F to go store");
+        if(!(character->Position.x>storeposj*BlockSize-40 && character->Position.x<(storeposj+4)*BlockSize+40
+            &&character->Position.y>storeposi*BlockSize-40 && character->Position.y<(storeposi+4)*BlockSize+40)) gostorekey=0;
+    }
+    // std::cout << "clear bef2\n";
+    if (store)
+    store->Update(deltaTime);
+    else std::cout << "NO store INITIALIZE\n";
+    // std::cout << "clear 2\n";
+    
     if (SpeedMult == 0)
         deathCountDown = -1;
     else if (deathCountDown != -1)
@@ -212,7 +232,7 @@ void PlayScene::Update(float deltaTime) {
     mapDistance = CalculateBFSDistance(playerGrid);
 
     for (int i = 0; i < SpeedMult; i++) {
-        IScene::Update(deltaTime);
+        if(!buying) IScene::Update(deltaTime);
         ticks += deltaTime;
         const float spawnInterval = 0.5; // 每2秒生成一隻敵人，可依需要調整
         static float spawnTimer = 0.0f;
@@ -294,6 +314,8 @@ void PlayScene::Draw() const {
     
     DroneGroup->Draw();
 
+    if(buying)store->Draw();
+
     /// 小地圖
     miniMap.Draw();
 
@@ -315,6 +337,9 @@ void PlayScene::OnMouseDown(int button, int mx, int my) {
         preview = nullptr;
     }
     IScene::OnMouseDown(button, mx, my);
+    if (buying) {
+        store->OnMouseDown(button, mx, my);
+    }
 }
 void PlayScene::OnMouseMove(int mx, int my) {
     IScene::OnMouseMove(mx, my);
@@ -441,8 +466,15 @@ void PlayScene::OnKeyDown(int keyCode) {
 
         // 根據新值切換場景
         Engine::GameEngine::GetInstance().ChangeScene("play"); // mapX.txt
-
     }
+    
+    //send keycode to store
+    /*if (buying) {
+        store->OnKeyDown(keyCode);
+    }*/
+
+    //bulid store
+    if(gostorekey && keyCode == ALLEGRO_KEY_F) buying =! buying;
 }
 void PlayScene::Hit(float damage) {
     lives--;
@@ -567,7 +599,7 @@ void PlayScene::ReadMap() {
             }
         }
     }
-    if (homeset) TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 2 * BlockSize, 2 * BlockSize));
+    if (homeset) TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
     //add edge bush
     for (int i = 0; i < MapHeight; i++) {
         int j = -1;
@@ -616,6 +648,7 @@ void PlayScene::ReadHomeMap() {
             case '2': mapData.push_back(2); break;
             case '3': mapData.push_back(3); break;
             case '4': mapData.push_back(4); break;
+            case '5': mapData.push_back(5); break;
             case '\n':
             case '\r':
                 if (static_cast<int>(mapData.size()) / MapWidth != 0)
@@ -653,13 +686,20 @@ void PlayScene::ReadHomeMap() {
                     homeposj = j;
                     homeset = 1;
                 }
+            } else if (num == 5) {
+                mapState[i][j] = TILE_STORE;
+                if (!storeset) {
+                    storeposi = i;
+                    storeposj = j;
+                    storeset = 1;
+                }
             }
         }
     }
     for (int i = 0; i < MapHeight; i++) {
         for (int j = 0; j < MapWidth; j++) {
             const int num = mapData[i * MapWidth + j];
-            if (num == 0 || num == 4) {
+            if (num == 0 || num == 4 || num == 5) {
                 TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
             }
             if (num == 1) {
@@ -675,7 +715,8 @@ void PlayScene::ReadHomeMap() {
             }
         }
     }
-    if (homeset) TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 2 * BlockSize, 2 * BlockSize));
+    if (homeset) TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
+    if (storeset) TileMapGroup->AddNewObject(new Engine::Image("play/store.png", storeposj * BlockSize, storeposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
     //add edge bush
     for (int i = 0; i < MapHeight; i++) {
         int j = -1;
@@ -720,10 +761,13 @@ void PlayScene::ConstructUI() {
     UIGroup->AddNewObject(new ColoredRectangle(0, 0, 200, 220, al_map_rgba(255, 255, 255, 70),2.0f, al_map_rgba(255, 255, 255, 1)));
 
     UIGroup->AddNewObject(new Engine::Label(std::string("Stage ") + std::to_string(MapId), "pirulen.ttf", 32, 12, 0));
+    UIGroup->AddNewObject(SkillWarn = new Engine::Label(std::string("") , "pirulen.ttf", 19, Engine::GameEngine::GetInstance().GetScreenSize().x / 2, Engine::GameEngine::GetInstance().GetScreenSize().y - 17, 255, 10, 10, 220, 0.5f, 0.5f));
 
     UIGroup->AddNewObject(new Engine::SpriteFixed("play/coin.png", 22, 62, 34, 34, 0.5, 0.5));
     UIGroup->AddNewObject(UIMoney = new Engine::Label(std::to_string(money), "pirulen.ttf", 24, 46, 48));
     /*if(gohomekey==1)*/ UIGroup->AddNewObject(UIHome = new Engine::Label(std::string(""), "pirulen.ttf", 24,  600, 600));
+    UIGroup->AddNewObject(UIStore = new Engine::Label(std::string(""), "pirulen.ttf", 24,  600, 600));
+
     //// new
     UIGroup->AddNewObject(player_exp_l = new Engine::Label(std::string("EXP ") + std::to_string((int)player_exp) + "/" + std::to_string((int)level_req.front()), "pirulen.ttf", 24, 12, 130));
     UIGroup->AddNewObject(player_level_l = new Engine::Label(std::string("Level ") + std::to_string((int)player_level) + "/8", "pirulen.ttf", 24, 12, 155));
@@ -825,6 +869,10 @@ Engine::Point PlayScene::GetValidSpawnPoint() {
 
 void PlayScene::SpawnCoin(float x, float y, int value) {
     GroundEffectGroup->AddNewObject(new Coin(this, x, y, value));
+}
+bool PlayScene::tile_crossable(int t) {
+    if(t==0||t==2||t==5||t==6)return 0;
+    return 1;
 }
 
 // #include <algorithm>
