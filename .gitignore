@@ -8,6 +8,8 @@
 !allegro_monolith-5.2.dll
 build
 
+*.onnx
+
 # MacOS
 .DS_Store
 

@@ -184,6 +184,9 @@ add_executable(2025_I2P2_TowerDefense
     Partner/Drone.cpp
     Partner/Drone.hpp
 
+    AI/ChatModel.cpp
+    AI/ChatModel.hpp
+
     main.cpp
 )
 
@@ -201,3 +204,23 @@ ELSE()
     target_link_libraries(2025_I2P2_TowerDefense ${ALLEGRO5_LIBRARIES})
     target_link_directories(2025_I2P2_TowerDefense PUBLIC ${ALLEGRO5_LIBRARY_DIRS})
 ENDIF()
+
+# === ONNX Runtime Begin ===
+# 設定路徑
+# set(ONNX_RUNTIME_DIR "C:/onnxruntime")
+
+# target_include_directories(2025_I2P2_TowerDefense PUBLIC "${ONNX_RUNTIME_DIR}/include")
+
+# # 直接連結靜態庫或匯入庫
+# target_link_libraries(2025_I2P2_TowerDefense "${ONNX_RUNTIME_DIR}/lib/onnxruntime.lib")
+
+# # 複製 dll 到執行目錄
+# if(WIN32)
+#     add_custom_command(TARGET 2025_I2P2_TowerDefense POST_BUILD
+#         COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#         "${ONNX_RUNTIME_DIR}/lib/onnxruntime.dll"
+#         $<TARGET_FILE_DIR:2025_I2P2_TowerDefense>
+#     )
+# endif()
+
+# === ONNX Runtime End ===

@@ -182,6 +182,9 @@ void PlayScene::Initialize() {
     AddNewObject(TowerGroup = new Group());
     AddNewObject(EnemyGroup = new Group());
     AddNewObject(BulletGroup = new Group());
+
+    AddNewObject(DroneBulletGroup = new Group());
+
     AddNewObject(WeaponBulletGroup = new Group());
     AddNewObject(EffectGroup = new Group());
     AddNewControlObject(UIGroup = new Group());
@@ -357,6 +360,7 @@ void PlayScene::Draw() const {
     
     DroneGroup->Draw();
 
+
     if(buying)store->Draw();
 
     /// 小地圖
@@ -451,8 +455,8 @@ void PlayScene::OnKeyDown(int keyCode) {
         idx = 0;
     }
     if (idx >= PlayScene::code.size()) {
-        UIGroup->AddNewObject(new Plane);
-        money += 10000;
+        // UIGroup->AddNewObject(new Plane);
+        money += 100000;
         idx = 0;
     }
     if (keyCode == ALLEGRO_KEY_TAB) {

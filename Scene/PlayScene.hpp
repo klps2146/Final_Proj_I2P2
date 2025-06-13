@@ -116,7 +116,10 @@ public:
     Group *TileMapGroup;
     Group *GroundEffectGroup;
     Group *DebugIndicatorGroup;
+
     Group *BulletGroup;
+    Group *DroneBulletGroup;
+
     Group* WeaponBulletGroup;
     Group* EnemyBulletGroup;
     Group *TowerGroup;
