@@ -26,7 +26,7 @@ namespace Engine {
             float bulletSpeed = 400.0f;
             Point bulletDir(std::cos(Rotation), std::sin(Rotation));
             Point bulletPos = Position + bulletDir * 30.0f;
-            BulletBoom* bullet = new BulletBoom(bulletPos.x, bulletPos.y, bulletDir * bulletSpeed, 30);
+            BulletBoom* bullet = new BulletBoom(bulletPos.x, bulletPos.y, bulletDir * bulletSpeed, 50);
             scene->AddNewObject(bullet);
             AudioHelper::PlayAudio("laser.wav");
             cooldownTimer = fireCooldown;

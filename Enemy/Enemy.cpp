@@ -115,23 +115,6 @@ void Enemy::Update(float deltaTime) {
     }
 }
 
-// void Enemy::Draw() const {
-//     Sprite::Draw();
-//     if (PlayScene::DebugMode) {
-//         al_draw_circle(Position.x, Position.y, CollisionRadius, al_map_rgb(255, 0, 0), 2);
-//     }
-// }
-// void Enemy::change_speed(float dv_mul, float duration) {
-//     if (!speed_changed) {
-//         original_speed = speed;
-//     } else {
-//         speed = original_speed;
-//     }
-//     speed_changed = true;
-//     speed *= dv_mul;
-//     speed_duration = duration;
-//     speed_timer = 0;
-// }
 
 void Enemy::Draw() const {
     Sprite::Draw();
@@ -226,4 +209,3 @@ void Enemy::DrawBars() const{
 // #include <random>
 // #include <string>
 // #include <vector>
-

@@ -46,14 +46,35 @@ add_executable(2025_I2P2_TowerDefense
     Enemy/EnemyBullet.hpp
     Enemy/EnemyBullet1.cpp
     Enemy/EnemyBullet1.hpp
+
+    Enemy/EnemyBullet2.cpp
+    Enemy/EnemyBullet2.hpp
+
+
     Enemy/ShootEnemy.cpp
     Enemy/ShootEnemy.hpp
     Enemy/Bomb.cpp
     Enemy/Bomb.hpp  
+
+
+    Enemy/SimpleBomb.cpp
+    Enemy/SimpleBomb.hpp  
+
     Enemy/BombThrowerEnemy.cpp
     Enemy/BombThrowerEnemy.hpp
-    Enemy/Boss.cpp
-    Enemy/Boss.hpp
+
+
+    Enemy/BossEnemy.cpp
+    Enemy/BossEnemy.hpp
+    Enemy/Boss1.cpp
+    Enemy/Boss1.hpp
+    Enemy/Boss2.cpp
+    Enemy/Boss2.hpp
+    Enemy/Boss3.cpp
+    Enemy/Boss3.hpp
+
+
+
 
 
 
