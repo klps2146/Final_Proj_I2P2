@@ -24,8 +24,8 @@ namespace Engine {
         
         float MAX_HP = 14000;
         float MAX_POWER = 12000;
-        float POWER;
 
+    
         Engine::Point last_idle_dir;
         float frame_timer = 0.0f;
         int cur_frame = 0;
@@ -35,6 +35,7 @@ namespace Engine {
 
     public:
         float HP;
+        float POWER;
         float speed;
         float shield;
         float MAX_SHIELD = 6000;

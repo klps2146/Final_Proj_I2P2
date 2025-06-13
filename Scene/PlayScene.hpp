@@ -35,6 +35,7 @@ public:
         TILE_BRIDGE,
         TILE_HOME,
         TILE_STORE,
+        TILE_FOUNTAIN,
     };
     ALLEGRO_SAMPLE_ID bgmId;
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> deathBGMInstance;
@@ -146,6 +147,7 @@ public:
     void ReadEnemyWave();
     void ConstructUI();
     void UIBtnClicked(int id);
+    void drawedgebush();
     bool CheckSpaceValid(int x, int y);
     std::vector<std::vector<int>> CalculateBFSDistance(Engine::Point start);
     std::vector<Engine::Point> FindPathAStar(Engine::Point start, Engine::Point end);

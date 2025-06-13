@@ -90,16 +90,7 @@ void PlayScene::Initialize() {
     deathCountDown = -1;
 
 
-    std::ifstream fin("../Resource/whichscene.txt");
-    char whichscene; // 默認值
-    if (fin.is_open()) {
-        fin >> whichscene;
-        fin.close();
-    } else {
-        std::cerr << "Failed to read whichscene.txt" << std::endl;
-    }
-    if(whichscene=='0') scenenum=0;
-    if(whichscene=='1') scenenum=1;
+    
 
     /*if(scenenum==1){
         MapHeight = 18;
@@ -125,12 +116,36 @@ void PlayScene::Initialize() {
     character->AddSkill(new OrbitSkill(0, 0));
     character->AddSkill(new NuclearSkill());
     character->VisableLevel = 2;
-
     AddNewControlObject(character);
 
     CameraPos = Engine::Point(0, 0);
 
     store = new Store();
+
+    
+    //紀錄資訊
+    std::ifstream fin("../Resource/whichscene.txt");
+    char whichscene = '0';
+    if (fin.is_open()) {
+        int skillnum = 3;
+        std::string money_record, hp_record, power_record, speed_record, level_record;
+        std::string  skill_level[3];
+        fin >> whichscene >> money_record >> hp_record >> power_record >> speed_record >> level_record;
+        for(int i=0;i<skillnum;i++)fin >> skill_level[i];
+        fin.close();
+        money=std::stoi(money_record);
+        character->HP=std::stoi(hp_record);
+        character->POWER=std::stoi(power_record);
+        character->speed=std::stoi(speed_record);
+        player_level=std::stoi(level_record);
+        
+        for(int i=0;i<skillnum;i++)character->itemBar_.slots[i]->level=std::stoi(skill_level[i]);
+    } else {
+        std::cerr << "Failed to read whichscene.txt" << std::endl;
+    }
+
+    // 設置場景編號
+    scenenum = (whichscene == '0') ? 0 : 1;
 
     //// 小地圖
     miniMap = MiniMap(
@@ -188,7 +203,6 @@ void PlayScene::Terminate() {
     IScene::Terminate();
 }
 void PlayScene::Update(float deltaTime) {
-    // std::cout << "clear 11.1\n";
 
     WeaponBulletGroup->Update(deltaTime);
     EnemyBulletGroup->Update(deltaTime);
@@ -246,7 +260,7 @@ void PlayScene::Update(float deltaTime) {
     for (int i = 0; i < SpeedMult; i++) {
         if(!buying) IScene::Update(deltaTime);
         ticks += deltaTime;
-        const float spawnInterval = 0.5; // 每2秒生成一隻敵人，可依需要調整
+        const float spawnInterval = 1.8; // 每2秒生成一隻敵人，可依需要調整
         static float spawnTimer = 0.0f;
         spawnTimer += deltaTime;
         if (spawnTimer >= spawnInterval) {
@@ -276,8 +290,8 @@ void PlayScene::Update(float deltaTime) {
                 default:
                     continue;
             }
-            std::cout << "Enemy" << type << "spawned at position: (" 
-            << spawnPos.x << ", " << spawnPos.y << ")\n";
+            // std::cout << "Enemy" << type << "spawned at position: (" 
+            // << spawnPos.x << ", " << spawnPos.y << ")\n";
             enemy->Update(ticks);
 
         }
@@ -465,21 +479,26 @@ void PlayScene::OnKeyDown(int keyCode) {
         // 寫入新的值到 whichscene.txt
         std::ofstream fout("../Resource/whichscene.txt", std::ios::trunc);
         if (fout.is_open()) {
-            fout << newScene; // 寫入 '0' 或 '1'
-            fout.flush(); // 確保立即寫入
-            if (fout.fail()) {
-                std::cerr << "Failed to write to whichscene.txt" << std::endl;
-                return;
-            }
+            fout << ((scenenum == 0) ? '1' : '0') << " "  // 切換場景編號
+                << money << " "                          // 金幣
+                << character->HP << " "                  // 血量
+                << character->POWER << " "               // 能量
+                << character->speed << " "               // 速度
+                << player_level<<" ";                    // 等級
+            int skillnum=character->itemBar_.slots.size();  //error, unkown reason       
+            skillnum=3;             
+            for(int i=0;i<skillnum-1;i++)fout <<character->itemBar_.slots[i]->level<<" ";
+            fout <<character->itemBar_.slots[skillnum-1]->level;
+            fout.flush();
         } else {
-            std::cerr << "Failed to open whichscene.txt for writing" << std::endl;
+            std::cerr << "Failed to save game data!" << std::endl;
             return;
         }
 
-        // 根據新值切換場景
-        Engine::GameEngine::GetInstance().ChangeScene("play"); // mapX.txt
+        // 切換場景
+        Engine::GameEngine::GetInstance().ChangeScene("play");
     }
-    
+
     //send keycode to store
     /*if (buying) {
         store->OnKeyDown(keyCode);
@@ -612,31 +631,7 @@ void PlayScene::ReadMap() {
         }
     }
     if (homeset) TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
-    //add edge bush
-    for (int i = 0; i < MapHeight; i++) {
-        int j = -1;
-        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-        TileMapGroup->AddNewObject(new Engine::Image("play/verti_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-        j = MapWidth;
-        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-        TileMapGroup->AddNewObject(new Engine::Image("play/verti_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-    }
-    for (int j = 0; j < MapWidth; j++) {
-        int i = -1;
-        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-        TileMapGroup->AddNewObject(new Engine::Image("play/hori_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-        i = MapHeight;
-        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-        TileMapGroup->AddNewObject(new Engine::Image("play/hori_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-    }
-    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", -1 * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/upleft_bush.png", -1 * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", MapWidth * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/upright_bush.png", MapWidth * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", -1 * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/downleft_bush.png", -1 * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/downright_bush.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
+    drawedgebush();
 }
 
 void PlayScene::ReadHomeMap() {
@@ -661,6 +656,9 @@ void PlayScene::ReadHomeMap() {
             case '3': mapData.push_back(3); break;
             case '4': mapData.push_back(4); break;
             case '5': mapData.push_back(5); break;
+            case '6': mapData.push_back(6); break;
+            case '7': mapData.push_back(7); break;
+            case '8': mapData.push_back(8); break;
             case '\n':
             case '\r':
                 if (static_cast<int>(mapData.size()) / MapWidth != 0)
@@ -687,7 +685,7 @@ void PlayScene::ReadHomeMap() {
                 mapState[i][j] = TILE_GRASS;
             } else if (num == 1) {
                 mapState[i][j] = TILE_GRASS;
-            } else if (num == 2) {
+            } else if (num == 2 || num==7 || num==8) {
                 mapState[i][j] = TILE_ROCK;
             } else if (num == 3) {
                 mapState[i][j] = TILE_BRIDGE;
@@ -706,15 +704,18 @@ void PlayScene::ReadHomeMap() {
                     storeset = 1;
                 }
             }
+            else if (num == 6) {
+                mapState[i][j] = TILE_ROCK;
+            }
         }
     }
     for (int i = 0; i < MapHeight; i++) {
         for (int j = 0; j < MapWidth; j++) {
             const int num = mapData[i * MapWidth + j];
-            if (num == 0 || num == 4 || num == 5) {
+            if (num == 0) {
                 TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
             }
-            if (num == 1) {
+            if (num == 1 || num == 4 || num == 5) {
                 TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
             }
             if (num == 2) {
@@ -724,38 +725,119 @@ void PlayScene::ReadHomeMap() {
             if (num == 3) {
                 TileMapGroup->AddNewObject(new Engine::Image("play/water.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
                 TileMapGroup->AddNewObject(new Engine::Image("play/stonebridge.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            }if (num == 6) {
+                TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                TileMapGroup->AddNewObject(new Engine::Image("play/fountain.png", (j-3) * BlockSize, (i-3) * BlockSize, 4*BlockSize, 4*BlockSize));
+            }if (num == 7) {
+                TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                TileMapGroup->AddNewObject(new Engine::Image("play/plant.png", j * BlockSize, (i-1) * BlockSize, BlockSize, 2*BlockSize));
+            }if (num == 8) {
+                TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                TileMapGroup->AddNewObject(new Engine::Image("play/bossroom.png", (j-4.5) * BlockSize, (i-2) * BlockSize,6* BlockSize, 4*BlockSize));
             }
         }
     }
     if (homeset) TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
     if (storeset) TileMapGroup->AddNewObject(new Engine::Image("play/store.png", storeposj * BlockSize, storeposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
-    //add edge bush
-    for (int i = 0; i < MapHeight; i++) {
-        int j = -1;
-        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-        TileMapGroup->AddNewObject(new Engine::Image("play/verti_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-        j = MapWidth;
-        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-        TileMapGroup->AddNewObject(new Engine::Image("play/verti_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-    }
-    for (int j = 0; j < MapWidth; j++) {
-        int i = -1;
-        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-        TileMapGroup->AddNewObject(new Engine::Image("play/hori_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-        i = MapHeight;
-        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-        TileMapGroup->AddNewObject(new Engine::Image("play/hori_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-    }
-    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", -1 * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/upleft_bush.png", -1 * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", MapWidth * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/upright_bush.png", MapWidth * BlockSize, -1 * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", -1 * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/downleft_bush.png", -1 * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
-    TileMapGroup->AddNewObject(new Engine::Image("play/downright_bush.png", MapWidth * BlockSize, MapHeight * BlockSize, BlockSize, BlockSize));
+    drawedgebush();
 }
+void PlayScene::drawedgebush(){
+    for (int layer = 0; layer < 1; layer++) {
+        // Vertical edges (left and right)
+        for (int i = -layer; i < MapHeight + layer; i++) {
+            int j = -1 - layer; // Left edge
+            TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            TileMapGroup->AddNewObject(new Engine::Image("play/verti_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            j = MapWidth + layer; // Right edge
+            TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            TileMapGroup->AddNewObject(new Engine::Image("play/verti_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        }
+        // Horizontal edges (top and bottom)
+        for (int j = -layer; j < MapWidth + layer; j++) {
+            int i = -1 - layer; // Top edge
+            TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            TileMapGroup->AddNewObject(new Engine::Image("play/hori_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            i = MapHeight + layer; // Bottom edge
+            TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            TileMapGroup->AddNewObject(new Engine::Image("play/hori_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        }
+        // Corners
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", (-1 - layer) * BlockSize, (-1 - layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/upleft_bush.png", (-1 - layer) * BlockSize, (-1 - layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", (MapWidth + layer) * BlockSize, (-1 - layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/upright_bush.png", (MapWidth + layer) * BlockSize, (-1 - layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", (-1 - layer) * BlockSize, (MapHeight + layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/downleft_bush.png", (-1 - layer) * BlockSize, (MapHeight + layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", (MapWidth + layer) * BlockSize, (MapHeight + layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/downright_bush.png", (MapWidth + layer) * BlockSize, (MapHeight + layer) * BlockSize, BlockSize, BlockSize));
+    }
 
+
+    // Add five layers of edge forest
+    for (int layer = 1; layer < 2; layer++) {
+        // Vertical edges (left and right)
+        for (int i = -layer; i < MapHeight + layer; i++) {
+            int j = -1 - layer; // Left edge
+            TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            TileMapGroup->AddNewObject(new Engine::Image("play/forest.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            j = MapWidth + layer; // Right edge
+            TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            TileMapGroup->AddNewObject(new Engine::Image("play/forest.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        }
+        // Horizontal edges (top and bottom)
+        for (int j = -layer; j < MapWidth + layer; j++) {
+            int i = -1 - layer; // Top edge
+            TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            TileMapGroup->AddNewObject(new Engine::Image("play/forest.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            i = MapHeight + layer; // Bottom edge
+            TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            TileMapGroup->AddNewObject(new Engine::Image("play/forest.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        }
+        // Corners
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", (-1 - layer) * BlockSize, (-1 - layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/forest.png", (-1 - layer) * BlockSize, (-1 - layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", (MapWidth + layer) * BlockSize, (-1 - layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/forest.png", (MapWidth + layer) * BlockSize, (-1 - layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", (-1 - layer) * BlockSize, (MapHeight + layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/forest.png", (-1 - layer) * BlockSize, (MapHeight + layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", (MapWidth + layer) * BlockSize, (MapHeight + layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/forest.png", (MapWidth + layer) * BlockSize, (MapHeight + layer) * BlockSize, BlockSize, BlockSize));
+    }
+
+}
+/*
+void PlayScene::drawedgebush(){
+    // Add five layers of edge bushes
+    for (int layer = 0; layer < 15; layer++) {
+        // Vertical edges (left and right)
+        for (int i = -layer; i < MapHeight + layer; i++) {
+            int j = -1 - layer; // Left edge
+            TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            TileMapGroup->AddNewObject(new Engine::Image("play/verti_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            j = MapWidth + layer; // Right edge
+            TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            TileMapGroup->AddNewObject(new Engine::Image("play/verti_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        }
+        // Horizontal edges (top and bottom)
+        for (int j = -layer; j < MapWidth + layer; j++) {
+            int i = -1 - layer; // Top edge
+            TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            TileMapGroup->AddNewObject(new Engine::Image("play/hori_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            i = MapHeight + layer; // Bottom edge
+            TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            TileMapGroup->AddNewObject(new Engine::Image("play/hori_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+        }
+        // Corners
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", (-1 - layer) * BlockSize, (-1 - layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/upleft_bush.png", (-1 - layer) * BlockSize, (-1 - layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", (MapWidth + layer) * BlockSize, (-1 - layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/upright_bush.png", (MapWidth + layer) * BlockSize, (-1 - layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", (-1 - layer) * BlockSize, (MapHeight + layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/downleft_bush.png", (-1 - layer) * BlockSize, (MapHeight + layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", (MapWidth + layer) * BlockSize, (MapHeight + layer) * BlockSize, BlockSize, BlockSize));
+        TileMapGroup->AddNewObject(new Engine::Image("play/downright_bush.png", (MapWidth + layer) * BlockSize, (MapHeight + layer) * BlockSize, BlockSize, BlockSize));
+    }
+}*/
 void PlayScene::ReadEnemyWave() {
     std::string filename = std::string("Resource/enemy") + std::to_string(MapId) + ".txt";
     float type, wait, repeat;
