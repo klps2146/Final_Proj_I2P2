@@ -24,7 +24,7 @@ namespace Engine {
         
         float MAX_HP = 99999;
         float MAX_POWER = 500000;
-        float POWER;
+        
 
         Engine::Point last_idle_dir;
         float frame_timer = 0.0f;
@@ -35,6 +35,7 @@ namespace Engine {
 
     public:
         float HP;
+        float POWER;
         float speed;
         int VisableLevel;
     

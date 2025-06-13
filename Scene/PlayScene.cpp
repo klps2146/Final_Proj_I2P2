@@ -91,16 +91,7 @@ void PlayScene::Initialize() {
     storeset=0;
     buying=false;
 
-    std::ifstream fin("../Resource/whichscene.txt");
-    char whichscene; // 默認值
-    if (fin.is_open()) {
-        fin >> whichscene;
-        fin.close();
-    } else {
-        std::cerr << "Failed to read whichscene.txt" << std::endl;
-    }
-    if(whichscene=='0') scenenum=0;
-    if(whichscene=='1') scenenum=1;
+    
 
     /*if(scenenum==1){
         MapHeight = 18;
@@ -122,6 +113,27 @@ void PlayScene::Initialize() {
     CameraPos = Engine::Point(0, 0);
 
     store = new Store();
+
+    
+    //紀錄資訊
+    std::ifstream fin("../Resource/whichscene.txt");
+    char whichscene = '0';
+    if (fin.is_open()) {
+        std::string money_record, hp_record, speed_record, level_record;
+        fin >> whichscene >> money_record >> hp_record >> speed_record >> level_record;
+        fin.close();
+        money=std::stoi(money_record);
+        character->HP=std::stoi(hp_record);
+        character->speed=std::stoi(speed_record);
+        player_level=std::stoi(level_record);
+    } else {
+        std::cerr << "Failed to read whichscene.txt" << std::endl;
+    }
+
+    // 設置場景編號
+    scenenum = (whichscene == '0') ? 0 : 1;
+
+
 
     //// 小地圖
     miniMap = MiniMap(
@@ -453,21 +465,21 @@ void PlayScene::OnKeyDown(int keyCode) {
         // 寫入新的值到 whichscene.txt
         std::ofstream fout("../Resource/whichscene.txt", std::ios::trunc);
         if (fout.is_open()) {
-            fout << newScene; // 寫入 '0' 或 '1'
-            fout.flush(); // 確保立即寫入
-            if (fout.fail()) {
-                std::cerr << "Failed to write to whichscene.txt" << std::endl;
-                return;
-            }
+            fout << ((scenenum == 0) ? '1' : '0') << " "  // 切換場景編號
+                << money << " "                          // 金幣
+                << character->HP << " "                  // 血量
+                << character->speed << " "               // 速度
+                << player_level;                         // 等級
+            fout.flush();
         } else {
-            std::cerr << "Failed to open whichscene.txt for writing" << std::endl;
+            std::cerr << "Failed to save game data!" << std::endl;
             return;
         }
 
-        // 根據新值切換場景
-        Engine::GameEngine::GetInstance().ChangeScene("play"); // mapX.txt
+        // 切換場景
+        Engine::GameEngine::GetInstance().ChangeScene("play");
     }
-    
+
     //send keycode to store
     /*if (buying) {
         store->OnKeyDown(keyCode);
