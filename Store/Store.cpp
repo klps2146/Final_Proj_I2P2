@@ -50,7 +50,7 @@ PlayScene* Store::getPlayScene() const {
 Store::Store() {
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
-    background = ColoredRectangle((w - 500) / 2, (h - 500) / 2, 500, 500, al_map_rgba(200, 100, 225, 235), 2.0f, al_map_rgb(255, 255, 255));
+    background = ColoredRectangle((w - 500) / 2, (h - 500) / 2, 500, 500, al_map_rgba(139, 69, 19, 245), 2.0f, al_map_rgb(255, 255, 255));
 
     // 初始化商品
     float totalWidth = 4*(slotSize + spacing) - spacing; // 每行 4 個商品
@@ -99,7 +99,7 @@ void Store::Draw() const {
         float w = items[i]->iconImage ->Size.x;
         float h = items[i]->iconImage ->Size.y;
 
-        al_draw_rectangle(x, y, x + w, y + h, al_map_rgb(180, 180, 180), 2); // 繪製邊框
+        al_draw_rectangle(x, y, x + w, y + h, al_map_rgb(210, 105, 30), 2); // 繪製邊框
         
         if(items[i] && items[i]->skillHere){
             auto itmp = items[i]->skillHere;

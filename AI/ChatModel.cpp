@@ -1,145 +1,208 @@
 #include "ChatModel.hpp"
+#include <llama.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 #include <iostream>
-#include <sstream>
 #include <vector>
+#include <functional>
 
-ChatModel::ChatModel(const std::wstring& model_path)
-    : env(ORT_LOGGING_LEVEL_WARNING, "GPT2"), session_options(), session(nullptr)
-{
-    session_options.SetIntraOpNumThreads(1);
-    session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
+static llama_model* model = nullptr;
+static llama_context* ctx = nullptr;
+static llama_sampler* smpl = nullptr;
+static const llama_vocab* vocab = nullptr;
+static std::vector<llama_chat_message> messages;
+static std::vector<char> formatted;
+static int prev_len = 0;
 
-    session = Ort::Session(env, model_path.c_str(), session_options);
+bool InitLlamaChat(const std::string& modelPath, int contextLength, int gpuLayers) {
+    llama_log_set([](enum ggml_log_level level, const char * text, void *) {
+        if (level >= GGML_LOG_LEVEL_ERROR)
+            fprintf(stderr, "%s", text);
+    }, nullptr);
 
-    InitVocab();
-}
+    ggml_backend_load_all();
 
-void ChatModel::InitVocab() {
-    // 你必須用 GPT2 的 vocab 或 BPE tokenizer，這裡示範簡單字典
-    token2id = {
-        {"hello", 15496},
-        {"world", 995},
-        {"I", 40},
-        {"am", 617},
-        {"a", 257},
-        {"bot", 8007},
-        {"<pad>", 0}
-    };
-    for (auto& [k,v] : token2id) {
-        id2token[v] = k;
-    }
-}
+    llama_model_params model_params = llama_model_default_params();
+    model_params.n_gpu_layers = gpuLayers;
 
-std::vector<int64_t> ChatModel::Tokenize(const std::string& text) {
-    std::vector<int64_t> tokens;
-    std::istringstream iss(text);
-    std::string word;
-    while (iss >> word) {
-        if (token2id.find(word) != token2id.end())
-            tokens.push_back(token2id[word]);
-        else
-            tokens.push_back(token2id["<pad>"]); // 未知字用 <pad>
-    }
-    return tokens;
-}
-
-std::string ChatModel::Detokenize(const std::vector<int64_t>& tokens) {
-    std::string result;
-    for (auto t : tokens) {
-        if (id2token.find(t) != id2token.end())
-            result += id2token[t] + " ";
-        else
-            result += "<unk> ";
-    }
-    return result;
-}
-
-std::vector<int64_t> ChatModel::Infer(const std::vector<int64_t>& input_ids) {
-    Ort::AllocatorWithDefaultOptions allocator;
-    Ort::MemoryInfo memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
-
-    // 取得輸入數量
-    size_t input_count = session.GetInputCount();
-    std::vector<const char*> input_names;
-    std::vector<Ort::AllocatedStringPtr> input_name_ptrs;  // 儲存智慧指標，避免指標失效
-    std::vector<Ort::Value> input_tensors;
-
-    for (size_t i = 0; i < input_count; ++i) {
-        // 取得輸入名稱並存智慧指標
-        auto name_ptr = session.GetInputNameAllocated(i, allocator);
-        input_names.push_back(name_ptr.get());
-        input_name_ptrs.push_back(std::move(name_ptr));
-
-        // 取得該輸入形狀
-        auto type_info = session.GetInputTypeInfo(i);
-        auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
-        std::vector<int64_t> input_shape = tensor_info.GetShape();
-
-        // 依輸入索引建立 tensor，假設第一個是 input_ids，第二個是 attention_mask
-        if (i == 0) {
-            // input_ids shape [1, seq_len]
-            input_shape[0] = 1;
-            input_shape[1] = (int64_t)input_ids.size();
-
-            input_tensors.emplace_back(Ort::Value::CreateTensor<int64_t>(
-                memory_info,
-                const_cast<int64_t*>(input_ids.data()),
-                input_ids.size(),
-                input_shape.data(),
-                input_shape.size()
-            ));
-        }
-        else if (i == 1) {
-            // attention_mask shape同input_ids，值全1
-            std::vector<int64_t> attention_mask(input_ids.size(), 1);
-            input_shape[0] = 1;
-            input_shape[1] = (int64_t)attention_mask.size();
-
-            input_tensors.emplace_back(Ort::Value::CreateTensor<int64_t>(
-                memory_info,
-                attention_mask.data(),
-                attention_mask.size(),
-                input_shape.data(),
-                input_shape.size()
-            ));
-        }
-        else {
-            // 其他輸入如果有，先塞零，視模型需求調整
-            size_t total_len = 1;
-            for (auto d : input_shape) total_len *= d;
-            std::vector<float> zeros(total_len, 0.0f);
-
-            input_tensors.emplace_back(Ort::Value::CreateTensor<float>(
-                memory_info,
-                zeros.data(),
-                zeros.size(),
-                input_shape.data(),
-                input_shape.size()
-            ));
-        }
+    model = llama_model_load_from_file(modelPath.c_str(), model_params);
+    if (!model) {
+        fprintf(stderr, "Error loading model\n");
+        return false;
     }
 
-    // 取得輸出名稱
-    size_t output_count = session.GetOutputCount();
-    std::vector<const char*> output_names;
-    std::vector<Ort::AllocatedStringPtr> output_name_ptrs;
-    for (size_t i = 0; i < output_count; ++i) {
-        auto name_ptr = session.GetOutputNameAllocated(i, allocator);
-        output_names.push_back(name_ptr.get());
-        output_name_ptrs.push_back(std::move(name_ptr));
+    vocab = llama_model_get_vocab(model);
+
+    llama_context_params ctx_params = llama_context_default_params();
+    ctx_params.n_ctx = contextLength;
+    ctx_params.n_batch = contextLength;
+
+    ctx = llama_init_from_model(model, ctx_params);
+    if (!ctx) {
+        fprintf(stderr, "Error creating context\n");
+        return false;
     }
 
-    // 呼叫推理
-    auto output_tensors = session.Run(Ort::RunOptions{nullptr},
-                                      input_names.data(),
-                                      input_tensors.data(),
-                                      input_count,
-                                      output_names.data(),
-                                      output_count);
+    smpl = llama_sampler_chain_init(llama_sampler_chain_default_params());
+    llama_sampler_chain_add(smpl, llama_sampler_init_min_p(0.05f, 1));
+    llama_sampler_chain_add(smpl, llama_sampler_init_temp(0.8f));
+    llama_sampler_chain_add(smpl, llama_sampler_init_dist(LLAMA_DEFAULT_SEED));
 
-    // 這裡假設第一個輸出是 token ids (int64_t)，依模型調整
-    int64_t* output_data = output_tensors[0].GetTensorMutableData<int64_t>();
-    size_t output_len = output_tensors[0].GetTensorTypeAndShapeInfo().GetElementCount();
+    formatted.resize(contextLength);
 
-    return std::vector<int64_t>(output_data, output_data + output_len);
+    return true;
 }
+
+void QueryLlamaStream(const std::string& userInput, const std::function<void(const std::string&)>& onToken, int maxTokens) {
+    const char* tmpl = llama_model_chat_template(model, nullptr);
+    messages.push_back({"user", strdup(userInput.c_str())});
+
+    int new_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), true, formatted.data(), formatted.size());
+    if (new_len > (int)formatted.size()) {
+        formatted.resize(new_len);
+        new_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), true, formatted.data(), formatted.size());
+    }
+    if (new_len < 0) {
+        onToken("[ERROR: template failed]");
+        return;
+    }
+
+    std::string prompt(formatted.begin() + prev_len, formatted.begin() + new_len);
+    const bool is_first = llama_memory_seq_pos_max(llama_get_memory(ctx), 0) == 0;
+
+    int n_prompt_tokens = -llama_tokenize(vocab, prompt.c_str(), prompt.size(), nullptr, 0, is_first, true);
+    std::vector<llama_token> prompt_tokens(n_prompt_tokens);
+    if (llama_tokenize(vocab, prompt.c_str(), prompt.size(), prompt_tokens.data(), prompt_tokens.size(), is_first, true) < 0) {
+        onToken("[ERROR: tokenization failed]");
+        return;
+    }
+
+    llama_batch batch = llama_batch_get_one(prompt_tokens.data(), prompt_tokens.size());
+    llama_token new_token_id;
+    std::string response;
+
+    int token_count = 0;  // 計數產生幾個 token
+
+    while (true) {
+        int n_ctx = llama_n_ctx(ctx);
+        int n_ctx_used = llama_memory_seq_pos_max(llama_get_memory(ctx), 0);
+        if (n_ctx_used + batch.n_tokens > n_ctx) break;
+        if (llama_decode(ctx, batch)) break;
+
+        new_token_id = llama_sampler_sample(smpl, ctx, -1);
+        if (llama_vocab_is_eog(vocab, new_token_id)) break;
+
+        char buf[256];
+        int n = llama_token_to_piece(vocab, new_token_id, buf, sizeof(buf), 0, true);
+        if (n < 0) break;
+
+        std::string piece(buf, n);
+        response += piece;
+
+        onToken(piece);
+        token_count++;
+
+        // 超過限制
+        if (maxTokens > 0 && token_count >= maxTokens) break;
+
+        batch = llama_batch_get_one(&new_token_id, 1);
+    }
+
+    messages.push_back({"assistant", strdup(response.c_str())});
+    prev_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), false, nullptr, 0);
+}
+
+
+// void QueryLlamaStream(const std::string& userInput, const std::function<void(const std::string&)>& onToken) {
+//     const char* tmpl = llama_model_chat_template(model, nullptr);
+//     messages.push_back({"user", strdup(userInput.c_str())});
+
+//     int new_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), true, formatted.data(), formatted.size());
+//     if (new_len > (int)formatted.size()) {
+//         formatted.resize(new_len);
+//         new_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), true, formatted.data(), formatted.size());
+//     }
+//     if (new_len < 0) {
+//         onToken("[ERROR: template failed]");
+//         return;
+//     }
+
+//     std::string prompt(formatted.begin() + prev_len, formatted.begin() + new_len);
+//     const bool is_first = llama_memory_seq_pos_max(llama_get_memory(ctx), 0) == 0;
+
+//     int n_prompt_tokens = -llama_tokenize(vocab, prompt.c_str(), prompt.size(), nullptr, 0, is_first, true);
+//     std::vector<llama_token> prompt_tokens(n_prompt_tokens);
+//     if (llama_tokenize(vocab, prompt.c_str(), prompt.size(), prompt_tokens.data(), prompt_tokens.size(), is_first, true) < 0) {
+//         onToken("[ERROR: tokenization failed]");
+//         return;
+//     }
+
+//     llama_batch batch = llama_batch_get_one(prompt_tokens.data(), prompt_tokens.size());
+//     llama_token new_token_id;
+//     std::string response;
+
+//     while (true) {
+//         int n_ctx = llama_n_ctx(ctx);
+//         int n_ctx_used = llama_memory_seq_pos_max(llama_get_memory(ctx), 0);
+//         if (n_ctx_used + batch.n_tokens > n_ctx) break;
+//         if (llama_decode(ctx, batch)) break;
+
+//         new_token_id = llama_sampler_sample(smpl, ctx, -1);
+//         if (llama_vocab_is_eog(vocab, new_token_id)) break;
+
+//         char buf[256];
+//         int n = llama_token_to_piece(vocab, new_token_id, buf, sizeof(buf), 0, true);
+//         if (n < 0) break;
+
+//         std::string piece(buf, n);
+//         response += piece;
+
+//         // 即時回傳
+//         onToken(piece);
+
+//         batch = llama_batch_get_one(&new_token_id, 1);
+//     }
+
+//     messages.push_back({"assistant", strdup(response.c_str())});
+//     prev_len = llama_chat_apply_template(tmpl, messages.data(), messages.size(), false, nullptr, 0);
+// }
+
+void FreeLlamaChat() {
+    for (auto& msg : messages) {
+        free(const_cast<char*>(msg.content));
+    }
+    messages.clear();
+    if (smpl) llama_sampler_free(smpl);
+    if (ctx) llama_free(ctx);
+    if (model) llama_model_free(model);
+}
+
+
+/* USAGE
+
+std::string modelPath = "C:/Users/klps2/OneDrive - NTHU/FINAL_PROJ/Resource/model/tinyllama-1.1b-chat-v1.0.Q4_0.gguf";
+    if (!InitLlamaChat(modelPath)) {
+        std::cerr << "Failed to initialize llama chat." << std::endl;
+        return 1;
+    }
+
+    std::string userInput;
+    while (true) {
+        std::cout << "\033[32m> \033[0m";
+        std::getline(std::cin, userInput);
+        if (userInput.empty()) break;
+
+        std::cout << "\033[33m";
+
+        QueryLlamaStream(userInput, [](const std::string& token) {
+            std::cout << token << std::flush;
+            // 如果你是在 GUI，這裡可以是：chatBox->appendText(token);
+        });
+
+        std::cout << "\033[0m\n";
+    }
+
+    FreeLlamaChat();
+
+*/

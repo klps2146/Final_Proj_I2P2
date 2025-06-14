@@ -1,25 +1,14 @@
-#pragma once
-#include <onnxruntime_cxx_api.h>
+#ifndef CHATMODEL_HPP
+#define CHATMODEL_HPP
+
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include <functional>
 
-class ChatModel {
-public:
-    explicit ChatModel(const std::wstring& model_path);
+bool InitLlamaChat(const std::string& modelPath, int contextLength = 2048, int gpuLayers = 99);
+void FreeLlamaChat();
 
-    std::vector<int64_t> Tokenize(const std::string& text);
-    std::string Detokenize(const std::vector<int64_t>& tokens);
+// 回呼函式：每生成一段就會呼叫一次 callback// 輸入使用者訊息，回傳 AI 回應
+void QueryLlamaStream(const std::string& userInput, const std::function<void(const std::string&)>& onToken, int maxTokens = -1);
 
-    std::vector<int64_t> Infer(const std::vector<int64_t>& input_ids);
-
-private:
-    void InitVocab();
-
-    Ort::Env env;
-    Ort::SessionOptions session_options;
-    Ort::Session session;
-
-    std::unordered_map<std::string, int64_t> token2id;
-    std::unordered_map<int64_t, std::string> id2token;
-};
+#endif 

@@ -44,7 +44,7 @@ void SkillBase::SkillAnimation() {
 void SkillBase::Activate() {
     if (IsReady()) {
         if (!consumePower()){
-            getPlayScene()->SkillWarn->Text = "Not Enough Power";
+            getPlayScene()->SkillWarn->Text = "No Enough Power";
             return; // 不夠
         }
 

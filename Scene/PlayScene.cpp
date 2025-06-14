@@ -323,98 +323,46 @@ void PlayScene::Update(float deltaTime) {
         bossAlive = true;
         SpawnBosses();
     }
-    bossAlive = false;
-    for (auto& it : EnemyGroup->GetObjects()) {
-        if (dynamic_cast<BossEnemy*>(it)) {
-            bossAlive = true;
-            std::cout << "檢查boss\n";
-            break;
-        }
-    }
     
     for (int i = 0; i < SpeedMult; i++) {
         if(!buying) IScene::Update(deltaTime);
         ticks += deltaTime;
-
-        // 只有在Boss不在場上時生成小怪
-        if (!bossAlive) {
-            const float spawnInterval = 2.0f;
-            static float spawnTimer = 0.0f;
-            spawnTimer += deltaTime;
-            if (spawnTimer >= spawnInterval && scenenum!=1 && scenenum!=2) {
-                spawnTimer -= spawnInterval;
-                int type = rand() % 6 + 1;
-                Engine::Point spawnPos = GetValidSpawnPoint();
-                Enemy* enemy;
-                switch (type) {
-                    case 1:
-                        EnemyGroup->AddNewObject(enemy = new SoldierEnemy(spawnPos.x, spawnPos.y));
-                        break;
-                    case 2:
-                        EnemyGroup->AddNewObject(enemy = new PlaneEnemy(spawnPos.x, spawnPos.y));
-                        break;
-                    case 3:
-                        EnemyGroup->AddNewObject(enemy = new TankEnemy(spawnPos.x, spawnPos.y));
-                        break;
-                    case 4:
-                        EnemyGroup->AddNewObject(enemy = new GodEnemy(spawnPos.x, spawnPos.y));
-                        break;
-                    case 5:
-                        EnemyGroup->AddNewObject(enemy = new ShootEnemy(spawnPos.x, spawnPos.y));
-                        break;
-                    case 6:
-                        EnemyGroup->AddNewObject(enemy = new BombThrowerEnemy(spawnPos.x, spawnPos.y));
-                        break;
-                    default:
-                        continue;
-                }
-                std::cout << "Enemy" << type << " spawned at position: (" 
-                          << spawnPos.x << ", " << spawnPos.y << ")\n";
-                enemy->Update(ticks);  
-               
+        const float spawnInterval = 2.0f;
+        static float spawnTimer = 0.0f;
+        spawnTimer += deltaTime;
+        if (spawnTimer >= spawnInterval && scenenum!=1 && scenenum!=2) {
+            spawnTimer -= spawnInterval;
+            int type = rand() % 6 + 1;
+            Engine::Point spawnPos = GetValidSpawnPoint();
+            Enemy* enemy;
+            switch (type) {
+                case 1:
+                    EnemyGroup->AddNewObject(enemy = new SoldierEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                case 2:
+                    EnemyGroup->AddNewObject(enemy = new PlaneEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                case 3:
+                    EnemyGroup->AddNewObject(enemy = new TankEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                case 4:
+                    EnemyGroup->AddNewObject(enemy = new GodEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                case 5:
+                    EnemyGroup->AddNewObject(enemy = new ShootEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                case 6:
+                    EnemyGroup->AddNewObject(enemy = new BombThrowerEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                default:
+                    continue;
             }
+            std::cout << "Enemy" << type << " spawned at position: (" 
+                        << spawnPos.x << ", " << spawnPos.y << ")\n";
+            enemy->Update(ticks);  
+            
         }
     }
-
-    // for (int i = 0; i < SpeedMult; i++) {
-    //     IScene::Update(deltaTime);
-    //     ticks += deltaTime;
-    //     const float spawnInterval = 0.5; // 每2秒生成一隻敵人，可依需要調整
-    //     static float spawnTimer = 0.0f;
-    //     spawnTimer += deltaTime;
-    //     if (spawnTimer >= spawnInterval) {
-    //         spawnTimer -= spawnInterval;
-    //         int type = rand() % 6 + 1; // 隨機產生 1~4 的敵人類型
-    //         //const Engine::Point SpawnCoordinate = Engine::Point(SpawnGridPoint.x * BlockSize + BlockSize / 2, SpawnGridPoint.y * BlockSize + BlockSize / 2);
-    //         Enemy *enemy;
-    //         Engine::Point spawnPos = GetValidSpawnPoint();
-
-    //         switch (type) {
-    //             case 1:
-    //                 EnemyGroup->AddNewObject(enemy = new SoldierEnemy(spawnPos.x, spawnPos.y));
-    //                 break;
-    //             case 2:
-    //                 EnemyGroup->AddNewObject(enemy = new PlaneEnemy(spawnPos.x, spawnPos.y));
-    //                 break;
-    //             case 3:
-    //                 EnemyGroup->AddNewObject(enemy = new TankEnemy(spawnPos.x, spawnPos.y));
-    //                 break;
-    //             case 4:
-    //                 EnemyGroup->AddNewObject(enemy = new GodEnemy(spawnPos.x, spawnPos.y));
-    //                 break;
-    //             case 5:
-    //                 EnemyGroup->AddNewObject(enemy = new ShootEnemy(spawnPos.x, spawnPos.y));
-    //             case 6:
-    //                 EnemyGroup->AddNewObject(enemy = new BombThrowerEnemy(spawnPos.x, spawnPos.y));
-    //             default:
-    //                 continue;
-    //         }
-    //         std::cout << "Enemy" << type << "spawned at position: (" 
-    //         << spawnPos.x << ", " << spawnPos.y << ")\n";
-    //         enemy->Update(ticks);
-
-    //     }
-    // }
     if (preview) {
         preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
         preview->Update(deltaTime);
@@ -430,7 +378,7 @@ void PlayScene::SpawnBosses() {
     Boss1* boss1 = new Boss1(spawnPos1.x, spawnPos1.y);
     Boss2* boss2 = new Boss2(spawnPos2.x, spawnPos2.y);
     Boss3* boss3 = new Boss3(spawnPos3.x, spawnPos3.y);
-
+    
     EnemyGroup->AddNewObject(boss1);
     EnemyGroup->AddNewObject(boss2);
     EnemyGroup->AddNewObject(boss3);
@@ -441,11 +389,7 @@ void PlayScene::Draw() const {
     IScene::Draw();
     //// new
     character->Draw();
-    // if (character->IsAlive()) {
-    //     character->DrawBars();
-    //     gun->Draw();
-    //     sword->Draw();
-    // }
+
 
     if (character->IsAlive()) {
         character->DrawBars();
@@ -639,6 +583,7 @@ void PlayScene::OnKeyDown(int keyCode) {
 void PlayScene::Hit(float damage) {
     lives--;
     character->ChangeHP(-1 * damage);
+    AudioHelper::PlaySample("hurt.wav", false, 5.0);
     if (lives <= 0) {
         Engine::GameEngine::GetInstance().ChangeScene("lose");
     }

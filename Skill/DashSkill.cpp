@@ -14,7 +14,7 @@ DashSkill::DashSkill()
 void DashSkill::SkillAnimation() {
     PlayScene* scene = getPlayScene();
     if (scene && scene->character) {
-        int res = level * 1.7;
+        int res = 1 + level * 0.7;
         scene->character->speed *= res;
         float dura = (float)level*0.2f +3.0f;
         scene->character->setTimer(dura, res);

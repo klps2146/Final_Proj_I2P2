@@ -1,6 +1,7 @@
 #include "Boss1.hpp"
 #include "Scene/PlayScene.hpp"
 #include "Engine/GameEngine.hpp"
+#include "Engine/AudioHelper.hpp"
 Boss1::Boss1(float x, float y)
     : BossEnemy("play/boss1.png", x, y, 30.0f, 200.0f, 1000.0f, 50), shootTimer(0), shootInterval(1.5f) {
     dmg = 10;
@@ -53,10 +54,12 @@ void Boss1::Shoot() {
             bulletDirection = bulletDirection.Normalize();
             float speed = 350.0f;
             Engine::Point velocity = bulletDirection * speed;
-            float damage = 15.0f;
+            float damage = 300.0f;
             Engine::EnemyBullet2* bullet = new Engine::EnemyBullet2(Position.x, Position.y, velocity, damage);
+            
             scene->BulletGroup->AddNewObject(bullet);
         }
+        AudioHelper::PlaySample("star.wav", false, 5.0);
 
         
     }

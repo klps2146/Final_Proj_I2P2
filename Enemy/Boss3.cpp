@@ -5,7 +5,7 @@
 
 // 構造函數，初始化Boss3屬性
 Boss3::Boss3(float x, float y)
-    : BossEnemy("play/boss1.png", x, y, 30.0f, 180.0f, 1000.0f, 50),
+    : BossEnemy("play/boss3.png", x, y-150, 30.0f, 180.0f, 1000.0f, 50),
       shootTimer(0), rayActive(false), rayTimer(0), healAmount(100.0f) {
     dmg = 15;  // 設置Boss3的傷害值
 }
@@ -20,7 +20,7 @@ void Boss3::UpdateRay(float deltaTime) {
 
     if (rayActive) {
         rayTimer += deltaTime;
-        if (distance > 1000.0f) {
+        if (distance > 1500.0f) {
             rayActive = false;
             rayTimer = 0;
         }
@@ -31,11 +31,12 @@ void Boss3::UpdateRay(float deltaTime) {
             if (shared_hp > 3000.0f) shared_hp = 3000.0f;  // 共享血量不超過3000
             rayActive = false;
             rayTimer = 0;
+            scene->Hit(1000);
         }
     } else {
         shootTimer += deltaTime;
         // 每10秒發射一次射線
-        if (shootTimer >= 10.0f) {
+        if (shootTimer >= 5.0f) {
             rayActive = true;
             shootTimer = 0;
             rayTimer = 0;
@@ -43,25 +44,6 @@ void Boss3::UpdateRay(float deltaTime) {
     }
 }
 
-// 繪製射線
-// void Boss3::DrawRay() const {
-//     if (rayActive) {
-//         PlayScene* scene = getPlayScene();
-//         if (scene && scene->character) {
-//             Engine::Point playerPos = scene->character->Position;
-//             Engine::Point cameraPos = scene->CameraPos;
-            
-//             // 計算 Boss3 和玩家相對於屏幕的位置
-//             float screenX1 = Position.x - cameraPos.x;
-//             float screenY1 = Position.y - cameraPos.y;
-//             float screenX2 = playerPos.x - cameraPos.x;
-//             float screenY2 = playerPos.y - cameraPos.y;
-            
-//             // 繪製射線
-//             al_draw_line(screenX1, screenY1, screenX2, screenY2, al_map_rgb(255, 0, 0), 20);
-//         }
-//     }
-// }
 void Boss3::DrawRay() const {
     if (rayActive) {
         PlayScene* scene = getPlayScene();
@@ -69,14 +51,29 @@ void Boss3::DrawRay() const {
             Engine::Point playerPos = scene->character->Position;
             Engine::Point cameraPos = scene->CameraPos;
             
-            // 計算 Boss3 和玩家相對於屏幕的位置
-            float screenX1 = Position.x - cameraPos.x;
-            float screenY1 = Position.y - cameraPos.y;
+            // 計算 Boss3 的基礎位置相對於屏幕
+            float baseX = Position.x - cameraPos.x;
+            float baseY = Position.y - cameraPos.y;
+            
+            // 將射線起始點偏移到圖片右邊150像素和上方10像素
+            // 右邊偏移：沿著Rotation方向150像素
+            float rightOffsetX = cos(Rotation) * 150.0f;
+            float rightOffsetY = sin(Rotation) * 150.0f;
+            // 上方偏移：沿著Rotation旋轉90度（逆時針）的方向10像素
+            float upOffsetX = -sin(Rotation) * -15.0f; // cos(Rotation + PI/2) = -sin(Rotation)
+            float upOffsetY = cos(Rotation) * -15.0f;  // sin(Rotation + PI/2) = cos(Rotation)
+            // 結合偏移
+            float screenX1 = baseX + rightOffsetX + upOffsetX;
+            float screenY1 = baseY + rightOffsetY + upOffsetY;
+            
+            // 玩家的屏幕位置
             float screenX2 = playerPos.x - cameraPos.x;
             float screenY2 = playerPos.y - cameraPos.y;
             
-            // 計算 Boss3 和玩家之間的距離
-            float distance = (playerPos - Position).Magnitude();
+            // 計算偏移後的Boss3和玩家之間的距離
+            Engine::Point startPos = Engine::Point(Position.x + rightOffsetX + upOffsetX, 
+                                                  Position.y + rightOffsetY + upOffsetY);
+            float distance = (playerPos - startPos).Magnitude();
             
             // 假設最大距離為 1000.0f，根據距離比例計算顏色
             float maxDistance = 1000.0f;

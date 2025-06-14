@@ -23,7 +23,7 @@ namespace Engine {
         ALLEGRO_MOUSE_STATE mouseState;
         al_get_mouse_state(&mouseState);
         if (mouseState.buttons & 1 && cooldownTimer <= 0.0f) {
-            float bulletSpeed = 400.0f;
+            float bulletSpeed = 700.0f;
             Point bulletDir(std::cos(Rotation), std::sin(Rotation));
             Point bulletPos = Position + bulletDir * 30.0f;
             BulletBoom* bullet = new BulletBoom(bulletPos.x, bulletPos.y, bulletDir * bulletSpeed, 50);

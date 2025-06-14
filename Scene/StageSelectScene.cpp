@@ -38,7 +38,7 @@ void StageSelectScene::Initialize() {
     btn = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", halfW - 200, halfH / 2 + 210, 400, 100);
     btn->SetOnClickCallback(std::bind(&StageSelectScene::ScoreboardOnClick, this));
     AddNewControlObject(btn);
-    AddNewObject(new Engine::Label("ScoreBoard", "pirulen.ttf", 40, halfW, halfH / 2 + 260, 0, 0, 0, 255, 0.5, 0.5));
+    AddNewObject(new Engine::Label("Chat Chat", "pirulen.ttf", 40, halfW, halfH / 2 + 260, 0, 0, 0, 255, 0.5, 0.5));
 
     // back
     btn = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", halfW - 200, halfH * 3 / 2 - 50, 400, 100);
@@ -87,7 +87,7 @@ void StageSelectScene::PlayOnClick(int stage) {
     Engine::GameEngine::GetInstance().ChangeScene("play");
 }
 void StageSelectScene::ScoreboardOnClick() {
-    Engine::GameEngine::GetInstance().ChangeScene("scoreboard-scene");
+    Engine::GameEngine::GetInstance().ChangeScene("chat-scene");
 }
 void StageSelectScene::BGMSlideOnValueChanged(float value) {
     AudioHelper::ChangeSampleVolume(bgmInstance, value);

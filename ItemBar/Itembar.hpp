@@ -3,6 +3,7 @@
 #include "Engine/Point.hpp"
 
 class SkillBase;
+class PlayScene;
 
 class ItemBar {
 public:
@@ -16,4 +17,5 @@ public:
     void SelectSlot(int index);
     void OnKeyDown(int keyCode);
     SkillBase* GetSelectedSkill() const;
+    PlayScene* getPlayScene();
 };

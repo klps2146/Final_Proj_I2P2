@@ -11,9 +11,10 @@
 #include "UI/Animation/DirtyEffect.hpp"
 
 OrbitingBullet::OrbitingBullet(Engine::Point initPos, float initAngle, float radius, float angularSpeed, float damage, float lifeTime)
-    : Bullet("play/bullet-7.png", 0, damage, initPos, Engine::Point(0, 0), 0, nullptr),
+    : Bullet("play/Shulker_Bullet.png", 0, damage, initPos, Engine::Point(0, 0), 0, nullptr),
     angle(initAngle), radius(radius), angularSpeed(angularSpeed), lifeTime(lifeTime), elapsedTime(0) {
     CollisionRadius = 6;
+    SetSize(60, 60);
 }
 
 void OrbitingBullet::Update(float deltaTime) {
