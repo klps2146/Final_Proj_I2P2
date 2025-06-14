@@ -105,6 +105,8 @@ add_executable(2025_I2P2_TowerDefense
     Scene/StartScene.h
     Scene/WinScene.cpp
     Scene/WinScene.hpp
+    Scene/ChatScene.cpp
+    Scene/ChatScene.hpp
 
     Tool/ShovelTool.cpp
     Tool/ShovelTool.hpp
@@ -184,8 +186,8 @@ add_executable(2025_I2P2_TowerDefense
     Partner/Drone.cpp
     Partner/Drone.hpp
 
-    # AI/ChatModel.cpp
-    # AI/ChatModel.hpp
+    AI/ChatModel.cpp
+    AI/ChatModel.hpp
 
     main.cpp
 )
@@ -205,8 +207,8 @@ ELSE()
     target_link_directories(2025_I2P2_TowerDefense PUBLIC ${ALLEGRO5_LIBRARY_DIRS})
 ENDIF()
 
-# # === ONNX Runtime Begin ===
-# # 設定路徑
+# === ONNX Runtime Begin ===
+# 設定路徑
 # set(ONNX_RUNTIME_DIR "C:/onnxruntime")
 
 # target_include_directories(2025_I2P2_TowerDefense PUBLIC "${ONNX_RUNTIME_DIR}/include")
@@ -223,4 +225,10 @@ ENDIF()
 #     )
 # endif()
 
-# # === ONNX Runtime End ===
+# === ONNX Runtime End ===
+
+
+add_subdirectory(llama)
+
+target_include_directories(2025_I2P2_TowerDefense PRIVATE llama/include)
+target_link_libraries(2025_I2P2_TowerDefense llama)

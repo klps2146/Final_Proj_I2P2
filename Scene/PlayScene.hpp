@@ -36,6 +36,7 @@ public:
         TILE_HOME,
         TILE_STORE,
         TILE_FOUNTAIN,
+        TILE_BOSSROOM,
     };
     ALLEGRO_SAMPLE_ID bgmId;
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> deathBGMInstance;
@@ -53,6 +54,10 @@ public:
     int homeposi,homeposj;
     int homeset;
     int gohomekey = 0;
+
+    int bossroomposi,bossroomposj;
+    int bossroomset;
+    int gobossroomkey = 0;
 
     int storeposi,storeposj;
     int storeset;
@@ -124,6 +129,7 @@ public:
     Engine::Label *UIMoney;
     Engine::Label *UILives;
     Engine::Label *UIHome;
+    Engine::Label *UIBossroom;
     Engine::Label *UIStore;
     Engine::Image *imgTarget;
     Engine::Sprite *dangerIndicator;
@@ -147,6 +153,7 @@ public:
     void EarnMoney(int money);
     void ReadMap();
     void ReadHomeMap();
+    void ReadBossroomMap();
     void ReadEnemyWave();
     void ConstructUI();
     void UIBtnClicked(int id);

@@ -9,6 +9,7 @@
 build
 
 *.onnx
+*.gguf
 
 # MacOS
 .DS_Store

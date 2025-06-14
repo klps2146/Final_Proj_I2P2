@@ -10,7 +10,7 @@
 #include "UI/Animation/DirtyEffect.hpp"
 
 FireWeaponBullet::FireWeaponBullet(Engine::Point position, Engine::Point forwardDirection, float rotation, Weapon* parent)
-    : WeaponBullet("play/bullet-1.png", 500, 1, position, forwardDirection, rotation - ALLEGRO_PI / 2, parent) {
+    : WeaponBullet("play/Bullet-1.png", 500, 1, position, forwardDirection, rotation - ALLEGRO_PI / 2, parent) {
 }
 
 void FireWeaponBullet::OnExplode(Enemy* enemy) {

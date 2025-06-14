@@ -88,22 +88,22 @@ void PlayScene::Initialize() {
 
     ticks = 0;
     deathCountDown = -1;
-
-
-    
-
-    /*if(scenenum==1){
-        MapHeight = 18;
-    }*/
-    buying=false;
-    storeset=0;
-    
-
-    //// chracter
     lives = 5000;
     money = 666;
     SpeedMult = 1;
     homeset=0;
+    storeset=0;
+    bossroomset=0;
+    buying=false;
+
+
+
+    /*if(scenenum==1){
+        MapHeight = 18;
+    }*/
+    
+
+    //// chracter
     
     character = new Engine::Character("character/moving.png", 500, 500, 0, 0, 0.5f, 0.5f, 200, 32);
     character->SetSpriteSource(0, 0, 96, 96);
@@ -127,25 +127,30 @@ void PlayScene::Initialize() {
     std::ifstream fin("../Resource/whichscene.txt");
     char whichscene = '0';
     if (fin.is_open()) {
-        int skillnum = 3;
-        std::string money_record, hp_record, power_record, speed_record, level_record;
-        std::string  skill_level[3];
-        fin >> whichscene >> money_record >> hp_record >> power_record >> speed_record >> level_record;
+        const int skillnum = 6;
+        std::string money_record, hp_record, shield_record, power_record, speed_record, level_record;
+        std::string  skill_level[skillnum];
+        std::string  skill_unlock[skillnum];
+        fin >> whichscene >> money_record >> hp_record >> shield_record >> power_record >> speed_record >> level_record;
         for(int i=0;i<skillnum;i++)fin >> skill_level[i];
+        for(int i=0;i<skillnum;i++)fin >> skill_unlock[i];
         fin.close();
         money=std::stoi(money_record);
         character->HP=std::stoi(hp_record);
+        character->shield=std::stoi(shield_record);
         character->POWER=std::stoi(power_record);
         character->speed=std::stoi(speed_record);
         player_level=std::stoi(level_record);
-        
         for(int i=0;i<skillnum;i++)character->itemBar_.slots[i]->level=std::stoi(skill_level[i]);
+        for(int i=0;i<skillnum;i++)character->itemBar_.slots[i]->isUnlocked=(std::stoi(skill_unlock[i]) == 1 ? 1 : 0);
     } else {
         std::cerr << "Failed to read whichscene.txt" << std::endl;
     }
 
     // 設置場景編號
-    scenenum = (whichscene == '0') ? 0 : 1;
+    if(whichscene == '0')scenenum = 0;
+    if(whichscene == '1')scenenum = 1;
+    if(whichscene == '2')scenenum = 2;
 
     //// 小地圖
     miniMap = MiniMap(
@@ -183,8 +188,7 @@ void PlayScene::Initialize() {
     AddNewObject(WeaponBulletGroup = new Group());
     AddNewObject(EffectGroup = new Group());
     AddNewControlObject(UIGroup = new Group());
-
-    if(scenenum==0) ReadMap();
+    if(scenenum==0||scenenum==2) ReadMap();
     else if(scenenum==1) ReadHomeMap();
 
     ReadEnemyWave();
@@ -227,6 +231,18 @@ void PlayScene::Update(float deltaTime) {
         if(!(character->Position.x>homeposj*BlockSize-40 && character->Position.x<(homeposj+4)*BlockSize+40
             &&character->Position.y>homeposi*BlockSize-40 && character->Position.y<(homeposi+4)*BlockSize+40)) gohomekey=0;
     }
+
+    //go bossroom
+    if(gobossroomkey==0){
+        UIBossroom->Text = std::string("");
+        if(character->Position.x>bossroomposj*BlockSize-40 && character->Position.x<(bossroomposj+4)*BlockSize+40
+            &&character->Position.y>bossroomposi*BlockSize-40 && character->Position.y<(bossroomposi+4)*BlockSize+40) gobossroomkey=1;
+    }
+    if(gobossroomkey==1){
+        UIBossroom->Text = std::string("Press F to go bossroom");
+        if(!(character->Position.x>bossroomposj*BlockSize-40 && character->Position.x<(bossroomposj+4)*BlockSize+40
+            &&character->Position.y>bossroomposi*BlockSize-40 && character->Position.y<(bossroomposi+4)*BlockSize+40)) gobossroomkey=0;
+    }
     
     //go store
     if(gostorekey==0){
@@ -260,13 +276,14 @@ void PlayScene::Update(float deltaTime) {
     Engine::Point playerGrid(playerX, playerY);
     mapDistance = CalculateBFSDistance(playerGrid);
 
+    
     for (int i = 0; i < SpeedMult; i++) {
         if(!buying) IScene::Update(deltaTime);
         ticks += deltaTime;
         const float spawnInterval = 1.8; // 每2秒生成一隻敵人，可依需要調整
         static float spawnTimer = 0.0f;
         spawnTimer += deltaTime;
-        if (spawnTimer >= spawnInterval) {
+        if (spawnTimer >= spawnInterval && scenenum!=1) {
             spawnTimer -= spawnInterval;
             int type = rand() % 6 + 1; // 隨機產生 1~4 的敵人類型
             //const Engine::Point SpawnCoordinate = Engine::Point(SpawnGridPoint.x * BlockSize + BlockSize / 2, SpawnGridPoint.y * BlockSize + BlockSize / 2);
@@ -466,39 +483,33 @@ void PlayScene::OnKeyDown(int keyCode) {
         // Hotkey for Speed up.
         // SpeedMult = keyCode - ALLEGRO_KEY_0;
     }
-    if(gohomekey && keyCode == ALLEGRO_KEY_F){
-        // 讀取當前 whichscene.txt 的值
-        /*std::ifstream fin("../Resource/whichscene.txt");
-        char scenenum = '0'; // 默認值
-        if (fin.is_open()) {
-            fin >> scenenum;
-            fin.close();
-        } else {
-            std::cerr << "Failed to read whichscene.txt, using default '0'" << std::endl;
-        }*/
-
-        // 切換值：'0' -> '1', '1' -> '0'
-        char newScene = (scenenum == 0) ? '1' : '0';
-
+    if((gohomekey||gobossroomkey) && keyCode == ALLEGRO_KEY_F){
+        char newScene='1';
+        if(gohomekey)newScene = (scenenum == 1) ? '0' : '1';
+        else if(gobossroomkey) newScene =  '2';
+        else std::cout<<"errorrr\n";
+        
         // 寫入新的值到 whichscene.txt
         std::ofstream fout("../Resource/whichscene.txt", std::ios::trunc);
         if (fout.is_open()) {
-            fout << ((scenenum == 0) ? '1' : '0') << " "  // 切換場景編號
+            fout << newScene << " "  // 切換場景編號
                 << money << " "                          // 金幣
                 << character->HP << " "                  // 血量
+                << character->shield << " "              // 護盾
                 << character->POWER << " "               // 能量
                 << character->speed << " "               // 速度
-                << player_level<<" ";                    // 等級
+                << player_level<<"\n";                    // 等級
             int skillnum=character->itemBar_.slots.size();  //error, unkown reason       
-            skillnum=3;             
+            skillnum=6;             
             for(int i=0;i<skillnum-1;i++)fout <<character->itemBar_.slots[i]->level<<" ";
-            fout <<character->itemBar_.slots[skillnum-1]->level;
+            fout <<character->itemBar_.slots[skillnum-1]->level<<"\n";
+            for(int i=0;i<skillnum-1;i++)fout <<(character->itemBar_.slots[i]->getUnlock()? 1 : 0 )<<" ";
+            fout <<(character->itemBar_.slots[skillnum-1]->getUnlock()? 1 : 0 );
             fout.flush();
         } else {
             std::cerr << "Failed to save game data!" << std::endl;
             return;
         }
-
         // 切換場景
         Engine::GameEngine::GetInstance().ChangeScene("play");
     }
@@ -536,6 +547,7 @@ void PlayScene::ReadMap() {
     //
     if(scenenum=='0') filename = std::string("Resource/map") + std::to_string(MapId) + ".txt";
     else if(scenenum=='1') filename = std::string("Resource/homemap.txt");
+    else if(scenenum=='2') filename = std::string("Resource/bossmap.txt");
     // Read map file.
     char c;
     std::vector<int> mapData;
@@ -663,6 +675,7 @@ void PlayScene::ReadHomeMap() {
             case '6': mapData.push_back(6); break;
             case '7': mapData.push_back(7); break;
             case '8': mapData.push_back(8); break;
+            case '9': mapData.push_back(9); break;
             case '\n':
             case '\r':
                 if (static_cast<int>(mapData.size()) / MapWidth != 0)
@@ -687,9 +700,9 @@ void PlayScene::ReadHomeMap() {
             const int num = mapData[i * MapWidth + j];
             if (num == 0) {
                 mapState[i][j] = TILE_GRASS;
-            } else if (num == 1) {
+            } else if (num == 1 || num==9 ) {
                 mapState[i][j] = TILE_GRASS;
-            } else if (num == 2 || num==7 || num==8) {
+            } else if (num == 2 || num==7) {
                 mapState[i][j] = TILE_ROCK;
             } else if (num == 3) {
                 mapState[i][j] = TILE_BRIDGE;
@@ -710,6 +723,13 @@ void PlayScene::ReadHomeMap() {
             }
             else if (num == 6) {
                 mapState[i][j] = TILE_ROCK;
+            }else if (num == 8) {
+                mapState[i][j] = TILE_BOSSROOM;
+                if (!bossroomset) {
+                    bossroomposi = i;
+                    bossroomposj = j;
+                    bossroomset = 1;
+                }
             }
         }
     }
@@ -737,14 +757,18 @@ void PlayScene::ReadHomeMap() {
                 TileMapGroup->AddNewObject(new Engine::Image("play/plant.png", j * BlockSize, (i-1) * BlockSize, BlockSize, 2*BlockSize));
             }if (num == 8) {
                 TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-                TileMapGroup->AddNewObject(new Engine::Image("play/bossroom.png", (j-4.5) * BlockSize, (i-2) * BlockSize,6* BlockSize, 4*BlockSize));
+            }if (num == 9) {
+                TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                TileMapGroup->AddNewObject(new Engine::Image("play/skull.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
             }
         }
     }
     if (homeset) TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
     if (storeset) TileMapGroup->AddNewObject(new Engine::Image("play/store.png", storeposj * BlockSize, storeposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
+    if (bossroomset) TileMapGroup->AddNewObject(new Engine::Image("play/bossroom.png", bossroomposj * BlockSize, bossroomposi * BlockSize, 4.9 * BlockSize, 4 * BlockSize));
     drawedgebush();
 }
+
 void PlayScene::drawedgebush(){
     for (int layer = 0; layer < 1; layer++) {
         // Vertical edges (left and right)
@@ -865,6 +889,7 @@ void PlayScene::ConstructUI() {
     UIGroup->AddNewObject(UIMoney = new Engine::Label(std::to_string(money), "pirulen.ttf", 24, 46, 48));
     /*if(gohomekey==1)*/ UIGroup->AddNewObject(UIHome = new Engine::Label(std::string(""), "pirulen.ttf", 24,  600, 600));
     UIGroup->AddNewObject(UIStore = new Engine::Label(std::string(""), "pirulen.ttf", 24,  600, 600));
+    UIGroup->AddNewObject(UIBossroom = new Engine::Label(std::string(""), "pirulen.ttf", 24,  600, 600));
 
     //// new
     UIGroup->AddNewObject(player_exp_l = new Engine::Label(std::string("EXP ") + std::to_string((int)player_exp) + "/" + std::to_string((int)level_req.front()), "pirulen.ttf", 24, 12, 130));
@@ -969,7 +994,7 @@ void PlayScene::SpawnCoin(float x, float y, int value) {
     GroundEffectGroup->AddNewObject(new Coin(this, x, y, value));
 }
 bool PlayScene::tile_crossable(int t) {
-    if(t==0||t==2||t==5||t==6)return 0;
+    if(t==0||t==2||t==5||t==6||t==8)return 0;
     return 1;
 }
 

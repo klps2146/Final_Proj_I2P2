@@ -12,5 +12,5 @@ NuclearSkill::NuclearSkill()
 void NuclearSkill::SkillAnimation() {
     PlayScene* scene = getPlayScene();
     scene->UIGroup->AddNewObject(new Plane);
-    scene->character->ChangeHP(-1990);
+    scene->character->ChangeHP(-9999);
 }

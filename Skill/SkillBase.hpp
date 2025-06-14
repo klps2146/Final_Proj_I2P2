@@ -12,11 +12,12 @@ protected:
     std::string name;
     float CDTimer;
     float maxCD;
-    bool isUnlocked;
+    
 
     float PowerExpense = 0;
 
 public:
+    bool isUnlocked;
     int level = 1;
     int MaxLevel = 5;
     std::queue<int> upgradeExpenseMoney; 

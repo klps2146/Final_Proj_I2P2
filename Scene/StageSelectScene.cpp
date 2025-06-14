@@ -78,7 +78,7 @@ void StageSelectScene::PlayOnClick(int stage) {
     //
     std::ofstream fout("../Resource/whichscene.txt");
     if (fout.is_open()) {
-        fout << "0 666 14000 12000 200 1 1 1 1"; // 設為 homemap.txt
+        fout << "0 66666 14000 110 12000 200 1\n1 1 1 1 1 1\n1 1 0 0 0 0"; // 設為 homemap.txt
         fout.close();
     } else {
         std::cerr << "Failed to open whichscene.txt for writing" << std::endl;
