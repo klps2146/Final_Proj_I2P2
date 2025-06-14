@@ -3,11 +3,11 @@
 ## Features
 - [Easy]
   - Minimap
-  - Camera Movement
   - Allow ALL keys include shift in chatAI
 - [Medium]
   - Skill System
   - Funny Skills
+  - Camera Movement
   - Weapon
   - Enemy
 - [Hard] 
@@ -30,10 +30,11 @@
 - Control in Chat Chat
   - The keyboard uses the standard layout you're familiar with.
   - 'Esc' to leave Chat Chat.
-  - 
+  
   > ⚠️ **Warning:**
   > 1. Sufficient memory and a powerful CPU are required to run the local AI model; otherwise, you may encounter several errors.
   > 2. The AI model is not provided in this repository. Please choose one yourself; otherwise, you will be unable to enter Chat Chat.
+
 ## Individual Contribution 
 - 113062208 黃柏睿 (): 
   - 地圖圖片、奇怪的圖片
