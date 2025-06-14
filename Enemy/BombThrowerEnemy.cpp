@@ -5,7 +5,7 @@
 #include "Engine/Point.hpp"
 
 BombThrowerEnemy::BombThrowerEnemy(float x, float y) 
-    : Enemy("play/enemy-5.png", x, y, 20.0f, 50.0f, 100.0f, 10), throwInterval(20.0f), throwTimer(0.0f) {
+    : Enemy("play/monster1.png", x, y, 20.0f, 50.0f, 100.0f, 10), throwInterval(20.0f), throwTimer(0.0f) {
     // 初始化敵人屬性，圖片路徑、位置、半徑、速度、血量、傷害
     dmg = 40.0f;
 }

@@ -34,7 +34,7 @@
 #include "Scene/PlayScene.hpp"
 #include <cmath> // 為了使用 atan2
 
-ShootEnemy::ShootEnemy(int x, int y) : Enemy("play/enemy-7.png", x, y, 10, 80, 5, 5), shootTimer(0), shootInterval(2.0f) {
+ShootEnemy::ShootEnemy(int x, int y) : Enemy("play/monster5.png", x, y, 10, 80, 5, 5), shootTimer(0), shootInterval(2.0f) {
     dmg = 6;
 }
 
