@@ -53,7 +53,7 @@ void Boss1::Shoot() {
             bulletDirection = bulletDirection.Normalize();
             float speed = 350.0f;
             Engine::Point velocity = bulletDirection * speed;
-            float damage = 15.0f;
+            float damage = 300.0f;
             Engine::EnemyBullet2* bullet = new Engine::EnemyBullet2(Position.x, Position.y, velocity, damage);
             scene->BulletGroup->AddNewObject(bullet);
         }

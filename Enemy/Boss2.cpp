@@ -37,7 +37,7 @@ void Boss2::ThrowBomb() {
             Engine::Point direction(std::cos(finalAngle), std::sin(finalAngle));
             Engine::Point velocity = direction * speed;
 
-            SimpleBomb* bomb = new SimpleBomb("play/bomb2.png", bombX, bombY, 50.0f, 10.0f, explosionDelay, velocity);
+            SimpleBomb* bomb = new SimpleBomb("play/bomb2.png", bombX, bombY, 100.0f, 200.0f, explosionDelay, velocity);
             scene->AddNewObject(bomb);
         }
     }
