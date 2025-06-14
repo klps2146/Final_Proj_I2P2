@@ -4,7 +4,8 @@
 #include "Skill/SummonDroneSkill.hpp"
 #include "UI/Component/Label.hpp"
 #include "UI/Component/ColoredRectangle.hpp"
-
+#include "Scene/PlayScene.hpp"
+#include "Engine/GameEngine.hpp"
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro5.h>
 #include <iostream>
@@ -72,12 +73,18 @@ void ItemBar::SelectSlot(int index) {
         selectedIndex = index;
 }
 #include <iostream>
+
 void ItemBar::OnKeyDown(int keyCode) {
     if (selectedIndex + ALLEGRO_KEY_1 == keyCode){ // 連按
         std::cout << "AAA " << selectedIndex << std::endl;
-        if (GetSelectedSkill()){
-            GetSelectedSkill()->Activate();
-            std::cout << "BBB " << selectedIndex << std::endl;
+        if (GetSelectedSkill() && getPlayScene()){
+            if (getPlayScene()->scenenum != 2){
+                GetSelectedSkill()->Activate();
+                std::cout << "BBB " << selectedIndex << std::endl;
+            }
+            else{
+                getPlayScene()->SkillWarn->Text = "Skills Are BANNED Here";
+            }
         }
     }
     if (keyCode >= ALLEGRO_KEY_1 && keyCode <= ALLEGRO_KEY_1 + SlotAmount - 1)
@@ -87,4 +94,7 @@ void ItemBar::OnKeyDown(int keyCode) {
 
 SkillBase* ItemBar::GetSelectedSkill() const {
     return slots[selectedIndex];
+}
+PlayScene *ItemBar::getPlayScene() {
+    return dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetActiveScene());
 }

@@ -62,6 +62,7 @@ namespace Engine {
         /// </summary>
         void SetSpriteSource(float sx, float sy, float sw, float sh);
         void SetSize(float w, float h);
+        void SetImage(const std::string& img); // 新增的聲明
     };
 }
 #endif   // SPRITE_HPP

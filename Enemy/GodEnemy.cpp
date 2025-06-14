@@ -9,7 +9,7 @@
 const float set_HP = 600;
 
 GodEnemy::GodEnemy(int x, int y)
-    : Enemy("play/enemy-6.png", x, y, 20, 20, set_HP, 250),
+    : Enemy("play/boss.png", x, y, 20, 20, set_HP, 250),
       head("play/enemy-10.png", x, y), 
       buff_picture("play/gold-circle.png", x, y, buff_radus * 2, buff_radus * 2), targetRotation(0) {
     buff_picture.Visible = false;

@@ -77,6 +77,18 @@ namespace Engine {
         Position.x += Velocity.x * deltaTime;
         Position.y += Velocity.y * deltaTime;
     }
+
+    void Sprite::SetImage(const std::string& img) {
+        // 加載新的 bitmap
+        ALLEGRO_BITMAP* newBitmap = al_load_bitmap(img.c_str());
+        if (!newBitmap) {
+            // 如果加載失敗，記錄錯誤（這裡假設有個日誌系統）
+            // 你可以根據你的引擎設計添加錯誤處理
+            return;
+        }
+        // 更新 bmp，使用 shared_ptr 管理記憶體
+        bmp = std::shared_ptr<ALLEGRO_BITMAP>(newBitmap, al_destroy_bitmap);
+    }
 }
 
 
