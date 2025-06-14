@@ -18,6 +18,21 @@ void SimpleBomb::Explode() {
     }
     // 添加爆炸效果
     scene->EffectGroup->AddNewObject(new ExplosionEffect(Position.x, Position.y));
+    scene->EffectGroup->AddNewObject(new ExplosionEffect(Position.x+30, Position.y));
+    scene->EffectGroup->AddNewObject(new ExplosionEffect(Position.x-30, Position.y));
+    scene->EffectGroup->AddNewObject(new ExplosionEffect(Position.x, Position.y+30));
+    scene->EffectGroup->AddNewObject(new ExplosionEffect(Position.x, Position.y-30));
+   
+    scene->EffectGroup->AddNewObject(new ExplosionEffect(Position.x+60, Position.y));
+    scene->EffectGroup->AddNewObject(new ExplosionEffect(Position.x-60, Position.y));
+    scene->EffectGroup->AddNewObject(new ExplosionEffect(Position.x, Position.y+60));
+    scene->EffectGroup->AddNewObject(new ExplosionEffect(Position.x, Position.y-60));
+   
+    scene->EffectGroup->AddNewObject(new ExplosionEffect(Position.x+52, Position.y+58));
+    scene->EffectGroup->AddNewObject(new ExplosionEffect(Position.x-54, Position.y+56));
+    scene->EffectGroup->AddNewObject(new ExplosionEffect(Position.x+57, Position.y-54));
+    scene->EffectGroup->AddNewObject(new ExplosionEffect(Position.x-53, Position.y-58));
+
     // 播放音效
     //AudioHelper::PlayAudio("explosion.wav");
     // 移除炸彈

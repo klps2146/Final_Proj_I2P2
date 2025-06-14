@@ -1,6 +1,7 @@
 #include "Boss1.hpp"
 #include "Scene/PlayScene.hpp"
 #include "Engine/GameEngine.hpp"
+#include "Engine/AudioHelper.hpp"
 Boss1::Boss1(float x, float y)
     : BossEnemy("play/boss1.png", x, y, 30.0f, 200.0f, 1000.0f, 50), shootTimer(0), shootInterval(1.5f) {
     dmg = 10;
@@ -28,8 +29,8 @@ void Boss1::Shoot() {
         float startAngle = -90.0f;       // 從 -90 度開始到 +90 度結束
         
         // 將角度轉換為弧度，因為三角函數需要弧度
-        float startAngleRad = startAngle * (3.1415926f / 180.0f);
-        float angleIncrementRad = angleIncrement * (3.1415926f / 180.0f);
+        float startAngleRad = startAngle * (M_PI / 180.0f);
+        float angleIncrementRad = angleIncrement * (M_PI / 180.0f);
         
         // 計算旋轉角度，使半圓對齊朝向玩家的方向
         float cosTheta = direction.x;    // 朝向玩家的方向 x 分量
@@ -53,10 +54,12 @@ void Boss1::Shoot() {
             bulletDirection = bulletDirection.Normalize();
             float speed = 350.0f;
             Engine::Point velocity = bulletDirection * speed;
-            float damage = 15.0f;
+            float damage = 300.0f;
             Engine::EnemyBullet2* bullet = new Engine::EnemyBullet2(Position.x, Position.y, velocity, damage);
+            
             scene->BulletGroup->AddNewObject(bullet);
         }
+        AudioHelper::PlaySample("star.wav", false, 5.0);
 
         
     }
@@ -70,6 +73,6 @@ void Boss1::Update(float deltaTime) {
         shootTimer = 0;
     }
     if (hp <= 0) {
-        // SetBossStatus(1, false);
+        SetBossStatus(1, false);
     }
 }

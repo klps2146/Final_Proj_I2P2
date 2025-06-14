@@ -358,8 +358,6 @@ void BossEnemy::HandlePlayerCollision() {
     scene->Hit(dmg);
 }
 
-
-#include <iostream>
 void BossEnemy::Hit(float damage, bool byplayer) {
     // Prevent damage to Boss1 and Boss2 if Boss3 is alive
     if ((dynamic_cast<Boss1*>(this) || dynamic_cast<Boss2*>(this)) && boss3_alive) {
@@ -372,10 +370,10 @@ void BossEnemy::Hit(float damage, bool byplayer) {
         OnExplode();
 
         if (dynamic_cast<Boss1*>(this)) {
-            // SetBossStatus(1, false);
+            SetBossStatus(1, false);
             std::cout << "Boss1 removed, boss1_alive set to false" << std::endl;
         } else if (dynamic_cast<Boss2*>(this)) {
-            // SetBossStatus(2, false);
+            SetBossStatus(2, false);
             std::cout << "Boss2 removed, boss2_alive set to false" << std::endl;
         } else if (dynamic_cast<Boss3*>(this)) {
             SetBossStatus(3, false);
@@ -385,15 +383,13 @@ void BossEnemy::Hit(float damage, bool byplayer) {
             getPlayScene()->player_exp += money * 1.945;
             getPlayScene()->SpawnCoin(Position.x, Position.y, money);
         }
-        getPlayScene()->EnemyGroup->RemoveObject(objectIterator);
 
+        getPlayScene()->EnemyGroup->RemoveObject(objectIterator);
     }
-    // if (hp <= 0){
-    // }
 }
 
 void BossEnemy::DrawSharedHealthBar() const {
-    const float barWidth = 300;
+    const float barWidth = 500;
     const float barHeight = 20;
     const float offsetY = 50;
     float healthPercent = shared_hp / 3000.0f;
@@ -402,7 +398,7 @@ void BossEnemy::DrawSharedHealthBar() const {
     ALLEGRO_COLOR bgColor = al_map_rgb(100, 100, 100);
     ALLEGRO_COLOR frontColor = al_map_rgb(255, 0, 0);
 
-    float barX = getPlayScene()->GetClientSize().x / 2 - barWidth / 2;
+    float barX = getPlayScene()->GetClientSize().x / 2 - barWidth / 2 - 500;
     float barY = offsetY;
 
     al_draw_filled_rectangle(barX, barY, barX + barWidth, barY + barHeight, bgColor);

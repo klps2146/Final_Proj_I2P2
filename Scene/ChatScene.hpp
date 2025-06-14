@@ -31,6 +31,7 @@ private:
 
     void save_date();
 public:
+    int state = 1;
     const int MAX_LINES = 10;
     void AddChatLine(const std::string& message, bool isUser);
     void SendUserMessage(const std::string& message);

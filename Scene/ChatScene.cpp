@@ -17,6 +17,8 @@
 #include "Engine/SpriteFixed.hpp"
 
 void ChatScene::Initialize() {
+    state= 1;
+
     ticks = 0;
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;
@@ -29,6 +31,7 @@ void ChatScene::Initialize() {
         if (!InitLlamaChat(modelPath)) {
             std::cerr << "Failed to initialize LLaMA model.\n";
             AddChatLine("[Error] Unable to load AI model.", false);
+            state = 0;
         }
         
     } catch (const std::bad_alloc& e) {
@@ -162,6 +165,8 @@ void ChatScene::Terminate() {
 
 void ChatScene::Update(float deltaTime) {
     ticks += deltaTime;
+    if (!state)
+    BackOnClick(0);
     // if (ticks > 4 && ticks < 100 &&
     //     dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetScene("play"))->MapId == 2) {
     //     ticks = 100;

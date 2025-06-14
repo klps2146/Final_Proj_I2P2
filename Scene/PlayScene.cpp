@@ -101,6 +101,7 @@ void PlayScene::Initialize() {
     homeset=0;
     storeset=0;
     bossroomset=0;
+    fountainset=0;
     buying=false;
 
 
@@ -248,10 +249,25 @@ void PlayScene::Update(float deltaTime) {
         if(character->Position.x>bossroomposj*BlockSize-40 && character->Position.x<(bossroomposj+4)*BlockSize+40
             &&character->Position.y>bossroomposi*BlockSize-40 && character->Position.y<(bossroomposi+4)*BlockSize+40) gobossroomkey=1;
     }
-    if(gobossroomkey==1){
+    if(gobossroomkey==1 && scenenum==1){
         UIBossroom->Text = std::string("Press F to go bossroom");
         if(!(character->Position.x>bossroomposj*BlockSize-40 && character->Position.x<(bossroomposj+4)*BlockSize+40
             &&character->Position.y>bossroomposi*BlockSize-40 && character->Position.y<(bossroomposi+4)*BlockSize+40)) gobossroomkey=0;
+    }
+
+    //go fountain
+    if(fountainkey==0){
+        
+        UIFountain->Text = std::string("");
+        UIShit->Text = std::string("");
+        if(character->Position.x>fountainposj*BlockSize-40 && character->Position.x<(fountainposj+4)*BlockSize+40
+            &&character->Position.y>fountainposi*BlockSize-40 && character->Position.y<(fountainposi+4)*BlockSize+40) fountainkey=1;
+    }
+    if(fountainkey==1 && scenenum==1){
+        UIFountain->Text = std::string("Press F to drink fountain water");
+        UIShit->Text = std::string("Press G to shit in the fountain");
+        if(!(character->Position.x>fountainposj*BlockSize-40 && character->Position.x<(fountainposj+4)*BlockSize+40
+            &&character->Position.y>fountainposi*BlockSize-40 && character->Position.y<(fountainposi+4)*BlockSize+40)) fountainkey=0;
     }
     
     //go store
@@ -260,7 +276,7 @@ void PlayScene::Update(float deltaTime) {
         if(character->Position.x>storeposj*BlockSize-40 && character->Position.x<(storeposj+4)*BlockSize+40
             &&character->Position.y>storeposi*BlockSize-40 && character->Position.y<(storeposi+4)*BlockSize+40) gostorekey=1;
     }
-    if(gostorekey==1){
+    if(gostorekey==1  && scenenum==1){
         UIStore->Text = std::string("Press F to go store");
         if(!(character->Position.x>storeposj*BlockSize-40 && character->Position.x<(storeposj+4)*BlockSize+40
             &&character->Position.y>storeposi*BlockSize-40 && character->Position.y<(storeposi+4)*BlockSize+40)) gostorekey=0;
@@ -292,98 +308,46 @@ void PlayScene::Update(float deltaTime) {
         bossAlive = true;
         SpawnBosses();
     }
-    bossAlive = false;
-    for (auto& it : EnemyGroup->GetObjects()) {
-        if (dynamic_cast<BossEnemy*>(it)) {
-            bossAlive = true;
-            std::cout << "檢查boss\n";
-            break;
-        }
-    }
     
     for (int i = 0; i < SpeedMult; i++) {
         if(!buying) IScene::Update(deltaTime);
         ticks += deltaTime;
-
-        // 只有在Boss不在場上時生成小怪
-        if (!bossAlive) {
-            const float spawnInterval = 2.0f;
-            static float spawnTimer = 0.0f;
-            spawnTimer += deltaTime;
-            if (spawnTimer >= spawnInterval && scenenum!=1 && scenenum!=2) {
-                spawnTimer -= spawnInterval;
-                int type = rand() % 6 + 1;
-                Engine::Point spawnPos = GetValidSpawnPoint();
-                Enemy* enemy;
-                switch (type) {
-                    case 1:
-                        EnemyGroup->AddNewObject(enemy = new SoldierEnemy(spawnPos.x, spawnPos.y));
-                        break;
-                    case 2:
-                        EnemyGroup->AddNewObject(enemy = new PlaneEnemy(spawnPos.x, spawnPos.y));
-                        break;
-                    case 3:
-                        EnemyGroup->AddNewObject(enemy = new TankEnemy(spawnPos.x, spawnPos.y));
-                        break;
-                    case 4:
-                        EnemyGroup->AddNewObject(enemy = new GodEnemy(spawnPos.x, spawnPos.y));
-                        break;
-                    case 5:
-                        EnemyGroup->AddNewObject(enemy = new ShootEnemy(spawnPos.x, spawnPos.y));
-                        break;
-                    case 6:
-                        EnemyGroup->AddNewObject(enemy = new BombThrowerEnemy(spawnPos.x, spawnPos.y));
-                        break;
-                    default:
-                        continue;
-                }
-                std::cout << "Enemy" << type << " spawned at position: (" 
-                          << spawnPos.x << ", " << spawnPos.y << ")\n";
-                enemy->Update(ticks);  
-               
+        const float spawnInterval = 2.0f;
+        static float spawnTimer = 0.0f;
+        spawnTimer += deltaTime;
+        if (spawnTimer >= spawnInterval && scenenum!=1 && scenenum!=2) {
+            spawnTimer -= spawnInterval;
+            int type = rand() % 6 + 1;
+            Engine::Point spawnPos = GetValidSpawnPoint();
+            Enemy* enemy;
+            switch (type) {
+                case 1:
+                    EnemyGroup->AddNewObject(enemy = new SoldierEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                case 2:
+                    EnemyGroup->AddNewObject(enemy = new PlaneEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                case 3:
+                    EnemyGroup->AddNewObject(enemy = new TankEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                case 4:
+                    EnemyGroup->AddNewObject(enemy = new GodEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                case 5:
+                    EnemyGroup->AddNewObject(enemy = new ShootEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                case 6:
+                    EnemyGroup->AddNewObject(enemy = new BombThrowerEnemy(spawnPos.x, spawnPos.y));
+                    break;
+                default:
+                    continue;
             }
+            std::cout << "Enemy" << type << " spawned at position: (" 
+                        << spawnPos.x << ", " << spawnPos.y << ")\n";
+            enemy->Update(ticks);  
+            
         }
     }
-
-    // for (int i = 0; i < SpeedMult; i++) {
-    //     IScene::Update(deltaTime);
-    //     ticks += deltaTime;
-    //     const float spawnInterval = 0.5; // 每2秒生成一隻敵人，可依需要調整
-    //     static float spawnTimer = 0.0f;
-    //     spawnTimer += deltaTime;
-    //     if (spawnTimer >= spawnInterval) {
-    //         spawnTimer -= spawnInterval;
-    //         int type = rand() % 6 + 1; // 隨機產生 1~4 的敵人類型
-    //         //const Engine::Point SpawnCoordinate = Engine::Point(SpawnGridPoint.x * BlockSize + BlockSize / 2, SpawnGridPoint.y * BlockSize + BlockSize / 2);
-    //         Enemy *enemy;
-    //         Engine::Point spawnPos = GetValidSpawnPoint();
-
-    //         switch (type) {
-    //             case 1:
-    //                 EnemyGroup->AddNewObject(enemy = new SoldierEnemy(spawnPos.x, spawnPos.y));
-    //                 break;
-    //             case 2:
-    //                 EnemyGroup->AddNewObject(enemy = new PlaneEnemy(spawnPos.x, spawnPos.y));
-    //                 break;
-    //             case 3:
-    //                 EnemyGroup->AddNewObject(enemy = new TankEnemy(spawnPos.x, spawnPos.y));
-    //                 break;
-    //             case 4:
-    //                 EnemyGroup->AddNewObject(enemy = new GodEnemy(spawnPos.x, spawnPos.y));
-    //                 break;
-    //             case 5:
-    //                 EnemyGroup->AddNewObject(enemy = new ShootEnemy(spawnPos.x, spawnPos.y));
-    //             case 6:
-    //                 EnemyGroup->AddNewObject(enemy = new BombThrowerEnemy(spawnPos.x, spawnPos.y));
-    //             default:
-    //                 continue;
-    //         }
-    //         std::cout << "Enemy" << type << "spawned at position: (" 
-    //         << spawnPos.x << ", " << spawnPos.y << ")\n";
-    //         enemy->Update(ticks);
-
-    //     }
-    // }
     if (preview) {
         preview->Position = Engine::GameEngine::GetInstance().GetMousePosition();
         preview->Update(deltaTime);
@@ -399,7 +363,7 @@ void PlayScene::SpawnBosses() {
     Boss1* boss1 = new Boss1(spawnPos1.x, spawnPos1.y);
     Boss2* boss2 = new Boss2(spawnPos2.x, spawnPos2.y);
     Boss3* boss3 = new Boss3(spawnPos3.x, spawnPos3.y);
-
+    
     EnemyGroup->AddNewObject(boss1);
     EnemyGroup->AddNewObject(boss2);
     EnemyGroup->AddNewObject(boss3);
@@ -410,11 +374,7 @@ void PlayScene::Draw() const {
     IScene::Draw();
     //// new
     character->Draw();
-    // if (character->IsAlive()) {
-    //     character->DrawBars();
-    //     gun->Draw();
-    //     sword->Draw();
-    // }
+
 
     if (character->IsAlive()) {
         character->DrawBars();
@@ -547,13 +507,25 @@ void PlayScene::OnKeyDown(int keyCode) {
         // gun->isActive = false;
         // sword->isActive = true;
     }
-
                     
     else if (keyCode >= ALLEGRO_KEY_0 && keyCode <= ALLEGRO_KEY_9) {
         // Hotkey for Speed up.
         // SpeedMult = keyCode - ALLEGRO_KEY_0;
     }
-    if((gohomekey||gobossroomkey) && keyCode == ALLEGRO_KEY_F){
+
+    if(fountainkey && keyCode == ALLEGRO_KEY_G){
+        shit=1;
+        TileMapGroup->AddNewObject(new Engine::Image("play/shitfountain.png", fountainposj * BlockSize, fountainposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
+
+    }
+
+    if(fountainkey && keyCode == ALLEGRO_KEY_F){
+        //gain power
+        character->ChangePOWER(100);
+        if(shit)character->ChangeHP(-100);
+    }
+
+    if((gohomekey||(gobossroomkey && scenenum==1)) && keyCode == ALLEGRO_KEY_F){
         char newScene='1';
         if(gohomekey)newScene = (scenenum == 1) ? '0' : '1';
         else if(gobossroomkey) newScene =  '2';
@@ -590,11 +562,12 @@ void PlayScene::OnKeyDown(int keyCode) {
     }*/
 
     //bulid store
-    if(gostorekey && keyCode == ALLEGRO_KEY_F) buying =! buying;
+    if(scenenum==1 && gostorekey && keyCode == ALLEGRO_KEY_F) buying =! buying;
 }
 void PlayScene::Hit(float damage) {
     lives--;
     character->ChangeHP(-1 * damage);
+    AudioHelper::PlaySample("hurt.wav", false, 5.0);
     if (lives <= 0) {
         Engine::GameEngine::GetInstance().ChangeScene("lose");
     }
@@ -792,7 +765,12 @@ void PlayScene::ReadHomeMap() {
                 }
             }
             else if (num == 6) {
-                mapState[i][j] = TILE_ROCK;
+                mapState[i][j] = TILE_FOUNTAIN;
+                if (!fountainset) {
+                    fountainposi = i;
+                    fountainposj = j;
+                    fountainset = 1;
+                }
             }else if (num == 8) {
                 mapState[i][j] = TILE_BOSSROOM;
                 if (!bossroomset) {
@@ -821,7 +799,7 @@ void PlayScene::ReadHomeMap() {
                 TileMapGroup->AddNewObject(new Engine::Image("play/stonebridge.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
             }if (num == 6) {
                 TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-                TileMapGroup->AddNewObject(new Engine::Image("play/fountain.png", (j-3) * BlockSize, (i-3) * BlockSize, 4*BlockSize, 4*BlockSize));
+                //TileMapGroup->AddNewObject(new Engine::Image("play/fountain.png", (j-3) * BlockSize, (i-3) * BlockSize, 4*BlockSize, 4*BlockSize));
             }if (num == 7) {
                 TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
                 TileMapGroup->AddNewObject(new Engine::Image("play/plant.png", j * BlockSize, (i-1) * BlockSize, BlockSize, 2*BlockSize));
@@ -836,13 +814,14 @@ void PlayScene::ReadHomeMap() {
     if (homeset) TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
     if (storeset) TileMapGroup->AddNewObject(new Engine::Image("play/store.png", storeposj * BlockSize, storeposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
     if (bossroomset) TileMapGroup->AddNewObject(new Engine::Image("play/bossroom.png", bossroomposj * BlockSize, bossroomposi * BlockSize, 4.9 * BlockSize, 4 * BlockSize));
+    if (fountainset) TileMapGroup->AddNewObject(new Engine::Image("play/fountain.png", fountainposj * BlockSize, fountainposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
     drawedgebush();
 }
 
 void PlayScene::drawedgebush(){
     for (int layer = 0; layer < 1; layer++) {
         // Vertical edges (left and right)
-        for (int i = -layer; i < MapHeight + layer; i++) {
+        for (int i =   -layer; i < MapHeight + layer; i++) {
             int j = -1 - layer; // Left edge
             TileMapGroup->AddNewObject(new Engine::Image("play/grass.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
             TileMapGroup->AddNewObject(new Engine::Image("play/verti_bush.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
@@ -872,7 +851,7 @@ void PlayScene::drawedgebush(){
 
 
     // Add five layers of edge forest
-    for (int layer = 1; layer < 2; layer++) {
+    for (int layer = 1; layer < 15; layer++) {
         // Vertical edges (left and right)
         for (int i = -layer; i < MapHeight + layer; i++) {
             int j = -1 - layer; // Left edge
@@ -952,6 +931,7 @@ void PlayScene::ConstructUI() {
 
     UIGroup->AddNewObject(new ColoredRectangle(0, 0, 200, 220, al_map_rgba(255, 255, 255, 70),2.0f, al_map_rgba(255, 255, 255, 1)));
 
+
     UIGroup->AddNewObject(new Engine::Label(std::string("Stage ") + std::to_string(MapId), "pirulen.ttf", 32, 12, 0));
     UIGroup->AddNewObject(SkillWarn = new Engine::Label(std::string("") , "pirulen.ttf", 19, Engine::GameEngine::GetInstance().GetScreenSize().x / 2, Engine::GameEngine::GetInstance().GetScreenSize().y - 17, 255, 10, 10, 220, 0.5f, 0.5f));
 
@@ -960,6 +940,8 @@ void PlayScene::ConstructUI() {
     /*if(gohomekey==1)*/ UIGroup->AddNewObject(UIHome = new Engine::Label(std::string(""), "pirulen.ttf", 24,  600, 600));
     UIGroup->AddNewObject(UIStore = new Engine::Label(std::string(""), "pirulen.ttf", 24,  600, 600));
     UIGroup->AddNewObject(UIBossroom = new Engine::Label(std::string(""), "pirulen.ttf", 24,  600, 600));
+    UIGroup->AddNewObject(UIFountain = new Engine::Label(std::string(""), "pirulen.ttf", 24,  500, 600));
+    UIGroup->AddNewObject(UIShit = new Engine::Label(std::string(""), "pirulen.ttf", 24,  500, 650));
 
     //// new
     UIGroup->AddNewObject(player_exp_l = new Engine::Label(std::string("EXP ") + std::to_string((int)player_exp) + "/" + std::to_string((int)level_req.front()), "pirulen.ttf", 24, 12, 130));

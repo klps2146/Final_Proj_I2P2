@@ -15,7 +15,6 @@
 #include "Drop/coin.hpp" // 新增 coin.hpp 包含
 #include "Store/Store.hpp"
 #include "Minimap/Minimap.hpp"
-
 class Turret;
 namespace Engine {
     class Group;
@@ -58,10 +57,19 @@ public:
     int bossroomset;
     int gobossroomkey = 0;
 
+    int fountainposi,fountainposj;
+    int fountainset;
+    int fountainkey = 0;
+
     int storeposi,storeposj;
     int storeset;
     int gostorekey = 0;
     bool buying;
+
+    bool shit=0;
+
+    bool isBossActive;  // 新增：標誌位，表示 Boss 是否活躍
+   // Boss* currentBoss;  // 新增：指向當前活躍的 Boss
 
     float turret_coin_mul = 1.0f; 
     float turret_coolDown_mul = 1.0f;
@@ -130,7 +138,10 @@ public:
     Engine::Label *UILives;
     Engine::Label *UIHome;
     Engine::Label *UIBossroom;
+    Engine::Label *UIFountain;
+    Engine::Label *UIShit;
     Engine::Label *UIStore;
+    Engine::Image *UItextborad;
     Engine::Image *imgTarget;
     Engine::Sprite *dangerIndicator;
     Turret *preview;
@@ -153,7 +164,6 @@ public:
     void EarnMoney(int money);
     void ReadMap();
     void ReadHomeMap();
-    void ReadBossroomMap();
     void ReadEnemyWave();
     void ConstructUI();
     void UIBtnClicked(int id);
