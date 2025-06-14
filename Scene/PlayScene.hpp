@@ -15,8 +15,6 @@
 #include "Drop/coin.hpp" // 新增 coin.hpp 包含
 #include "Store/Store.hpp"
 #include "Minimap/Minimap.hpp"
-#include "Enemy/Boss.hpp"
-
 class Turret;
 namespace Engine {
     class Group;
@@ -111,6 +109,11 @@ public:
     static const Engine::Point SpawnGridPoint;
     static const Engine::Point EndGridPoint;
     static const std::vector<int> code;
+
+
+    bool bossSpawned; // 是否已生成Boss
+    bool bossAlive;   // 是否有Boss存活
+
     int MapId;
     float ticks;
     float deathCountDown;
@@ -169,6 +172,7 @@ public:
     std::vector<std::vector<int>> CalculateBFSDistance(Engine::Point start);
     std::vector<Engine::Point> FindPathAStar(Engine::Point start, Engine::Point end);
     Engine::Point GetValidSpawnPoint();
+    void SpawnBosses(); // 新增函數聲明
     void SpawnCoin(float x, float y, int value);
     bool tile_crossable(int t) ;
 };
