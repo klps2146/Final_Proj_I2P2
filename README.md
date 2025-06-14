@@ -4,15 +4,19 @@
 - [Easy]
   - Minimap
   - Camera Movement
+  - Allow ALL keys include shift in chatAI
 - [Medium]
   - Skill System
   - Funny Skills
-  - 
+  - Weapon
+  - Enemy
 - [Hard] 
   - Chat AI Usage (maybe)
+  - Boss
+
 
 ## Easy Manual
-- Control in game
+- Control in-game
   | **Action**         | **Primary Key**  | **Alternative Key** | **Description**                                 |
   | ------------------ | ---------------- | ------------------- | ----------------------------------------------- |
   | **Move Up**        | `W`              | `↑` (Up Arrow)      | Moves the character forward or upward.          |
@@ -23,8 +27,13 @@
   | **Interact**       | `F`              | —                   | Interacts with objects like home or store.      |
   | **Skill Use**      | `1 ~ 6`          | —                   | Double press the number key can summon skill.   |
   | **Change Weapon**  | `Q`, `E`         | —                   | `Q` to switch to previous, `E` to switch to next|
-
-
+- Control in Chat Chat
+  - The keyboard uses the standard layout you're familiar with.
+  - 'Esc' to leave Chat Chat.
+  - 
+  > ⚠️ **Warning:**
+  > 1. Sufficient memory and a powerful CPU are required to run the local AI model; otherwise, you may encounter several errors.
+  > 2. The AI model is not provided in this repository. Please choose one yourself; otherwise, you will be unable to enter Chat Chat.
 ## Individual Contribution 
 - 113062208 黃柏睿 (): 
   - 地圖圖片、奇怪的圖片
@@ -36,10 +45,10 @@
   - Debug
 
 
-113062306 王博彥 (): 
-角色圖片分鏡
-武器製作(近戰武器、遠程武器)
-敵人製作(移動邏輯、敵人武器與玩家之間的互動、三個boss)
-音效素材
+- 113062306 王博彥 (): 
+  - 角色圖片分鏡
+  - 武器製作(近戰武器、遠程武器)
+  - 敵人製作(移動邏輯、敵人武器與玩家之間的互動、三個boss)
+  - 音效素材
 
 113062XXX 陳⼩美 (70%): Procedural generated level, Map editor
