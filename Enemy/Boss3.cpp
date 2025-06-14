@@ -20,7 +20,7 @@ void Boss3::UpdateRay(float deltaTime) {
 
     if (rayActive) {
         rayTimer += deltaTime;
-        if (distance > 1000.0f) {
+        if (distance > 1500.0f) {
             rayActive = false;
             rayTimer = 0;
         }

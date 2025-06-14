@@ -389,16 +389,17 @@ void BossEnemy::Hit(float damage, bool byplayer) {
 }
 
 void BossEnemy::DrawSharedHealthBar() const {
-    const float barWidth = 300;
+    const float barWidth = 500;
     const float barHeight = 20;
+    const float offsetY = 50;
     float healthPercent = shared_hp / 3000.0f;
     if (healthPercent < 0) healthPercent = 0;
 
     ALLEGRO_COLOR bgColor = al_map_rgb(100, 100, 100);
     ALLEGRO_COLOR frontColor = al_map_rgb(255, 0, 0);
 
-    float barX = getPlayScene()->GetClientSize().x / 2.0f - barWidth / 2.0f;
-    float barY = getPlayScene()->GetClientSize().y / 2.0f - barHeight / 2.0f;
+    float barX = getPlayScene()->GetClientSize().x / 2 - barWidth / 2 - 500;
+    float barY = offsetY;
 
     al_draw_filled_rectangle(barX, barY, barX + barWidth, barY + barHeight, bgColor);
     al_draw_filled_rectangle(barX, barY, barX + barWidth * healthPercent, barY + barHeight, frontColor);

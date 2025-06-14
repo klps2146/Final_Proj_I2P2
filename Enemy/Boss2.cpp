@@ -2,9 +2,10 @@
 #include "Scene/PlayScene.hpp"
 #include "Engine/GameEngine.hpp"
 #include "SimpleBomb.hpp"
+#include "Engine/AudioHelper.hpp"
 #include <cmath> // for sin, cos
 Boss2::Boss2(float x, float y)
-    : BossEnemy("play/boss1.png", x, y, 30.0f, 250.0f, 1000.0f, 50), throwTimer(0), throwInterval(2.0f) {
+    : BossEnemy("play/boss1.png", x, y, 30.0f, 250.0f, 1000.0f, 50), throwTimer(0), throwInterval(3.5f) {
     dmg = 12;
 }
 void Boss2::ThrowBomb() {
@@ -13,8 +14,8 @@ void Boss2::ThrowBomb() {
     if (scene && scene->character) {
         const int bombCount = 5;
         const float spreadAngle = 30.0f;    // 扇形總角度
-        const float baseTravelTime = 1.2f;  // 原本炸彈應該多久飛到
-        const float speedMultiplier = 1.2f; // 讓炸彈飛快一點
+        const float baseTravelTime = 3.0;  // 原本炸彈應該多久飛到
+        const float speedMultiplier = 1.5f; // 讓炸彈飛快一點
 
         float bombX = Position.x;
         float bombY = Position.y;
@@ -38,6 +39,7 @@ void Boss2::ThrowBomb() {
             Engine::Point velocity = direction * speed;
 
             SimpleBomb* bomb = new SimpleBomb("play/bomb2.png", bombX, bombY, 100.0f, 200.0f, explosionDelay, velocity);
+            AudioHelper::PlaySample("boom.wav", false, 5.0);
             scene->AddNewObject(bomb);
         }
     }

@@ -12,6 +12,7 @@ namespace Engine {
     }
 
     void EnemyBullet1::Update(float deltaTime) {
+        Rotation = atan2(Velocity.y, Velocity.x);
         Sprite::Update(deltaTime);
 
         auto* scene = dynamic_cast<PlayScene*>(GameEngine::GetInstance().GetActiveScene());

@@ -568,6 +568,7 @@ void PlayScene::OnKeyDown(int keyCode) {
 void PlayScene::Hit(float damage) {
     lives--;
     character->ChangeHP(-1 * damage);
+    AudioHelper::PlaySample("hurt.wav", false, 5.0);
     if (lives <= 0) {
         Engine::GameEngine::GetInstance().ChangeScene("lose");
     }
