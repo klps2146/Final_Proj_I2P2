@@ -13,6 +13,8 @@ AreaSkill::AreaSkill(const std::string& name, const std::string& img, float radi
     upgradeExpenseMoney.push(1050); // ut 3
     upgradeExpenseMoney.push(1600);
     upgradeExpenseMoney.push(2850);
+
+
 }
 
 void AreaSkill::SkillAnimation() {
@@ -63,10 +65,12 @@ void AreaSkill::Draw() const {
 
     if (showingEffect) {
         // std::cout << "DRAW AREA\n" ;
+        
         int nx = effectPosition.x - getPlayScene()->CameraPos.x;
         int ny = effectPosition.y - getPlayScene()->CameraPos.y;
-        al_draw_filled_circle(nx, ny, radius, al_map_rgba(100, 100, 255, 80));
-        al_draw_circle(nx, ny, radius, al_map_rgb(100, 100, 255), 3);
-        // particleSystem.Draw(getPlayScene()->CameraPos);
+        //getPlayScene()->drawskillicon(effectPosition.x, effectPosition.y);
+        al_draw_filled_circle(nx, ny, radius, al_map_rgba(255, 0, 0, 150));
+        al_draw_circle(nx, ny, radius, al_map_rgb(255, 0, 0), 3);
     }
+
 }

@@ -4,7 +4,7 @@
 #include "UI/Animation/Plane.hpp"
 
 ShieldSkill::ShieldSkill()
-    : SkillBase("Dash", "skill/shield.png", 0, 0, 70.0f, 150.0) {
+    : SkillBase("Dash", "skill/shield2.png", 0, 0, 70.0f, 150.0) {
     Unlock();
     upgradeExpenseMoney.push(250); // ut 2
     upgradeExpenseMoney.push(400); // ut 3

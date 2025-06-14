@@ -4,7 +4,7 @@
 #include "Character/Character.hpp"
 
 OrbitSkill::OrbitSkill(float x, float y)
-    : SkillBase("Orbit Shot", "play/visable.png", x, y, 8, 50) {
+    : SkillBase("Orbit Shot", "skill/dada.png", x, y, 8, 50) {
     // Unlock();
     upgradeExpenseMoney.push(6); // unlock
     upgradeExpenseMoney.push(8); // ut 2

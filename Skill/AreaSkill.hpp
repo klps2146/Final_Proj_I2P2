@@ -17,10 +17,13 @@ protected:
     ParticleSystemManager particleSystem;
 
 public:
+    //ALLEGRO_BITMAP* effectImage = nullptr;
+
     AreaSkill(const std::string& name, const std::string& img, float radius, float maxCD, float duration);
     void SkillAnimation() override;
     void Update(float deltaTime) override;
     void Draw() const override;
+    
 };
 
 #endif

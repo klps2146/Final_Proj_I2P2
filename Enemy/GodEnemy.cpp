@@ -11,8 +11,8 @@ const float set_HP = 600;
 GodEnemy::GodEnemy(int x, int y)
     // : Enemy("play/monster2.png", x, y, 20, 20, set_HP, 250),
     //   head("play/bullet-10.png", x, y), 
-    : Enemy("play/boss.png", x, y, 20, 20, set_HP, 250),
-      head("play/enemy-10.png", x, y), 
+    : Enemy("play/monster2.png", x, y, 50, 20, set_HP, 250),
+      head("play/tool-base.png", x, y), 
       buff_picture("play/gold-circle.png", x, y, buff_radus * 2, buff_radus * 2), targetRotation(0) {
     buff_picture.Visible = false;
     buff_picture.Tint = al_map_rgba(255, 255, 255, 200);

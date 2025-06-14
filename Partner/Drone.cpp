@@ -6,7 +6,7 @@
 
 
 Drone::Drone(float x, float y, float radius, float cooldown, float lifeTime, Engine::Point followOffset = Engine::Point(0, 0))
-    : Turret("play/tool-base.png", "play/turret-1.png", x, y, radius, 0, cooldown),
+    : Turret("play/tool-base.png", "play/drone.png", x, y, radius, 0, cooldown),
       lifeTime(lifeTime), followOffset(followOffset) {
     Enabled = true;
 }

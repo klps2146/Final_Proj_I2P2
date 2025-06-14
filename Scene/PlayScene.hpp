@@ -175,6 +175,7 @@ public:
     void SpawnBosses(); // 新增函數聲明
     void SpawnCoin(float x, float y, int value);
     bool tile_crossable(int t) ;
+    void drawskillicon(int x,int y) ;
 };
 #endif
 // PLAYSCENE_HPP

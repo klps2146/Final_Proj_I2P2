@@ -133,7 +133,8 @@ void PlayScene::Initialize() {
 
     store = new Store();
 
-    
+    std::string prevscene;
+
     //紀錄資訊
     std::ifstream fin("../Resource/whichscene.txt");
     char whichscene = '0';
@@ -142,7 +143,7 @@ void PlayScene::Initialize() {
         std::string money_record, hp_record, shield_record, power_record, speed_record, level_record;
         std::string  skill_level[skillnum];
         std::string  skill_unlock[skillnum];
-        fin >> whichscene >> money_record >> hp_record >> shield_record >> power_record >> speed_record >> level_record;
+        fin >> whichscene >> prevscene >> money_record >> hp_record >> shield_record >> power_record >> speed_record >> level_record;
         for(int i=0;i<skillnum;i++)fin >> skill_level[i];
         for(int i=0;i<skillnum;i++)fin >> skill_unlock[i];
         fin.close();
@@ -162,6 +163,19 @@ void PlayScene::Initialize() {
     if(whichscene == '0')scenenum = 0;
     if(whichscene == '1')scenenum = 1;
     if(whichscene == '2')scenenum = 2;
+
+    if(scenenum == 1){
+        if(prevscene == "0"){
+            character->Position.x+=160;
+            character->Position.y +=700;
+        }
+        else if(prevscene == "2"){
+            character->Position.x +=800;
+            character->Position.y -=200;
+        }
+    }
+
+    //if(scenenum == 1)character->Position.y+=500;
 
     //// 小地圖
     miniMap = MiniMap(
@@ -238,7 +252,8 @@ void PlayScene::Update(float deltaTime) {
             &&character->Position.y>homeposi*BlockSize-40 && character->Position.y<(homeposi+4)*BlockSize+40) gohomekey=1;
     }
     if(gohomekey==1){
-        UIHome->Text = std::string("Press F to go home");
+        if(scenenum!=1)UIHome->Text = std::string("Press F to go home");
+        else UIHome->Text = std::string("Press F to go adventure");
         if(!(character->Position.x>homeposj*BlockSize-40 && character->Position.x<(homeposj+4)*BlockSize+40
             &&character->Position.y>homeposi*BlockSize-40 && character->Position.y<(homeposi+4)*BlockSize+40)) gohomekey=0;
     }
@@ -591,6 +606,7 @@ void PlayScene::OnKeyDown(int keyCode) {
         std::ofstream fout("../Resource/whichscene.txt", std::ios::trunc);
         if (fout.is_open()) {
             fout << newScene << " "  // 切換場景編號
+                << scenenum << " "
                 << money << " "                          // 金幣
                 << character->HP << " "                  // 血量
                 << character->shield << " "              // 護盾
@@ -866,7 +882,8 @@ void PlayScene::ReadHomeMap() {
             }
         }
     }
-    if (homeset) TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
+    if (homeset && scenenum!='1') TileMapGroup->AddNewObject(new Engine::Image("play/home.png", homeposj * BlockSize, homeposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
+    if (homeset && scenenum =='1') TileMapGroup->AddNewObject(new Engine::Image("play/battlefield.png", homeposj * BlockSize, homeposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
     if (storeset) TileMapGroup->AddNewObject(new Engine::Image("play/store.png", storeposj * BlockSize, storeposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
     if (bossroomset) TileMapGroup->AddNewObject(new Engine::Image("play/bossroom.png", bossroomposj * BlockSize, bossroomposi * BlockSize, 4.9 * BlockSize, 4 * BlockSize));
     if (fountainset) TileMapGroup->AddNewObject(new Engine::Image("play/fountain.png", fountainposj * BlockSize, fountainposi * BlockSize, 4 * BlockSize, 4 * BlockSize));
@@ -1104,5 +1121,7 @@ bool PlayScene::tile_crossable(int t) {
     if(t==0||t==2||t==5||t==6||t==8)return 0;
     return 1;
 }
-
+void PlayScene::drawskillicon(int x,int y) {
+    GroundEffectGroup->AddNewObject(new DirtyEffect("play/noparking.png", 1000, x, y));
+}
 
